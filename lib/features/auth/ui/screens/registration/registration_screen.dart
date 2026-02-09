@@ -1,9 +1,13 @@
 import 'package:flutter/material.dart';
 import '../../../logic/registration_controller.dart';
-import '../registration/step1_basic_info.dart';
-// import './registration/step2_institute_details.dart';
-// import './registration/step3_verification.dart';
-// import './registration/step4_complete_profile.dart';
+import '../../../../../shared/widgets/step_progress_indicator.dart';
+import '../../../../../core/constants/registration_strings.dart';
+import './step1_basic_info.dart';
+import './step2_account_security.dart';
+import './step3_role_details.dart';
+import './step4_email_verification.dart';
+import './step5_success_screen.dart';
+
 
 class RegistrationScreen extends StatefulWidget {
   const RegistrationScreen({Key? key}) : super(key: key);
@@ -14,24 +18,28 @@ class RegistrationScreen extends StatefulWidget {
 
 class _RegistrationScreenState extends State<RegistrationScreen> {
   late RegistrationController _controller;
-  final PageController _pageController = PageController();
+  late PageController _pageController;
 
   @override
   void initState() {
     super.initState();
     _controller = RegistrationController();
-    _controller.addListener(_updateUI);
-  }
+    _pageController = PageController();
 
-  void _updateUI() {
-    if (mounted) {
-      setState(() {});
-    }
+    // ADD THIS: Listen to controller changes
+    _controller.addListener(() {
+      if (mounted) {
+        setState(() {}); // ← This forces UI to rebuild
+      }
+    });
   }
 
   void _goToNextStep() {
-    if (_controller.currentStep < 4) {
+    if (_controller.currentStep < 5) {
+      // Call controller method (which now calls notifyListeners)
       _controller.goToNextStep();
+
+      // Navigate to next page
       _pageController.nextPage(
         duration: const Duration(milliseconds: 300),
         curve: Curves.easeInOut,
@@ -41,7 +49,10 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
 
   void _goToPreviousStep() {
     if (_controller.currentStep > 1) {
+      // Call controller method (which now calls notifyListeners)
       _controller.goToPreviousStep();
+
+      // Navigate to previous page
       _pageController.previousPage(
         duration: const Duration(milliseconds: 300),
         curve: Curves.easeInOut,
@@ -59,28 +70,22 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
         backgroundColor: Colors.transparent,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(
-            Icons.arrow_back,
-            color: Color(0xFF374151),
-            size: 24,
-          ),
+          icon: const Icon(Icons.arrow_back, color: Colors.black54),
           onPressed: _goToPreviousStep,
         ),
-        title: Text(
-          'Step ${_controller.currentStep} of 4',
-          style: const TextStyle(
-            fontSize: 16,
-            fontWeight: FontWeight.w500,
-            color: Color(0xFF6B7280),
-          ),
-        ),
-        centerTitle: true,
       ),
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 24),
           child: Column(
             children: [
+              // Progress Indicator - Will now update automatically
+              StepProgressIndicator(
+                currentStep: _controller.currentStep, // ← This updates now
+                steps: RegistrationStrings.progressSteps,
+              ),
+              const SizedBox(height: 24),
+
               // Page View for Steps
               Expanded(
                 child: PageView(
@@ -93,31 +98,31 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                       onNext: _goToNextStep,
                     ),
 
-                    // Step 2: Institute Details (Placeholder)
-                    Container(
-                      alignment: Alignment.center,
-                      child: const Text(
-                        'Step 2: Institute Details',
-                        style: TextStyle(fontSize: 24),
-                      ),
+                    // Step 2: Account Security
+                    RegistrationStep2(
+                      controller: _controller,
+                      onNext: _goToNextStep,
+                      onBack: _goToPreviousStep,
                     ),
 
-                    // Step 3: Verification (Placeholder)
-                    Container(
-                      alignment: Alignment.center,
-                      child: const Text(
-                        'Step 3: Verification',
-                        style: TextStyle(fontSize: 24),
-                      ),
+                    // Step 3: Role Specific Details
+                    RegistrationStep3(
+                      controller: _controller,
+                      onNext: _goToNextStep,
+                      onBack: _goToPreviousStep,
                     ),
 
-                    // Step 4: Complete Profile (Placeholder)
-                    Container(
-                      alignment: Alignment.center,
-                      child: const Text(
-                        'Step 4: Complete Profile',
-                        style: TextStyle(fontSize: 24),
-                      ),
+                    // Step 4: Email Verification
+                    RegistrationStep4(
+                      controller: _controller,
+                      onNext: _goToNextStep,
+                      onBack: _goToPreviousStep,
+                    ),
+
+                    // Step 5: Success Screen
+                    RegistrationStep5(
+                      controller: _controller,
+                      onComplete: _completeRegistration,
                     ),
                   ],
                 ),
@@ -129,9 +134,14 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
     );
   }
 
+  void _completeRegistration() {
+    print('Registration completed successfully!');
+    Navigator.pop(context);
+  }
+
   @override
   void dispose() {
-    _controller.removeListener(_updateUI);
+    _controller.removeListener(() {}); // Remove listener
     _controller.dispose();
     _pageController.dispose();
     super.dispose();

@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import '../../../../../shared/widgets/custom_button.dart';
 import '../../../../../shared/widgets/custom_textfield.dart';
 import '../../../../../shared/widgets/role_selection_card.dart';
-import '../../../../../shared/widgets/step_progress_indicator.dart';
 import '../../../../../core/constants/app_colors.dart';
 import '../../../../../core/constants/registration_strings.dart';
 import '../../../logic/registration_controller.dart';
@@ -28,27 +27,13 @@ class _RegistrationStep1State extends State<RegistrationStep1> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Step Progress Indicator
-          StepProgressIndicator(
-            currentStep: 1,
-            totalSteps: 4,
-            stepLabels: const [
-              RegistrationStrings.step1,
-              RegistrationStrings.step2,
-              RegistrationStrings.step3,
-              RegistrationStrings.step4,
-            ],
-          ),
-          const SizedBox(height: 40),
-
           // Title
           Text(
             RegistrationStrings.step1Title,
             style: const TextStyle(
               fontSize: 32,
               fontWeight: FontWeight.w700,
-              color: Color(0xFF111827),
-              letterSpacing: -0.8,
+              color: AppColors.textPrimary,
             ),
           ),
           const SizedBox(height: 8),
@@ -59,11 +44,10 @@ class _RegistrationStep1State extends State<RegistrationStep1> {
             style: const TextStyle(
               fontSize: 16,
               fontWeight: FontWeight.w400,
-              color: Color(0xFF6B7280),
-              letterSpacing: -0.3,
+              color: AppColors.textSecondary,
             ),
           ),
-          const SizedBox(height: 40),
+          const SizedBox(height: 32),
 
           // Role Selection
           _buildRoleSelection(),
@@ -94,50 +78,45 @@ class _RegistrationStep1State extends State<RegistrationStep1> {
           style: const TextStyle(
             fontSize: 16,
             fontWeight: FontWeight.w600,
-            color: Color(0xFF374151),
-            letterSpacing: -0.3,
+            color: AppColors.textPrimary,
           ),
         ),
         const SizedBox(height: 16),
 
-        // Role Cards
-        Column(
-          children: [
-            // Institute Admin Card
-            RoleSelectionCard(
-              title: RegistrationStrings.roleAdmin,
-              description: RegistrationStrings.roleAdminDesc,
-              icon: Icons.school,
-              iconColor: AppColors.iconAdmin,
-              iconBackgroundColor: AppColors.iconBgAdmin,
-              isSelected: widget.controller.selectedRole == UserRole.instituteAdmin,
-              onTap: () => widget.controller.selectRole(UserRole.instituteAdmin),
-            ),
-            const SizedBox(height: 16),
+        // Institute Admin Card
+        RoleSelectionCard(
+          title: RegistrationStrings.roleAdmin,
+          description: RegistrationStrings.roleAdminDesc,
+          icon: Icons.school,
+          color: AppColors.roleAdmin,
+          isSelected: widget.controller.selectedRole == UserRole.instituteAdmin,
+          onTap: () => setState(() {
+            widget.controller.selectRole(UserRole.instituteAdmin);
+          }),
+        ),
 
-            // Teacher Card
-            RoleSelectionCard(
-              title: RegistrationStrings.roleTeacher,
-              description: RegistrationStrings.roleTeacherDesc,
-              icon: Icons.person,
-              iconColor: AppColors.iconTeacher,
-              iconBackgroundColor: AppColors.iconBgTeacher,
-              isSelected: widget.controller.selectedRole == UserRole.teacher,
-              onTap: () => widget.controller.selectRole(UserRole.teacher),
-            ),
-            const SizedBox(height: 16),
+        // Teacher Card
+        RoleSelectionCard(
+          title: RegistrationStrings.roleTeacher,
+          description: RegistrationStrings.roleTeacherDesc,
+          icon: Icons.person,
+          color: AppColors.roleTeacher,
+          isSelected: widget.controller.selectedRole == UserRole.teacher,
+          onTap: () => setState(() {
+            widget.controller.selectRole(UserRole.teacher);
+          }),
+        ),
 
-            // Student Card
-            RoleSelectionCard(
-              title: RegistrationStrings.roleStudent,
-              description: RegistrationStrings.roleStudentDesc,
-              icon: Icons.school_outlined,
-              iconColor: AppColors.iconStudent,
-              iconBackgroundColor: AppColors.iconBgStudent,
-              isSelected: widget.controller.selectedRole == UserRole.student,
-              onTap: () => widget.controller.selectRole(UserRole.student),
-            ),
-          ],
+        // Student Card
+        RoleSelectionCard(
+          title: RegistrationStrings.roleStudent,
+          description: RegistrationStrings.roleStudentDesc,
+          icon: Icons.school_outlined,
+          color: AppColors.roleStudent,
+          isSelected: widget.controller.selectedRole == UserRole.student,
+          onTap: () => setState(() {
+            widget.controller.selectRole(UserRole.student);
+          }),
         ),
       ],
     );
@@ -146,32 +125,25 @@ class _RegistrationStep1State extends State<RegistrationStep1> {
   Widget _buildFormFields() {
     return Column(
       children: [
-        // First Name
+        // Full Name
         CustomTextField(
-          label: RegistrationStrings.firstName,
-          hintText: RegistrationStrings.firstNameHint,
-          controller: widget.controller.firstNameController,
-          onChanged: (value) => widget.controller.notifyListeners(),
-          validator: (value) {
-            if (value == null || value.isEmpty) {
-              return RegistrationStrings.firstNameRequired;
-            }
-            return null;
-          },
+          label: RegistrationStrings.fullName,
+          hintText: RegistrationStrings.fullNameHint,
+          controller: widget.controller.fullNameController,
+          onChanged: (_) => setState(() {}),
         ),
         const SizedBox(height: 20),
 
-        // Email Address with Real-time Validation
+        // Email Address
         CustomTextField(
           label: RegistrationStrings.emailAddress,
           hintText: RegistrationStrings.emailHint,
           controller: widget.controller.emailController,
           keyboardType: TextInputType.emailAddress,
           onChanged: (value) {
-            widget.controller.validateEmailRealTime(value);
-            widget.controller.notifyListeners();
+            widget.controller.validateEmail(value);
+            setState(() {});
           },
-          validator: (value) => widget.controller.validateEmail(value ?? ''),
           suffixIcon: widget.controller.emailController.text.isNotEmpty
               ? widget.controller.emailValidated
               ? const Icon(
@@ -179,13 +151,11 @@ class _RegistrationStep1State extends State<RegistrationStep1> {
             color: AppColors.success,
             size: 20,
           )
-              : widget.controller.emailError != null
-              ? const Icon(
+              : const Icon(
             Icons.error,
             color: AppColors.error,
             size: 20,
           )
-              : null
               : null,
         ),
         const SizedBox(height: 20),
@@ -196,8 +166,7 @@ class _RegistrationStep1State extends State<RegistrationStep1> {
           hintText: RegistrationStrings.mobileHint,
           controller: widget.controller.mobileController,
           keyboardType: TextInputType.phone,
-          onChanged: (value) => widget.controller.notifyListeners(),
-          validator: (value) => widget.controller.validateMobile(value ?? ''),
+          onChanged: (_) => setState(() {}),
         ),
       ],
     );

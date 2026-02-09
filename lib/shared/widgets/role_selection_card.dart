@@ -5,8 +5,7 @@ class RoleSelectionCard extends StatelessWidget {
   final String title;
   final String description;
   final IconData icon;
-  final Color iconColor;
-  final Color iconBackgroundColor;
+  final Color color;
   final bool isSelected;
   final VoidCallback onTap;
 
@@ -15,8 +14,7 @@ class RoleSelectionCard extends StatelessWidget {
     required this.title,
     required this.description,
     required this.icon,
-    required this.iconColor,
-    required this.iconBackgroundColor,
+    required this.color,
     required this.isSelected,
     required this.onTap,
   }) : super(key: key);
@@ -27,18 +25,17 @@ class RoleSelectionCard extends StatelessWidget {
       onTap: onTap,
       child: Container(
         padding: const EdgeInsets.all(20),
+        margin: const EdgeInsets.only(bottom: 16),
         decoration: BoxDecoration(
-          color: isSelected ? AppColors.cardSelectedBg : Colors.white,
+          color: isSelected ? _getBackgroundColor(color) : Colors.white,
           borderRadius: BorderRadius.circular(16),
           border: Border.all(
-            color: isSelected
-                ? AppColors.cardSelectedBorder
-                : AppColors.cardBorder,
+            color: isSelected ? color : AppColors.border,
             width: isSelected ? 2 : 1.5,
           ),
           boxShadow: isSelected ? [
             BoxShadow(
-              color: AppColors.cardSelectedBorder.withOpacity(0.1),
+              color: color.withOpacity(0.1),
               blurRadius: 12,
               offset: const Offset(0, 4),
             ),
@@ -57,13 +54,13 @@ class RoleSelectionCard extends StatelessWidget {
               width: 56,
               height: 56,
               decoration: BoxDecoration(
-                color: iconBackgroundColor,
+                color: _getLightColor(color),
                 borderRadius: BorderRadius.circular(12),
               ),
               child: Icon(
                 icon,
                 size: 28,
-                color: iconColor,
+                color: color,
               ),
             ),
             const SizedBox(width: 16),
@@ -78,8 +75,7 @@ class RoleSelectionCard extends StatelessWidget {
                     style: const TextStyle(
                       fontSize: 18,
                       fontWeight: FontWeight.w600,
-                      color: Color(0xFF111827),
-                      letterSpacing: -0.4,
+                      color: AppColors.textPrimary,
                     ),
                   ),
                   const SizedBox(height: 4),
@@ -88,8 +84,7 @@ class RoleSelectionCard extends StatelessWidget {
                     style: const TextStyle(
                       fontSize: 14,
                       fontWeight: FontWeight.w400,
-                      color: Color(0xFF6B7280),
-                      letterSpacing: -0.3,
+                      color: AppColors.textSecondary,
                       height: 1.4,
                     ),
                   ),
@@ -104,12 +99,10 @@ class RoleSelectionCard extends StatelessWidget {
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
                 border: Border.all(
-                  color: isSelected
-                      ? AppColors.cardSelectedBorder
-                      : AppColors.cardBorder,
+                  color: isSelected ? color : AppColors.border,
                   width: 2,
                 ),
-                color: isSelected ? AppColors.cardSelectedBorder : Colors.white,
+                color: isSelected ? color : Colors.transparent,
               ),
               child: isSelected
                   ? const Icon(
@@ -123,5 +116,13 @@ class RoleSelectionCard extends StatelessWidget {
         ),
       ),
     );
+  }
+
+  Color _getLightColor(Color baseColor) {
+    return baseColor.withOpacity(0.1);
+  }
+
+  Color _getBackgroundColor(Color baseColor) {
+    return baseColor.withOpacity(0.05);
   }
 }

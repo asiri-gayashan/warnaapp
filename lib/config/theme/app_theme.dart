@@ -6,7 +6,7 @@ class AppTheme {
     primaryColor: AppColors.primary,
     colorScheme: const ColorScheme.light(
       primary: AppColors.primary,
-      secondary: AppColors.secondary,
+        secondary: AppColors.secondary,
       background: AppColors.background,
       surface: AppColors.surface,
       error: AppColors.error,
