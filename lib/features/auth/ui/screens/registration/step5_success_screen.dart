@@ -63,7 +63,10 @@ class RegistrationStep5 extends StatelessWidget {
         // Dashboard Button
         CustomButton(
           text: RegistrationStrings.goToDashboard,
-          onPressed: onComplete,
+          onPressed: () {
+            // Navigate to student dashboard
+            Navigator.pushReplacementNamed(context, '/student');
+          },
           hasShadow: true,
           backgroundColor: AppColors.success,
         ),
