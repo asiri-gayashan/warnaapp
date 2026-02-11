@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 import '../../core/constants/app_colors.dart';
+import 'package:flutter/cupertino.dart';
+
+
 
 class StudentTabContainer extends StatelessWidget {
   final int currentIndex;
@@ -30,39 +33,40 @@ class StudentTabContainer extends StatelessWidget {
       ),
       child: SafeArea(
         child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
           child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: [
               _buildTabItem(
                 index: 0,
-                icon: Icons.home_outlined,
-                activeIcon: Icons.home_filled,
-                label: '',
+                icon: CupertinoIcons.home,
+                activeIcon: CupertinoIcons.house_fill,
+                label: 'Home',
               ),
               _buildTabItem(
                 index: 1,
-                icon: Icons.class_outlined,
-                activeIcon: Icons.class_,
-                label: '',
+                icon: CupertinoIcons.book,
+                activeIcon: CupertinoIcons.book_fill,
+                label: 'Classes',
               ),
               _buildTabItem(
                 index: 2,
-                icon: Icons.calendar_today_outlined,
-                activeIcon: Icons.calendar_today,
-                label: '',
+                icon: CupertinoIcons.bell,
+                activeIcon: CupertinoIcons.bell_fill,
+                label: 'Notifications',
               ),
               _buildTabItem(
                 index: 3,
-                icon: Icons.payments_outlined,
-                activeIcon: Icons.payments,
-                label: '',
+                icon: CupertinoIcons.creditcard,
+                activeIcon: CupertinoIcons.creditcard_fill,
+                label: 'Records',
               ),
+
               _buildTabItem(
                 index: 4,
-                icon: Icons.notifications_outlined,
-                activeIcon: Icons.notifications,
-                label: '',
+                icon: CupertinoIcons.person,
+                activeIcon: CupertinoIcons.person_fill,
+                label: 'Profile',
               ),
             ],
           ),
@@ -95,15 +99,15 @@ class StudentTabContainer extends StatelessWidget {
             Icon(
               isActive ? activeIcon : icon,
               size: 24,
-              color: isActive ? AppColors.primary : AppColors.textDisabled,
+              color: isActive ? AppColors.primary : Colors.grey,
             ),
             const SizedBox(height: 4),
             Text(
               label,
               style: TextStyle(
                 fontSize: 12,
-                fontWeight: isActive ? FontWeight.w600 : FontWeight.w500,
-                color: isActive ? AppColors.primary : AppColors.textDisabled,
+                fontWeight: isActive ? FontWeight.w600 : FontWeight.normal,
+                color: isActive ? AppColors.primary : Colors.grey,
               ),
             ),
           ],

@@ -1,15 +1,15 @@
 import 'package:flutter/material.dart';
 import '../../../../core/constants/app_colors.dart';
 
-class PaymentsPage extends StatelessWidget {
-  const PaymentsPage({Key? key}) : super(key: key);
+class ProfilePage extends StatelessWidget {
+  const ProfilePage({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: const Text(
-          'Payments',
+          'Attendance',
           style: TextStyle(
             fontWeight: FontWeight.w600,
             color: AppColors.textPrimary,
@@ -27,18 +27,18 @@ class PaymentsPage extends StatelessWidget {
               width: 120,
               height: 120,
               decoration: BoxDecoration(
-                color: AppColors.warning.withOpacity(0.1),
+                color: AppColors.success.withOpacity(0.1),
                 shape: BoxShape.circle,
               ),
               child: const Icon(
-                Icons.payments,
+                Icons.calendar_today,
                 size: 60,
-                color: AppColors.warning,
+                color: AppColors.success,
               ),
             ),
             const SizedBox(height: 24),
             const Text(
-              'Payments Page',
+              'Profile Page',
               style: TextStyle(
                 fontSize: 32,
                 fontWeight: FontWeight.w700,
@@ -47,7 +47,7 @@ class PaymentsPage extends StatelessWidget {
             ),
             const SizedBox(height: 12),
             const Text(
-              'View payment history and dues',
+              'Track your attendance record',
               style: TextStyle(
                 fontSize: 16,
                 color: AppColors.textSecondary,

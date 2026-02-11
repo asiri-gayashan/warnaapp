@@ -3,9 +3,11 @@ import 'package:warna_app/core/constants/select_options.dart';
 import 'package:warna_app/shared/widgets/custom_select.dart';
 import '../../../../../shared/widgets/custom_button.dart';
 import '../../../../../shared/widgets/custom_textfield.dart';
+import '../../../../../shared/widgets/customselect.dart';
 import '../../../../../core/constants/app_colors.dart';
 import '../../../../../core/constants/registration_strings.dart';
 import '../../../logic/registration_controller.dart';
+
 
 class RegistrationStep3 extends StatefulWidget {
   final RegistrationController controller;
@@ -32,6 +34,8 @@ class _RegistrationStep3State extends State<RegistrationStep3> {
         children: [
           // Back Button
 
+          const SizedBox(height: 25),
+
 
           // Title based on role
           _buildTitle(),
@@ -55,10 +59,14 @@ class _RegistrationStep3State extends State<RegistrationStep3> {
           // Next Button
           CustomButton(
             text: RegistrationStrings.next,
-            onPressed: widget.controller.isStep3Valid() ? widget.onNext : null,
-            isDisabled: !widget.controller.isStep3Valid(),
+            // onPressed: widget.controller.isStep3Valid() ? widget.onNext : null,
+            onPressed: widget.onNext,
+
+            // isDisabled: !widget.controller.isStep3Valid(),
             hasShadow: true,
           ),
+          const SizedBox(height: 40),
+
         ],
       ),
     );
@@ -201,55 +209,19 @@ class _RegistrationStep3State extends State<RegistrationStep3> {
     return Column(
       children: [
         // Subjects Taught
-        CustomTextField(
-          label: RegistrationStrings.subjectsTaught,
-          hintText: RegistrationStrings.subjectsHint,
-          controller: widget.controller.subjectsController,
-          onChanged: (_) => setState(() {}),
+
+
+
+        CreativeSelect(
+          label: "Major Subject",
+          items: ["Science", "English",  "History", "Music", "Geography"],
+          onChanged: (value) {
+            debugPrint("Selected: $value");
+          },
         ),
+
         const SizedBox(height: 20),
 
-        // Teaching Type
-        Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              RegistrationStrings.teachingType,
-              style: const TextStyle(
-                fontSize: 14,
-                fontWeight: FontWeight.w500,
-                color: AppColors.textSecondary,
-              ),
-            ),
-            const SizedBox(height: 8),
-            DropdownButtonFormField<String>(
-              value: widget.controller.teachingType,
-              decoration: InputDecoration(
-                hintText: 'Select type',
-                filled: true,
-                fillColor: AppColors.surface,
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(12),
-                  borderSide: const BorderSide(color: AppColors.border),
-                ),
-                contentPadding: const EdgeInsets.symmetric(
-                  horizontal: 16,
-                  vertical: 16,
-                ),
-              ),
-              items: const [
-                DropdownMenuItem(value: 'Independent', child: Text('Independent Teacher')),
-                DropdownMenuItem(value: 'Institute', child: Text('Works under Institute')),
-              ],
-              onChanged: (value) {
-                setState(() {
-                  widget.controller.setTeachingType(value);
-                });
-              },
-            ),
-          ],
-        ),
-        const SizedBox(height: 20),
 
         // Years of Experience
         CustomTextField(
@@ -261,13 +233,34 @@ class _RegistrationStep3State extends State<RegistrationStep3> {
         ),
         const SizedBox(height: 20),
 
-        // Qualification
-        CustomTextField(
-          label: RegistrationStrings.qualification,
-          hintText: RegistrationStrings.qualificationHint,
-          controller: widget.controller.qualificationController,
-          onChanged: (_) => setState(() {}),
+        CreativeSelect(
+          label: "Province",
+          items: ["Western", "North Western",  "Central", "Southern", "Eastern"],
+          onChanged: (value) {
+            debugPrint("Selected: $value");
+          },
         ),
+
+        const SizedBox(height: 20),
+
+        CustomTextField(
+          label: "Address Line 1",
+          hintText: "Address",
+          // controller: widget.controller.schoolController,
+        ),
+
+        const SizedBox(height: 20),
+
+
+        CustomTextField(
+          label: "Address Line 2",
+          hintText: "Address",
+          controller: widget.controller.schoolController,
+        ),
+
+
+
+
       ],
     );
   }
@@ -275,65 +268,64 @@ class _RegistrationStep3State extends State<RegistrationStep3> {
   Widget _buildStudentForm() {
     return Column(
       children: [
-        // Grade/Level
-        CustomTextField(
-          label: RegistrationStrings.gradeLevel,
-          hintText: RegistrationStrings.gradeHint,
-          controller: widget.controller.gradeController,
-          onChanged: (_) => setState(() {}),
-        ),
-        const SizedBox(height: 20),
 
-        // School (Optional)
+        // Grade
+
         CustomTextField(
           label: RegistrationStrings.school,
           hintText: RegistrationStrings.schoolHint,
           controller: widget.controller.schoolController,
         ),
+
         const SizedBox(height: 20),
 
-        CustomSelect(
-          label: RegistrationStrings.instituteType,
-          hintText: RegistrationStrings.instituteTypeHint,
-          value: widget.controller.instituteType,
-          options: SelectOptions.instituteTypes,
+
+        CreativeSelect(
+          label: "Grade",
+          items: ["Grade 1", "Grade 2", "Grade 3", "Grade 4"],
           onChanged: (value) {
-            setState(() {
-              widget.controller.setInstituteType(value);
-            });
-          },
-          isRequired: true,
-          validator: (value) {
-            if (value == null || value.isEmpty) {
-              return 'Please select institute type';
-            }
-            return null;
+            debugPrint("Selected: $value");
           },
         ),
+
         const SizedBox(height: 20),
 
 
 
-        CustomSelect(
-          label: RegistrationStrings.teachingType,
-          hintText: 'Select type',
-          value: widget.controller.teachingType,
-          options: SelectOptions.teachingTypes,
+        CreativeSelect(
+          label: "Province",
+          items: ["Western", "North Western",  "Central", "Southern", "Eastern"],
           onChanged: (value) {
-            setState(() {
-              widget.controller.setTeachingType(value);
-            });
+            debugPrint("Selected: $value");
           },
-          isRequired: true,
         ),
+
         const SizedBox(height: 20),
 
-        // Subjects Enrolled (Optional)
+
+
+        // Address
+
         CustomTextField(
-          label: RegistrationStrings.subjectsEnrolled,
-          hintText: RegistrationStrings.enrolledHint,
-          controller: widget.controller.enrolledSubjectsController,
+          label: "Address Line 1",
+          hintText: "Address",
+          controller: widget.controller.schoolController,
         ),
+
+        const SizedBox(height: 20),
+
+
+        CustomTextField(
+          label: "Address Line 2",
+          hintText: "Address",
+          controller: widget.controller.schoolController,
+        ),
+
+
+
+
+
+
       ],
     );
   }

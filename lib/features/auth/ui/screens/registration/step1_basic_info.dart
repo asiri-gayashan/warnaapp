@@ -28,6 +28,8 @@ class _RegistrationStep1State extends State<RegistrationStep1> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           // Title
+          const SizedBox(height: 25),
+
           Text(
             RegistrationStrings.step1Title,
             style: const TextStyle(
@@ -64,6 +66,9 @@ class _RegistrationStep1State extends State<RegistrationStep1> {
             isDisabled: !widget.controller.isStep1Valid(),
             hasShadow: true,
           ),
+
+          const SizedBox(height: 48),
+
         ],
       ),
     );
@@ -85,6 +90,8 @@ class _RegistrationStep1State extends State<RegistrationStep1> {
 
         // Institute Admin Card
         RoleSelectionCard(
+
+
           title: RegistrationStrings.roleAdmin,
           description: RegistrationStrings.roleAdminDesc,
           icon: Icons.school,

@@ -39,6 +39,7 @@ class _RegistrationStep4State extends State<RegistrationStep4> {
         children: [
           // Back Button
 
+          const SizedBox(height: 30),
 
           // Title
           Text(
@@ -60,7 +61,7 @@ class _RegistrationStep4State extends State<RegistrationStep4> {
               color: AppColors.textSecondary,
             ),
           ),
-          const SizedBox(height: 32),
+          const SizedBox(height: 30),
 
           // OTP Instructions
           RichText(
@@ -82,7 +83,7 @@ class _RegistrationStep4State extends State<RegistrationStep4> {
               ],
             ),
           ),
-          const SizedBox(height: 32),
+          const SizedBox(height: 30),
 
           // OTP Input Field
           OtpInputField(
@@ -91,7 +92,7 @@ class _RegistrationStep4State extends State<RegistrationStep4> {
               setState(() {});
             },
           ),
-          const SizedBox(height: 32),
+          const SizedBox(height: 30),
 
           // Verify Button
           CustomButton(

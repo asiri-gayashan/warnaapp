@@ -8,7 +8,7 @@ class OtpInputField extends StatefulWidget {
   const OtpInputField({
     Key? key,
     required this.onCompleted,
-    this.length = 6,
+    this.length = 4,
   }) : super(key: key);
 
   @override
@@ -62,7 +62,7 @@ class _OtpInputFieldState extends State<OtpInputField> {
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: List.generate(widget.length, (index) {
         return SizedBox(
-          width: 50,
+          width: 70,
           height: 60,
           child: TextField(
             controller: _controllers[index],

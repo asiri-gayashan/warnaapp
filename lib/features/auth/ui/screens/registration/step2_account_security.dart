@@ -30,6 +30,8 @@ class _RegistrationStep2State extends State<RegistrationStep2> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
 
+          const SizedBox(height: 25),
+
 
           // Title
           Text(
@@ -127,8 +129,9 @@ class _RegistrationStep2State extends State<RegistrationStep2> {
           // Next Button
           CustomButton(
             text: RegistrationStrings.next,
-            onPressed: widget.controller.isStep2Valid() ? widget.onNext : null,
-            isDisabled: !widget.controller.isStep2Valid(),
+            // onPressed: widget.controller.isStep2Valid() ? widget.onNext : null,
+            onPressed: widget.onNext,
+            // isDisabled: !widget.controller.isStep2Valid(),
             hasShadow: true,
           ),
         ],

@@ -48,7 +48,7 @@ class CustomTextField extends StatelessWidget {
           style: const TextStyle(
             fontSize: 14,
             fontWeight: FontWeight.w500,
-            color: Color(0xFF374151),
+            color: AppColors.textPrimary,
             letterSpacing: -0.2,
           ),
         ),

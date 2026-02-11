@@ -13,7 +13,7 @@ class RegistrationStrings {
   static const String step1Subtitle = 'Start your journey with us';
 
   static const String selectRole = 'Select Your Role';
-  static const String roleAdmin = 'Institute Admin';
+  static const String roleAdmin = 'Institute';
   static const String roleAdminDesc = 'Manage institute, staff & students';
   static const String roleTeacher = 'Teacher';
   static const String roleTeacherDesc = 'Create courses & teach students';
@@ -37,9 +37,9 @@ class RegistrationStrings {
   static const String confirmPasswordHint = 'Re-enter your password';
 
   static const String passwordRules = 'Password must contain:';
-  static const String ruleMinLength = '✔ 8+ characters';
-  static const String ruleNumber = '✔ Number';
-  static const String ruleSpecialChar = '✔ Special character';
+  static const String ruleMinLength = '8+ characters';
+  static const String ruleNumber = 'Number';
+  static const String ruleSpecialChar = 'Special character';
 
   // Step 3 - Role Specific
   static const String step3TitleAdmin = 'Institute Details';
@@ -68,7 +68,7 @@ class RegistrationStrings {
   static const String qualificationHint = 'e.g., M.Ed, B.Sc';
 
   // Student Fields
-  static const String gradeLevel = 'Grade / Level';
+  static const String gradeLevel = 'Grade';
   static const String gradeHint = 'e.g., Grade 10, College';
   static const String school = 'School (optional)';
   static const String schoolHint = 'Enter school name';

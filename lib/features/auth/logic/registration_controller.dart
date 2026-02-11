@@ -145,6 +145,10 @@ class RegistrationController extends ChangeNotifier {
     _instituteType = type;
     notifyListeners();
   }
+  // void setProvince(String? type) {
+  //   _province = type;
+  //   notifyListeners();
+  // }
 
   // Teaching Type
   void setTeachingType(String? type) {

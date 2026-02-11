@@ -106,6 +106,8 @@ class _LoginScreenState extends State<LoginScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
+                const SizedBox(height: 48),
+
                 // Header Section
                 _buildHeader(),
                 const SizedBox(height: 48),
@@ -133,6 +135,8 @@ class _LoginScreenState extends State<LoginScreen> {
 
                 // Sign Up Link
                 _buildSignUpLink(),
+
+
               ],
             ),
           ),

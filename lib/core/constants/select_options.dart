@@ -4,8 +4,6 @@ import '../../shared/widgets/custom_select.dart';
 class SelectOptions {
   // Grade/Level Options
   static List<SelectOption> grades = [
-    const SelectOption(value: 'nursery', label: 'Nursery', icon: Icons.child_care),
-    const SelectOption(value: 'kg', label: 'Kindergarten', icon: Icons.child_friendly),
     const SelectOption(value: 'grade1', label: 'Grade 1', icon: Icons.looks_one),
     const SelectOption(value: 'grade2', label: 'Grade 2', icon: Icons.looks_two),
     const SelectOption(value: 'grade3', label: 'Grade 3', icon: Icons.looks_3),
@@ -18,8 +16,15 @@ class SelectOptions {
     const SelectOption(value: 'grade10', label: 'Grade 10', icon: Icons.filter_9_plus),
     const SelectOption(value: 'grade11', label: 'Grade 11', icon: Icons.plus_one),
     const SelectOption(value: 'grade12', label: 'Grade 12', icon: Icons.plus_one),
-    const SelectOption(value: 'college', label: 'College', icon: Icons.school),
-    const SelectOption(value: 'university', label: 'University', icon: Icons.account_balance),
+    const SelectOption(value: 'grade13', label: 'Grade 13', icon: Icons.plus_one),
+  ];
+
+
+  // Grade/Level Options
+  static List<SelectOption> provinces = [
+    const SelectOption(value: 'sabaragamuwa', label: 'Sabaragamuwa'),
+    const SelectOption(value: 'grade1', label: 'Grade 1'),
+    const SelectOption(value: 'grade1', label: 'Grade 1'),
   ];
 
   // Subject Options

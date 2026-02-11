@@ -113,7 +113,7 @@ class _CustomSelectState extends State<CustomSelect> {
             style: const TextStyle(
               fontSize: 14,
               fontWeight: FontWeight.w500,
-              color: AppColors.textSecondary,
+              color: AppColors.textPrimary,
             ),
             children: [
               if (widget.isRequired)
@@ -163,7 +163,7 @@ class _CustomSelectState extends State<CustomSelect> {
                 Icon(
                   Icons.arrow_drop_down,
                   color: widget.enabled
-                      ? AppColors.textSecondary
+                      ? AppColors.textPrimary
                       : AppColors.textDisabled,
                 ),
               ],
@@ -278,7 +278,7 @@ class __SelectModalState extends State<_SelectModal> {
                 padding: EdgeInsets.all(20),
                 child: Text(
                   'No options found',
-                  style: TextStyle(color: AppColors.textSecondary),
+                  style: TextStyle(color: AppColors.textPrimary),
                 ),
               ),
             )
@@ -296,7 +296,7 @@ class __SelectModalState extends State<_SelectModal> {
                     option.icon,
                     color: isSelected
                         ? AppColors.primary
-                        : AppColors.textSecondary,
+                        : AppColors.textPrimary,
                   )
                       : null,
                   title: Text(
@@ -462,7 +462,7 @@ class _CustomMultiSelectState extends State<CustomMultiSelect> {
             style: const TextStyle(
               fontSize: 14,
               fontWeight: FontWeight.w500,
-              color: AppColors.textSecondary,
+              color: AppColors.textPrimary,
             ),
             children: [
               if (widget.isRequired)
@@ -505,7 +505,7 @@ class _CustomMultiSelectState extends State<CustomMultiSelect> {
                 ),
                 Icon(
                   Icons.arrow_drop_down,
-                  color: AppColors.textSecondary,
+                  color: AppColors.textPrimary,
                 ),
               ],
             ),
@@ -624,7 +624,7 @@ class __MultiSelectModalState extends State<_MultiSelectModal> {
                 padding: EdgeInsets.all(20),
                 child: Text(
                   'No options found',
-                  style: TextStyle(color: AppColors.textSecondary),
+                  style: TextStyle(color: AppColors.textPrimary),
                 ),
               ),
             )
@@ -651,7 +651,7 @@ class __MultiSelectModalState extends State<_MultiSelectModal> {
                     option.icon,
                     color: isSelected
                         ? AppColors.primary
-                        : AppColors.textSecondary,
+                        : AppColors.textPrimary,
                   )
                       : null,
                   controlAffinity: ListTileControlAffinity.leading,

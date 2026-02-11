@@ -35,4 +35,13 @@ class AppColors {
   static const Color roleAdminBg = Color(0xFFF0F9FF);
   static const Color roleTeacherBg = Color(0xFFFEF3C7);
   static const Color roleStudentBg = Color(0xFFF3E8FF);
+
+
+  // New colors for dashboard
+  static const Color cardShadow = Color(0x0A000000);
+  static const Color avatarBorder = Color(0xFFE5E7EB);
+
+  // Gradient backgrounds
+  static const Color gradientStart = Color(0xFFF8FAFC);
+  static const Color gradientEnd = Color(0xFFF1F5F9);
 }
