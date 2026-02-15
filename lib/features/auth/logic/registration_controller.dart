@@ -44,7 +44,12 @@ class RegistrationController extends ChangeNotifier {
   String? get mobileError => _mobileError;
 
 
+// Address Line 1 validation state
+  bool _addressOneValidated = false;
+  bool get addressOneValidated => _addressOneValidated;
 
+  String? _addressOneError;
+  String? get addressOneError => _addressOneError;
 
 
 
@@ -165,12 +170,6 @@ class RegistrationController extends ChangeNotifier {
   }
 
 
-
-
-
-
-
-
 // Validate mobile number
   void validateMobile(String value) {
     final phone = value.trim();
@@ -262,6 +261,44 @@ class RegistrationController extends ChangeNotifier {
     _teachingType = type;
     notifyListeners();
   }
+
+
+  // Teacher validation
+  void validateAddressOne(String value) {
+    final address = value.trim();
+
+    // Allows letters, numbers, space, comma, dot, slash, hyphen
+    final RegExp addressRegex =
+    RegExp(r'^[a-zA-Z0-9\s,.\-\/]+$');
+
+    if (address.isEmpty) {
+      _addressOneValidated = false;
+      _addressOneError = "Address is required";
+    }
+    else if (address.length < 5) {
+      _addressOneValidated = false;
+      _addressOneError = "Address must be at least 5 characters";
+    }
+    else if (address.length > 100) {
+      _addressOneValidated = false;
+      _addressOneError = "Address must not exceed 100 characters";
+    }
+    else if (!addressRegex.hasMatch(address)) {
+      _addressOneValidated = false;
+      _addressOneError =
+      "Only letters, numbers, space [, . / -] allowed";
+    }
+    else {
+      _addressOneValidated = true;
+      _addressOneError = null;
+    }
+
+    notifyListeners();
+  }
+
+
+
+
 
   // OTP Methods
   void setOtp(String otp) {
