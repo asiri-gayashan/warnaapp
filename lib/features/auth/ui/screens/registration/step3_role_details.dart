@@ -60,10 +60,11 @@ class _RegistrationStep3State extends State<RegistrationStep3> {
           // Next Button
           CustomButton(
             text: RegistrationStrings.next,
-            // onPressed: widget.controller.isStep3Valid() ? widget.onNext : null,
-            onPressed: widget.onNext,
+            onPressed: widget.controller.isStep3Valid() ? widget.onNext : null,
+            // onPressed: widget.onNext,
 
-            // isDisabled: !widget.controller.isStep3Valid(),
+            // onPressed: _buildTeacherForm.,
+            isDisabled: !widget.controller.isStep3Valid(),
             hasShadow: true,
           ),
           const SizedBox(height: 40),
@@ -237,53 +238,61 @@ class _RegistrationStep3State extends State<RegistrationStep3> {
 
 
         CreativeSelect(
-          label: "Major Subject",
-          items: ["Science", "English",  "History", "Music", "Geography"],
+          label: "Major Subject*",
+          items: SelectOptions.subjects,
           onChanged: (value) {
-            debugPrint("Selected: $value");
+            widget.controller.setMajorSubject(value);
           },
+
         ),
-        // FieldErrorText( message: ""),
-        // const SizedBox(height: 20),
         const SizedBox(height: 20),
 
         // Years of Experience
-        CustomTextField(
-          label: RegistrationStrings.experience,
-          hintText: RegistrationStrings.experienceHint,
-          controller: widget.controller.experienceController,
-          keyboardType: TextInputType.number,
-          onChanged: (_) => setState(() {}),
+        CreativeSelect(
+          label: "Experience*",
+          items: SelectOptions.yearsOfExperience,
+          onChanged: (value) {
+            widget.controller.setExperience(value);
+          },
         ),
-        FieldErrorText( message: ""),
+
 
 
         const SizedBox(height: 20),
 
         CreativeSelect(
-          label: "Province",
-          items: ["Western", "North Western",  "Central", "Southern", "Eastern"],
+          label: "Province*",
+          items: SelectOptions.provinces,
           onChanged: (value) {
-            debugPrint("Selected: $value");
+            widget.controller.setProvince(value);
           },
         ),
 
         const SizedBox(height: 20),
 
         CustomTextField(
-          label: "Address Line 1",
+          label: "Address Line 1*",
           hintText: "Address",
           // controller: widget.controller.schoolController,
+          onChanged: (value) {
+            widget.controller.validateAddressOne(value);
+          },
         ),
-
+        FieldErrorText( message: widget.controller.addressOneError),
         const SizedBox(height: 20),
 
 
         CustomTextField(
           label: "Address Line 2",
-          hintText: "Address",
+          hintText: "Optional",
           // controller: widget.controller.schoolController,
+          onChanged: (value) {
+            widget.controller.validateAddressTwo(value);
+          },
         ),
+        FieldErrorText( message: widget.controller.addressTwoError),
+
+
 
 
 

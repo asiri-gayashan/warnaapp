@@ -51,6 +51,14 @@ class RegistrationController extends ChangeNotifier {
   String? _addressOneError;
   String? get addressOneError => _addressOneError;
 
+// Address Line 2 validation state
+
+
+  bool _addressTwoValidated = false;
+  bool get addressTwoValidated => _addressTwoValidated;
+
+  String? _addressTwoError;
+  String? get addressTwoError => _addressTwoError;
 
 
 
@@ -86,12 +94,58 @@ class RegistrationController extends ChangeNotifier {
   final TextEditingController cityController = TextEditingController();
   final TextEditingController teachersCountController = TextEditingController();
 
-  // Teacher Fields
+  // ----------------------------------------------------------------------------------------------Teacher Fields
+
+
   final TextEditingController subjectsController = TextEditingController();
   String? _teachingType;
   String? get teachingType => _teachingType;
   final TextEditingController experienceController = TextEditingController();
   final TextEditingController qualificationController = TextEditingController();
+
+//select province
+
+  bool _provinceValidated = false;
+  bool get provinceValidated => _provinceValidated;
+
+  String? _provinceError;
+  String? get provinceError => _provinceError;
+
+  String? _selectedProvince;
+  String? get selectedProvince => _selectedProvince;
+
+
+
+
+  // Major Subject Validation
+
+  String? _selectedMajorSubject;
+  String? get selectedMajorSubject => _selectedMajorSubject;
+
+  bool _majorSubjectValidated = false;
+  bool get majorSubjectValidated => _majorSubjectValidated;
+
+  String? _majorSubjectError;
+  String? get majorSubjectError => _majorSubjectError;
+
+
+
+  //Years of Experience Validation
+
+  String? _selectedExperience;
+  String? get selectedExperience => _selectedExperience;
+
+  bool _experienceValidated = false;
+  bool get experienceValidated => _experienceValidated;
+
+  String? _experienceError;
+  String? get experienceError => _experienceError;
+
+
+
+
+
+
 
   // Student Fields
   final TextEditingController gradeController = TextEditingController();
@@ -268,26 +322,27 @@ class RegistrationController extends ChangeNotifier {
     final address = value.trim();
 
     // Allows letters, numbers, space, comma, dot, slash, hyphen
-    final RegExp addressRegex =
-    RegExp(r'^[a-zA-Z0-9\s,.\-\/]+$');
+    final RegExp addressRegex = RegExp(
+        r'^(?=.*[a-zA-Z0-9])[a-zA-Z0-9\s,.\-\/]+$'
+    );
 
     if (address.isEmpty) {
       _addressOneValidated = false;
       _addressOneError = "Address is required";
-    }
-    else if (address.length < 5) {
+    }else if (!addressRegex.hasMatch(address)) {
       _addressOneValidated = false;
-      _addressOneError = "Address must be at least 5 characters";
+      _addressOneError =
+      "Only letters, numbers, space [ , . / - ] allowed";
+    }
+    else if (address.length < 10) {
+      _addressOneValidated = false;
+      _addressOneError = "Address must be at least 10 characters";
     }
     else if (address.length > 100) {
       _addressOneValidated = false;
       _addressOneError = "Address must not exceed 100 characters";
     }
-    else if (!addressRegex.hasMatch(address)) {
-      _addressOneValidated = false;
-      _addressOneError =
-      "Only letters, numbers, space [, . / -] allowed";
-    }
+
     else {
       _addressOneValidated = true;
       _addressOneError = null;
@@ -297,6 +352,35 @@ class RegistrationController extends ChangeNotifier {
   }
 
 
+  void validateAddressTwo(String value) {
+    final address = value.trim();
+
+    // Allows letters, numbers, space, comma, dot, slash, hyphen
+    final RegExp addressRegex = RegExp(
+        r'^(?=.*[a-zA-Z0-9])[a-zA-Z0-9\s,.\-\/]+$'
+    );
+  if(address.length == 0){
+    _addressTwoError = null;
+  } else if (!addressRegex.hasMatch(address)) {
+    _addressTwoValidated = false;
+    _addressTwoError =
+    "Only letters, numbers, space [ , . / - ] allowed";
+  } else if (address.length < 5) {
+      _addressTwoValidated = false;
+      _addressTwoError = "Address must be at least 5 characters";
+    }
+    else if (address.length > 50) {
+     _addressTwoValidated = false;
+     _addressTwoError = "Address must not exceed 50 characters";
+    }
+
+    else {
+     _addressTwoValidated = true;
+     _addressTwoError = null;
+    }
+
+    notifyListeners();
+  }
 
 
 
@@ -346,6 +430,67 @@ class RegistrationController extends ChangeNotifier {
         passwordController.text.isNotEmpty;
   }
 
+
+  //----------------------------------------------------------Step 3 Teacher validation
+
+//setProvince
+
+  void setProvince(String value) {
+    _selectedProvince = value;
+
+    if (_selectedProvince == null || _selectedProvince!.isEmpty) {
+      _provinceValidated = false;
+      _provinceError = "Province is required";
+    } else {
+      _provinceValidated = true;
+      _provinceError = null;
+    }
+
+    notifyListeners();
+  }
+
+//Major Subject Validation
+
+
+  void setMajorSubject(String value) {
+    _selectedMajorSubject = value;
+
+    if (_selectedMajorSubject == null || _selectedMajorSubject!.isEmpty) {
+      _majorSubjectValidated = false;
+      _majorSubjectError = "Major subject is required";
+    } else {
+      _majorSubjectValidated = true;
+      _majorSubjectError = null;
+    }
+
+    notifyListeners();
+  }
+
+
+ //Years of Experience Validation
+
+  void setExperience(String value) {
+    _selectedExperience = value;
+
+    if (_selectedExperience == null || _selectedExperience!.isEmpty) {
+      _experienceValidated = false;
+      _experienceError = "Years of experience is required";
+    } else {
+      _experienceValidated = true;
+      _experienceError = null;
+    }
+
+    notifyListeners();
+  }
+
+
+
+
+
+
+
+
+
   bool isStep3Valid() {
     switch (_selectedRole) {
       case UserRole.instituteAdmin:
@@ -355,10 +500,11 @@ class RegistrationController extends ChangeNotifier {
             cityController.text.isNotEmpty;
 
       case UserRole.teacher:
-        return subjectsController.text.isNotEmpty &&
-            _teachingType != null &&
-            experienceController.text.isNotEmpty &&
-            qualificationController.text.isNotEmpty;
+        return _addressOneValidated &&
+            _addressTwoValidated &&
+            _provinceValidated &&
+            _experienceValidated  &&
+            _majorSubjectValidated;
 
       case UserRole.student:
         return gradeController.text.isNotEmpty;

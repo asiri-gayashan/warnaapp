@@ -23,27 +23,71 @@ class _CreativeSelectState extends State<CreativeSelect> {
   void _openSelectSheet() {
     showModalBottomSheet(
       context: context,
+      isScrollControlled: true, // important
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(25)),
       ),
-      builder: (_) {
-        return Padding(
-          padding: const EdgeInsets.all(20),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: widget.items.map((item) {
-              return ListTile(
-                title: Text(item),
-                trailing: selectedItem == item
-                    ? Icon(Icons.check, color: AppColors.primary)
-                    : null,
-                onTap: () {
-                  setState(() => selectedItem = item);
-                  widget.onChanged(item);
-                  Navigator.pop(context);
-                },
+      builder: (context) {
+        return SafeArea(
+          child: DraggableScrollableSheet(
+            expand: false,
+            initialChildSize: 0.5,
+            minChildSize: 0.3,
+            maxChildSize: 0.9,
+            builder: (context, scrollController) {
+              return Padding(
+                padding: const EdgeInsets.all(20),
+                child: Column(
+                  children: [
+                    // Top drag indicator
+                    Container(
+                      width: 40,
+                      height: 5,
+                      margin: const EdgeInsets.only(bottom: 20),
+                      decoration: BoxDecoration(
+                        color: Colors.grey.shade300,
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                    ),
+
+                    // Title
+                    Text(
+                      "Select ${widget.label}",
+                      style: const TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+
+                    const SizedBox(height: 15),
+
+                    // Scrollable list
+                    Expanded(
+                      child: ListView.builder(
+                        controller: scrollController,
+                        itemCount: widget.items.length,
+                        itemBuilder: (context, index) {
+                          final item = widget.items[index];
+
+                          return ListTile(
+                            title: Text(item),
+                            trailing: selectedItem == item
+                                ? Icon(Icons.check,
+                                color: AppColors.primary)
+                                : null,
+                            onTap: () {
+                              setState(() => selectedItem = item);
+                              widget.onChanged(item);
+                              Navigator.pop(context);
+                            },
+                          );
+                        },
+                      ),
+                    ),
+                  ],
+                ),
               );
-            }).toList(),
+            },
           ),
         );
       },
@@ -55,24 +99,36 @@ class _CreativeSelectState extends State<CreativeSelect> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(widget.label,
-            style: const TextStyle(fontWeight: FontWeight.normal)),
+        Text(
+          widget.label,
+          style: const TextStyle(fontWeight: FontWeight.normal),
+        ),
         const SizedBox(height: 8),
         GestureDetector(
           onTap: _openSelectSheet,
           child: Container(
-            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
+            padding:
+            const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
             decoration: BoxDecoration(
               color: Colors.white,
               borderRadius: BorderRadius.circular(14),
-              border: Border.all(color: AppColors.secondary.withOpacity(0.4)),
+              border: Border.all(
+                color: AppColors.secondary.withOpacity(0.4),
+              ),
             ),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text(selectedItem ?? "Select ${widget.label}", style: const TextStyle(color: AppColors.textSecondary),),
-                Icon(Icons.keyboard_arrow_down,
-                    color: AppColors.secondary),
+                Text(
+                  selectedItem ?? "Select",
+                  style: const TextStyle(
+                    color: AppColors.textSecondary,
+                  ),
+                ),
+                Icon(
+                  Icons.keyboard_arrow_down,
+                  color: AppColors.secondary,
+                ),
               ],
             ),
           ),

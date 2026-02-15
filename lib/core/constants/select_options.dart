@@ -19,89 +19,100 @@ class SelectOptions {
     const SelectOption(value: 'grade13', label: 'Grade 13', icon: Icons.plus_one),
   ];
 
-
-  // Grade/Level Options
-  static List<SelectOption> provinces = [
-    const SelectOption(value: 'sabaragamuwa', label: 'Sabaragamuwa'),
-    const SelectOption(value: 'grade1', label: 'Grade 1'),
-    const SelectOption(value: 'grade1', label: 'Grade 1'),
+//------------------------------------------------------------------------Provinces
+  static const List<String> provinces = [
+    "Western Province",
+    "Central Province",
+    "Southern Province",
+    "Northern Province",
+    "Eastern Province",
+    "North Western Province",
+    "North Central Province",
+    "Uva Province",
+    "Sabaragamuwa Province",
   ];
 
-  // Subject Options
-  static List<SelectOption> subjects = [
-    const SelectOption(
-      value: 'math',
-      label: 'Mathematics',
-      icon: Icons.calculate,
-      searchKeywords: ['math', 'maths', 'calculus', 'algebra', 'geometry'],
-    ),
-    const SelectOption(
-      value: 'science',
-      label: 'Science',
-      icon: Icons.science,
-      searchKeywords: ['science', 'physics', 'chemistry', 'biology'],
-    ),
-    const SelectOption(
-      value: 'english',
-      label: 'English',
-      icon: Icons.menu_book,
-      searchKeywords: ['english', 'grammar', 'literature'],
-    ),
-    const SelectOption(
-      value: 'physics',
-      label: 'Physics',
-      icon: Icons.bolt,
-      searchKeywords: ['physics', 'mechanics', 'optics'],
-    ),
-    const SelectOption(
-      value: 'chemistry',
-      label: 'Chemistry',
-      icon: Icons.science,
-      searchKeywords: ['chemistry', 'organic', 'inorganic'],
-    ),
-    const SelectOption(
-      value: 'biology',
-      label: 'Biology',
-      icon: Icons.eco,
-      searchKeywords: ['biology', 'botany', 'zoology'],
-    ),
-    const SelectOption(
-      value: 'history',
-      label: 'History',
-      icon: Icons.history,
-      searchKeywords: ['history', 'world history', 'indian history'],
-    ),
-    const SelectOption(
-      value: 'geography',
-      label: 'Geography',
-      icon: Icons.public,
-      searchKeywords: ['geography', 'maps', 'earth'],
-    ),
-    const SelectOption(
-      value: 'computer',
-      label: 'Computer Science',
-      icon: Icons.computer,
-      searchKeywords: ['computer', 'programming', 'coding'],
-    ),
-    const SelectOption(
-      value: 'art',
-      label: 'Art & Drawing',
-      icon: Icons.palette,
-      searchKeywords: ['art', 'drawing', 'painting'],
-    ),
-    const SelectOption(
-      value: 'music',
-      label: 'Music',
-      icon: Icons.music_note,
-      searchKeywords: ['music', 'singing', 'instruments'],
-    ),
-    const SelectOption(
-      value: 'physical',
-      label: 'Physical Education',
-      icon: Icons.sports,
-      searchKeywords: ['pe', 'physical', 'sports'],
-    ),
+
+  // ------------------------------------------------------------------Subject Options
+  static const List<String> subjects = [
+
+    // Primary (Grade 1–5)
+    "First Language (Sinhala/Tamil)",
+    "Second Language (Tamil/Sinhala)",
+    "English",
+    "Mathematics",
+    "Environmental Studies",
+    "Religion",
+    "Art",
+    "Music",
+    "Dancing",
+    "Physical Education",
+
+    // Grade 6–9
+    "Science",
+    "History",
+    "Geography",
+    "Civics Education",
+    "Health & Physical Education",
+    "Practical & Technical Skills",
+    "Information & Communication Technology (ICT)",
+
+    // O/L Subjects (Grade 10–11)
+    "Business & Accounting Studies",
+    "Design & Technology",
+    "Drama & Theatre",
+    "Media Studies",
+    "Agriculture",
+    "Entrepreneurship Studies",
+
+    // A/L - Science Stream
+    "Combined Mathematics",
+    "Physics",
+    "Chemistry",
+    "Biology",
+    "Agricultural Science",
+
+    // A/L - Commerce Stream
+    "Accounting",
+    "Business Studies",
+    "Economics",
+
+    // A/L - Arts Stream
+    "Political Science",
+    "Logic & Scientific Method",
+    "Geography (Advanced Level)",
+    "History (Advanced Level)",
+    "Sinhala (Advanced Level)",
+    "Tamil (Advanced Level)",
+    "English Literature",
+    "Buddhist Civilization",
+    "Hindu Civilization",
+    "Christian Civilization",
+    "Islamic Civilization",
+
+    // A/L - Technology Stream
+    "Engineering Technology",
+    "Bio Systems Technology",
+    "Science for Technology",
+    "Information & Communication Technology (Advanced Level)",
   ];
+
+
+
+  // ------------------------------------------------------------------ YEars of experience
+
+  static const List<String> yearsOfExperience = [
+    "0-1 Years",
+    "2-3 Years",
+    "4-5 Years",
+    "6-10 Years",
+    "11-15 Years",
+    "16-20 Years",
+    "21-25 Years",
+    "26-30 Years",
+    "30+ Years",
+  ];
+
 
   // Institute Type Options
   static List<SelectOption> instituteTypes = [
