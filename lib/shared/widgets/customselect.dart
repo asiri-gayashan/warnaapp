@@ -56,7 +56,7 @@ class _CreativeSelectState extends State<CreativeSelect> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(widget.label,
-            style: const TextStyle(fontWeight: FontWeight.bold)),
+            style: const TextStyle(fontWeight: FontWeight.normal)),
         const SizedBox(height: 8),
         GestureDetector(
           onTap: _openSelectSheet,
@@ -70,7 +70,7 @@ class _CreativeSelectState extends State<CreativeSelect> {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text(selectedItem ?? "Select ${widget.label}"),
+                Text(selectedItem ?? "Select ${widget.label}", style: const TextStyle(color: AppColors.textSecondary),),
                 Icon(Icons.keyboard_arrow_down,
                     color: AppColors.secondary),
               ],

@@ -129,11 +129,15 @@ class _RegistrationStep2State extends State<RegistrationStep2> {
           // Next Button
           CustomButton(
             text: RegistrationStrings.next,
-            // onPressed: widget.controller.isStep2Valid() ? widget.onNext : null,
-            onPressed: widget.onNext,
-            // isDisabled: !widget.controller.isStep2Valid(),
+            onPressed: widget.controller.isStep2Valid() ? widget.onNext : null,
+            // onPressed: widget.onNext,
+            isDisabled: !widget.controller.isStep2Valid(),
             hasShadow: true,
           ),
+
+
+          const SizedBox(height: 40),
+
         ],
       ),
     );

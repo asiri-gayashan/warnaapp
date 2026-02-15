@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
-import 'home_top_section.dart';
+
 
 class HomeHeader extends StatelessWidget {
   const HomeHeader({super.key});
@@ -14,7 +14,7 @@ class HomeHeader extends StatelessWidget {
         // 🔵 Blue Header Background
         Container(
           width: double.infinity,
-          padding: const EdgeInsets.fromLTRB(20, 40, 20, 250),
+          padding: const EdgeInsets.fromLTRB(20, 40, 20, 40),
           decoration: const BoxDecoration(
             color: Color(0xFF3D5AFE),
             borderRadius: BorderRadius.only(
@@ -69,12 +69,7 @@ class HomeHeader extends StatelessWidget {
         ),
 
         // 🧩 Cards Section (Attached to bottom)
-        const Positioned(
-          bottom: 70,
-          left: 0,
-          right: 0,
-          child: HomeTopSection(),
-        ),
+
       ],
     );
   }

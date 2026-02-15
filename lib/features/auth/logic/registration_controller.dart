@@ -22,12 +22,40 @@ class RegistrationController extends ChangeNotifier {
 
   bool _emailValidated = false;
   bool get emailValidated => _emailValidated;
+  String? _emailError;
+  String? get emailError => _emailError;
+
+
+
+  bool _fullNameValidated  = false;
+  bool get fullNameValidated {
+    return _fullNameValidated;
+  }
+  String? _fullNameError;
+  String? get fullNameError => _fullNameError;
+
+
+
+  bool _mobileValidated  = false;
+  bool get mobileValidated {
+    return _mobileValidated;
+  }
+  String? _mobileError;
+  String? get mobileError => _mobileError;
+
+
+
+
+
+
+
+
 
   // Step 2: Account Security
   final TextEditingController passwordController = TextEditingController();
   final TextEditingController confirmPasswordController = TextEditingController();
-
   bool _obscurePassword = true;
+
   bool _obscureConfirmPassword = true;
 
   bool get obscurePassword => _obscurePassword;
@@ -103,15 +131,94 @@ class RegistrationController extends ChangeNotifier {
     }
   }
 
+
+
+  //Validate Full name
+
+  void validateFullName(String value) {
+    final name = value.trim();
+
+    final RegExp nameRegex = RegExp(r'^[a-zA-Z]+(?: [a-zA-Z]+)*$');
+
+    if (name.isEmpty) {
+      _fullNameValidated = false;
+      _fullNameError = "Full name is required";
+    }
+    else if (name.length < 10) {
+      _fullNameValidated = false;
+      _fullNameError = "Full name must be at least 10 characters";
+    }
+    else if (name.length > 30) {
+      _fullNameValidated = false;
+      _fullNameError = "Full name must not exceed 30 characters";
+    }
+    else if (!nameRegex.hasMatch(name)) {
+      _fullNameValidated = false;
+      _fullNameError = "Only letters and single spaces allowed";
+    }
+    else {
+      _fullNameValidated = true;
+      _fullNameError = null;
+    }
+
+    notifyListeners();
+  }
+
+
+
+
+
+
+
+
+// Validate mobile number
+  void validateMobile(String value) {
+    final phone = value.trim();
+
+    final RegExp phoneRegex = RegExp(r'^[0-9]+$');
+
+    if (phone.isEmpty) {
+      _mobileValidated = false;
+      _mobileError = "Mobile number is required";
+    }
+    else if (phone.length != 10) {
+      _mobileValidated = false;
+      _mobileError = "Mobile number must be exactly 10 digits";
+    }
+    else if (!phone.startsWith("07")) {
+      _mobileValidated = false;
+      _mobileError = "Mobile number must start with 07";
+    }
+    else if (!phoneRegex.hasMatch(phone)) {
+      _mobileValidated = false;
+      _mobileError = "Mobile number must contain only digits";
+    }
+    else {
+      _mobileValidated = true;
+      _mobileError = null;
+    }
+
+    notifyListeners();
+  }
+
+
   // Email Validation
   void validateEmail(String value) {
+
+    final emailRegex = RegExp(
+        r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
+    );
+
     if (value.isEmpty) {
       _emailValidated = false;
-    } else {
-      final emailRegex = RegExp(
-          r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
-      );
-      _emailValidated = emailRegex.hasMatch(value);
+      _emailError = "Email cannot be empty";
+    } else if (!emailRegex.hasMatch(value)){
+      _emailValidated = false;
+      _emailError = "Incorrect email format";
+    }else{
+      _emailValidated = true;
+      _emailError = null;
+
     }
     notifyListeners();
   }
@@ -186,9 +293,11 @@ class RegistrationController extends ChangeNotifier {
   // Validation Methods
   bool isStep1Valid() {
     return _selectedRole != null &&
-        fullNameController.text.isNotEmpty &&
+        // fullNameController.text.isNotEmpty &&
+        // isFullNameValid()
+        _fullNameValidated && _mobileValidated &&
         emailController.text.isNotEmpty &&
-        mobileController.text.isNotEmpty &&
+        // mobileController.text.isNotEmpty &&
         _emailValidated;
   }
 

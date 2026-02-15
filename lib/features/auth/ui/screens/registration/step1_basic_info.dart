@@ -1,10 +1,13 @@
 import 'package:flutter/material.dart';
+import '../../../../../shared/widgets/field_error_text.dart';
 import '../../../../../shared/widgets/custom_button.dart';
 import '../../../../../shared/widgets/custom_textfield.dart';
 import '../../../../../shared/widgets/role_selection_card.dart';
 import '../../../../../core/constants/app_colors.dart';
 import '../../../../../core/constants/registration_strings.dart';
 import '../../../logic/registration_controller.dart';
+
+
 
 class RegistrationStep1 extends StatefulWidget {
   final RegistrationController controller;
@@ -21,6 +24,10 @@ class RegistrationStep1 extends StatefulWidget {
 }
 
 class _RegistrationStep1State extends State<RegistrationStep1> {
+
+
+
+
   @override
   Widget build(BuildContext context) {
     return SingleChildScrollView(
@@ -90,8 +97,6 @@ class _RegistrationStep1State extends State<RegistrationStep1> {
 
         // Institute Admin Card
         RoleSelectionCard(
-
-
           title: RegistrationStrings.roleAdmin,
           description: RegistrationStrings.roleAdminDesc,
           icon: Icons.school,
@@ -137,9 +142,19 @@ class _RegistrationStep1State extends State<RegistrationStep1> {
           label: RegistrationStrings.fullName,
           hintText: RegistrationStrings.fullNameHint,
           controller: widget.controller.fullNameController,
-          onChanged: (_) => setState(() {}),
+          onChanged: (value) {
+            widget.controller.validateFullName(value);
+          },
         ),
+
+        FieldErrorText(
+          message: widget.controller.fullNameError,
+        ),
+
+
         const SizedBox(height: 20),
+
+
 
         // Email Address
         CustomTextField(
@@ -165,7 +180,13 @@ class _RegistrationStep1State extends State<RegistrationStep1> {
           )
               : null,
         ),
+        FieldErrorText(
+          message: widget.controller.emailError,
+        ),
+
+
         const SizedBox(height: 20),
+
 
         // Mobile Number
         CustomTextField(
@@ -173,8 +194,12 @@ class _RegistrationStep1State extends State<RegistrationStep1> {
           hintText: RegistrationStrings.mobileHint,
           controller: widget.controller.mobileController,
           keyboardType: TextInputType.phone,
-          onChanged: (_) => setState(() {}),
+          onChanged: (value) {widget.controller.validateMobile(value);},
         ),
+        FieldErrorText(
+          message: widget.controller.mobileError,
+        ),
+
       ],
     );
   }

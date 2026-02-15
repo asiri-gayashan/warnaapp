@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:warna_app/core/constants/select_options.dart';
 import 'package:warna_app/shared/widgets/custom_select.dart';
+import 'package:warna_app/shared/widgets/field_error_text.dart';
 import '../../../../../shared/widgets/custom_button.dart';
 import '../../../../../shared/widgets/custom_textfield.dart';
 import '../../../../../shared/widgets/customselect.dart';
@@ -132,75 +133,98 @@ class _RegistrationStep3State extends State<RegistrationStep3> {
         const SizedBox(height: 20),
 
         // Institute Type Dropdown
-        Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              RegistrationStrings.instituteType,
-              style: const TextStyle(
-                fontSize: 14,
-                fontWeight: FontWeight.w500,
-                color: AppColors.textSecondary,
-              ),
-            ),
-            const SizedBox(height: 8),
-            DropdownButtonFormField<String>(
-              value: widget.controller.instituteType,
-              decoration: InputDecoration(
-                hintText: RegistrationStrings.instituteTypeHint,
-                filled: true,
-                fillColor: AppColors.surface,
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(12),
-                  borderSide: const BorderSide(color: AppColors.border),
-                ),
-                contentPadding: const EdgeInsets.symmetric(
-                  horizontal: 16,
-                  vertical: 16,
-                ),
-              ),
-              items: const [
-                DropdownMenuItem(value: 'School', child: Text('School')),
-                DropdownMenuItem(value: 'Tuition', child: Text('Tuition Center')),
-                DropdownMenuItem(value: 'Academy', child: Text('Academy')),
-                DropdownMenuItem(value: 'College', child: Text('College')),
-                DropdownMenuItem(value: 'University', child: Text('University')),
-              ],
-              onChanged: (value) {
-                setState(() {
-                  widget.controller.setInstituteType(value);
-                });
-              },
-            ),
-          ],
+        // Column(
+        //   crossAxisAlignment: CrossAxisAlignment.start,
+        //   children: [
+        //     Text(
+        //       RegistrationStrings.instituteType,
+        //       style: const TextStyle(
+        //         fontSize: 14,
+        //         fontWeight: FontWeight.w500,
+        //         color: AppColors.textSecondary,
+        //       ),
+        //     ),
+        //     const SizedBox(height: 8),
+        //     DropdownButtonFormField<String>(
+        //       value: widget.controller.instituteType,
+        //       decoration: InputDecoration(
+        //         hintText: RegistrationStrings.instituteTypeHint,
+        //         filled: true,
+        //         fillColor: AppColors.surface,
+        //         border: OutlineInputBorder(
+        //           borderRadius: BorderRadius.circular(12),
+        //           borderSide: const BorderSide(color: AppColors.border),
+        //         ),
+        //         contentPadding: const EdgeInsets.symmetric(
+        //           horizontal: 16,
+        //           vertical: 16,
+        //         ),
+        //       ),
+        //       items: const [
+        //         DropdownMenuItem(value: 'School', child: Text('School')),
+        //         DropdownMenuItem(value: 'Tuition', child: Text('Tuition Center')),
+        //         DropdownMenuItem(value: 'Academy', child: Text('Academy')),
+        //         DropdownMenuItem(value: 'College', child: Text('College')),
+        //         DropdownMenuItem(value: 'University', child: Text('University')),
+        //       ],
+        //       onChanged: (value) {
+        //         setState(() {
+        //           widget.controller.setInstituteType(value);
+        //         });
+        //       },
+        //     ),
+        //   ],
+        // ),
+
+        CreativeSelect(
+          label: "Student Count",
+          items: ["1 - 50",  "51 - 100", "101 - 500", "501 - 1000" ,"1001 - 2000"],
+          onChanged: (value) {
+            debugPrint("Selected: $value");
+          },
         ),
         const SizedBox(height: 20),
 
-        // Address
-        CustomTextField(
-          label: RegistrationStrings.address,
-          hintText: RegistrationStrings.addressHint,
-          controller: widget.controller.addressController,
-          onChanged: (_) => setState(() {}),
+        CreativeSelect(
+          label: "Teacher Count",
+          items: ["1 - 9",  "10 - 25", "25 - 50", "50 - 100"],
+          onChanged: (value) {
+            debugPrint("Selected: $value");
+          },
         ),
         const SizedBox(height: 20),
 
-        // City
-        CustomTextField(
-          label: RegistrationStrings.city,
-          hintText: RegistrationStrings.cityHint,
-          controller: widget.controller.cityController,
-          onChanged: (_) => setState(() {}),
+
+        CreativeSelect(
+          label: "Province",
+          items: ["Western", "North Western",  "Central", "Southern", "Eastern"],
+          onChanged: (value) {
+            debugPrint("Selected: $value");
+          },
         ),
+
         const SizedBox(height: 20),
 
-        // Number of Teachers (Optional)
         CustomTextField(
-          label: RegistrationStrings.numberOfTeachers,
-          hintText: RegistrationStrings.teachersHint,
-          controller: widget.controller.teachersCountController,
-          keyboardType: TextInputType.number,
+          label: "Address Line 1",
+          hintText: "Address",
+          // controller: widget.controller.schoolController,
         ),
+
+        const SizedBox(height: 20),
+
+
+        CustomTextField(
+          label: "Address Line 2",
+          hintText: "Address",
+           // controller: widget.controller.schoolController,
+        ),
+
+
+
+
+
+
       ],
     );
   }
@@ -219,9 +243,9 @@ class _RegistrationStep3State extends State<RegistrationStep3> {
             debugPrint("Selected: $value");
           },
         ),
-
+        // FieldErrorText( message: ""),
+        // const SizedBox(height: 20),
         const SizedBox(height: 20),
-
 
         // Years of Experience
         CustomTextField(
@@ -231,6 +255,9 @@ class _RegistrationStep3State extends State<RegistrationStep3> {
           keyboardType: TextInputType.number,
           onChanged: (_) => setState(() {}),
         ),
+        FieldErrorText( message: ""),
+
+
         const SizedBox(height: 20),
 
         CreativeSelect(
@@ -255,7 +282,7 @@ class _RegistrationStep3State extends State<RegistrationStep3> {
         CustomTextField(
           label: "Address Line 2",
           hintText: "Address",
-          controller: widget.controller.schoolController,
+          // controller: widget.controller.schoolController,
         ),
 
 
@@ -274,7 +301,7 @@ class _RegistrationStep3State extends State<RegistrationStep3> {
         CustomTextField(
           label: RegistrationStrings.school,
           hintText: RegistrationStrings.schoolHint,
-          controller: widget.controller.schoolController,
+          // controller: widget.controller.schoolController,
         ),
 
         const SizedBox(height: 20),
@@ -309,7 +336,7 @@ class _RegistrationStep3State extends State<RegistrationStep3> {
         CustomTextField(
           label: "Address Line 1",
           hintText: "Address",
-          controller: widget.controller.schoolController,
+          // controller: widget.controller.schoolController,
         ),
 
         const SizedBox(height: 20),
@@ -318,7 +345,7 @@ class _RegistrationStep3State extends State<RegistrationStep3> {
         CustomTextField(
           label: "Address Line 2",
           hintText: "Address",
-          controller: widget.controller.schoolController,
+          // controller: widget.controller.schoolController,
         ),
 
 
