@@ -99,8 +99,8 @@ class _RegistrationStep4State extends State<RegistrationStep4> {
             text: RegistrationStrings.verifyButton,
             onPressed: () {
               // Verify OTP (simulate)
-              widget.controller.verifyOtp();
-              widget.onNext();
+              widget.controller.printData();
+              // widget.onNext();
             },
             hasShadow: true,
           ),

@@ -114,6 +114,93 @@ class SelectOptions {
   ];
 
 
+  // ------------------------------------------------------------------ Grade List
+
+  static const List<String> gradesList = [
+    "Grade 1",
+    "Grade 2",
+    "Grade 3",
+    "Grade 4",
+    "Grade 5",
+    "Grade 6",
+    "Grade 7",
+    "Grade 8",
+    "Grade 9",
+    "Grade 10",
+    "Grade 11",
+    "Grade 12",
+    "Grade 13",
+  ];
+
+  // ------------------------------------------------------------------ studentCountList
+
+  static const List<String> studentCountList = [
+    "1 - 50",
+    "51 - 100",
+    "101 - 500",
+    "501 - 1000",
+    "1001 - 2000",
+  ];
+
+
+  // ------------------------------------------------------------------ Teacher CountList
+
+
+
+  static const List<String> teacherCountList = [
+    "1 - 9",
+    "10 - 25",
+    "25 - 50",
+    "50 - 100",
+  ];
+
+
+  static const List<String> districtsList = [
+    // Western Province
+    "Colombo",
+    "Gampaha",
+    "Kalutara",
+
+    // Central Province
+    "Kandy",
+    "Matale",
+    "Nuwara Eliya",
+
+    // Southern Province
+    "Galle",
+    "Matara",
+    "Hambantota",
+
+    // Northern Province
+    "Jaffna",
+    "Kilinochchi",
+    "Mannar",
+    "Vavuniya",
+    "Mullaitivu",
+
+    // Eastern Province
+    "Batticaloa",
+    "Ampara",
+    "Trincomalee",
+
+    // North Western Province
+    "Kurunegala",
+    "Puttalam",
+
+    // North Central Province
+    "Anuradhapura",
+    "Polonnaruwa",
+
+    // Uva Province
+    "Badulla",
+    "Monaragala",
+
+    // Sabaragamuwa Province
+    "Ratnapura",
+    "Kegalle",
+  ];
+
+
   // Institute Type Options
   static List<SelectOption> instituteTypes = [
     const SelectOption(value: 'school', label: 'School', icon: Icons.school),

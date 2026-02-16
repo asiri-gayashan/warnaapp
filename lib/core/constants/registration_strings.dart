@@ -15,7 +15,7 @@ class RegistrationStrings {
   static const String selectRole = 'Select Your Role';
   static const String roleAdmin = 'Institute';
   static const String roleAdminDesc = 'Manage institute, staff & students';
-  static const String roleTeacher = 'Teacher';
+  static const String roleTeacher = 'Tutor';
   static const String roleTeacherDesc = 'Create courses & teach students';
   static const String roleStudent = 'Student';
   static const String roleStudentDesc = 'Learn from courses & assignments';
@@ -43,11 +43,11 @@ class RegistrationStrings {
 
   // Step 3 - Role Specific
   static const String step3TitleAdmin = 'Institute Details';
-  static const String step3TitleTeacher = 'Teacher Details';
+  static const String step3TitleTeacher = 'Tutor Details';
   static const String step3TitleStudent = 'Student Details';
 
   // Admin Fields
-  static const String instituteName = 'Institute Name';
+  static const String instituteName = 'Institute Name*';
   static const String instituteNameHint = 'Enter institute name';
   static const String instituteType = 'Institute Type';
   static const String instituteTypeHint = 'Select type';
@@ -55,7 +55,7 @@ class RegistrationStrings {
   static const String addressHint = 'Enter address';
   static const String city = 'City';
   static const String cityHint = 'Enter city';
-  static const String numberOfTeachers = 'Number of Teachers (optional)';
+  static const String numberOfTeachers = 'Number of Tutors (optional)';
   static const String teachersHint = 'Enter number';
 
   // Teacher Fields
@@ -88,8 +88,8 @@ class RegistrationStrings {
   // Step 5 - Success Screen
   static const String step5TitleAdmin = '🎉 Your Institute Account is Ready!';
   static const String step5MessageAdmin = 'Your institute account is ready. Create your first class.';
-  static const String step5TitleTeacher = '🎉 Your Teacher Account is Active!';
-  static const String step5MessageTeacher = 'Your teacher account is active. Add your classes.';
+  static const String step5TitleTeacher = '🎉 Your Tutor Account is Active!';
+  static const String step5MessageTeacher = 'Your Tutor account is active. Add your classes.';
   static const String step5TitleStudent = '🎉 Your Account is Ready!';
   static const String step5MessageStudent = 'Your account is ready. Join your classes.';
   static const String goToDashboard = 'Go to Dashboard';

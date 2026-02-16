@@ -4,6 +4,7 @@ import '../../../../../core/constants/app_colors.dart';
 class CreativeSelect extends StatefulWidget {
   final String label;
   final List<String> items;
+  final String? value;
   final Function(String) onChanged;
 
   const CreativeSelect({
@@ -11,6 +12,7 @@ class CreativeSelect extends StatefulWidget {
     required this.label,
     required this.items,
     required this.onChanged,
+    this.value,
   });
 
   @override
@@ -18,12 +20,11 @@ class CreativeSelect extends StatefulWidget {
 }
 
 class _CreativeSelectState extends State<CreativeSelect> {
-  String? selectedItem;
 
   void _openSelectSheet() {
     showModalBottomSheet(
       context: context,
-      isScrollControlled: true, // important
+      isScrollControlled: true,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(25)),
       ),
@@ -39,7 +40,7 @@ class _CreativeSelectState extends State<CreativeSelect> {
                 padding: const EdgeInsets.all(20),
                 child: Column(
                   children: [
-                    // Top drag indicator
+                    // Drag indicator
                     Container(
                       width: 40,
                       height: 5,
@@ -61,7 +62,7 @@ class _CreativeSelectState extends State<CreativeSelect> {
 
                     const SizedBox(height: 15),
 
-                    // Scrollable list
+                    // Options List
                     Expanded(
                       child: ListView.builder(
                         controller: scrollController,
@@ -71,12 +72,13 @@ class _CreativeSelectState extends State<CreativeSelect> {
 
                           return ListTile(
                             title: Text(item),
-                            trailing: selectedItem == item
-                                ? Icon(Icons.check,
-                                color: AppColors.primary)
+                            trailing: widget.value == item
+                                ? Icon(
+                              Icons.check,
+                              color: AppColors.primary,
+                            )
                                 : null,
                             onTap: () {
-                              setState(() => selectedItem = item);
                               widget.onChanged(item);
                               Navigator.pop(context);
                             },
@@ -107,8 +109,10 @@ class _CreativeSelectState extends State<CreativeSelect> {
         GestureDetector(
           onTap: _openSelectSheet,
           child: Container(
-            padding:
-            const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
+            padding: const EdgeInsets.symmetric(
+              horizontal: 14,
+              vertical: 14,
+            ),
             decoration: BoxDecoration(
               color: Colors.white,
               borderRadius: BorderRadius.circular(14),
@@ -120,9 +124,11 @@ class _CreativeSelectState extends State<CreativeSelect> {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(
-                  selectedItem ?? "Select",
-                  style: const TextStyle(
-                    color: AppColors.textSecondary,
+                  widget.value ?? "Select",
+                  style: TextStyle(
+                    color: widget.value == null
+                        ? AppColors.textSecondary
+                        : Colors.black,
                   ),
                 ),
                 Icon(

@@ -129,99 +129,62 @@ class _RegistrationStep3State extends State<RegistrationStep3> {
           label: RegistrationStrings.instituteName,
           hintText: RegistrationStrings.instituteNameHint,
           controller: widget.controller.instituteNameController,
-          onChanged: (_) => setState(() {}),
+          onChanged: (value) {
+            widget.controller.validateInstituteName(value);
+          },
         ),
+
+
+        FieldErrorText( message: widget.controller.instituteNameError),
+
         const SizedBox(height: 20),
 
-        // Institute Type Dropdown
-        // Column(
-        //   crossAxisAlignment: CrossAxisAlignment.start,
-        //   children: [
-        //     Text(
-        //       RegistrationStrings.instituteType,
-        //       style: const TextStyle(
-        //         fontSize: 14,
-        //         fontWeight: FontWeight.w500,
-        //         color: AppColors.textSecondary,
-        //       ),
-        //     ),
-        //     const SizedBox(height: 8),
-        //     DropdownButtonFormField<String>(
-        //       value: widget.controller.instituteType,
-        //       decoration: InputDecoration(
-        //         hintText: RegistrationStrings.instituteTypeHint,
-        //         filled: true,
-        //         fillColor: AppColors.surface,
-        //         border: OutlineInputBorder(
-        //           borderRadius: BorderRadius.circular(12),
-        //           borderSide: const BorderSide(color: AppColors.border),
-        //         ),
-        //         contentPadding: const EdgeInsets.symmetric(
-        //           horizontal: 16,
-        //           vertical: 16,
-        //         ),
-        //       ),
-        //       items: const [
-        //         DropdownMenuItem(value: 'School', child: Text('School')),
-        //         DropdownMenuItem(value: 'Tuition', child: Text('Tuition Center')),
-        //         DropdownMenuItem(value: 'Academy', child: Text('Academy')),
-        //         DropdownMenuItem(value: 'College', child: Text('College')),
-        //         DropdownMenuItem(value: 'University', child: Text('University')),
-        //       ],
-        //       onChanged: (value) {
-        //         setState(() {
-        //           widget.controller.setInstituteType(value);
-        //         });
-        //       },
-        //     ),
-        //   ],
-        // ),
+
+
+
 
         CreativeSelect(
-          label: "Student Count",
-          items: ["1 - 50",  "51 - 100", "101 - 500", "501 - 1000" ,"1001 - 2000"],
+          label: "Student Count*",
+          items: SelectOptions.studentCountList,
+          value : widget.controller.selectedStudentCount,
           onChanged: (value) {
-            debugPrint("Selected: $value");
+            widget.controller.setStudentCount(value);
           },
         ),
         const SizedBox(height: 20),
 
         CreativeSelect(
-          label: "Teacher Count",
-          items: ["1 - 9",  "10 - 25", "25 - 50", "50 - 100"],
+          label: "Teacher Count*",
+          items: SelectOptions.teacherCountList,
+          value : widget.controller.selectedTeacherCount,
           onChanged: (value) {
-            debugPrint("Selected: $value");
+            widget.controller.setTeacherCount(value);
           },
         ),
         const SizedBox(height: 20),
 
 
         CreativeSelect(
-          label: "Province",
-          items: ["Western", "North Western",  "Central", "Southern", "Eastern"],
+          label: "Province*",
+          value : widget.controller.selectedProvince,
+          items: SelectOptions.provinces,
           onChanged: (value) {
-            debugPrint("Selected: $value");
+            widget.controller.setProvince(value);
           },
         ),
-
         const SizedBox(height: 20),
 
+
+        //
         CustomTextField(
-          label: "Address Line 1",
+          label: "Address*",
           hintText: "Address",
-          // controller: widget.controller.schoolController,
+          controller: widget.controller.addressController,
+          onChanged: (value) {
+            widget.controller.validateAddressOne(value);
+          },
         ),
-
-        const SizedBox(height: 20),
-
-
-        CustomTextField(
-          label: "Address Line 2",
-          hintText: "Address",
-           // controller: widget.controller.schoolController,
-        ),
-
-
+        FieldErrorText( message: widget.controller.addressOneError),
 
 
 
@@ -239,6 +202,7 @@ class _RegistrationStep3State extends State<RegistrationStep3> {
 
         CreativeSelect(
           label: "Major Subject*",
+          value : widget.controller.selectedMajorSubject,
           items: SelectOptions.subjects,
           onChanged: (value) {
             widget.controller.setMajorSubject(value);
@@ -247,9 +211,20 @@ class _RegistrationStep3State extends State<RegistrationStep3> {
         ),
         const SizedBox(height: 20),
 
+        CreativeSelect(
+          label: "Expected Student Count*",
+          items: SelectOptions.studentCountList,
+          value : widget.controller.selectedStudentCount,
+          onChanged: (value) {
+            widget.controller.setStudentCount(value);
+          },
+        ),
+        const SizedBox(height: 20),
+
         // Years of Experience
         CreativeSelect(
           label: "Experience*",
+          value : widget.controller.selectedExperience,
           items: SelectOptions.yearsOfExperience,
           onChanged: (value) {
             widget.controller.setExperience(value);
@@ -262,6 +237,7 @@ class _RegistrationStep3State extends State<RegistrationStep3> {
 
         CreativeSelect(
           label: "Province*",
+          value : widget.controller.selectedProvince,
           items: SelectOptions.provinces,
           onChanged: (value) {
             widget.controller.setProvince(value);
@@ -271,27 +247,27 @@ class _RegistrationStep3State extends State<RegistrationStep3> {
         const SizedBox(height: 20),
 
         CustomTextField(
-          label: "Address Line 1*",
+          label: "Address",
           hintText: "Address",
-          // controller: widget.controller.schoolController,
+          controller: widget.controller.addressController,
           onChanged: (value) {
             widget.controller.validateAddressOne(value);
           },
         ),
         FieldErrorText( message: widget.controller.addressOneError),
-        const SizedBox(height: 20),
 
 
-        CustomTextField(
-          label: "Address Line 2",
-          hintText: "Optional",
-          // controller: widget.controller.schoolController,
-          onChanged: (value) {
-            widget.controller.validateAddressTwo(value);
-          },
-        ),
-        FieldErrorText( message: widget.controller.addressTwoError),
 
+        // CustomTextField(
+        //   label: "Address Line 2",
+        //   hintText: "Optional",
+        //   // controller: widget.controller.schoolController,
+        //   onChanged: (value) {
+        //     widget.controller.validateAddressTwo(value);
+        //   },
+        // ),
+        // FieldErrorText( message: widget.controller.addressTwoError),
+        //
 
 
 
@@ -307,20 +283,27 @@ class _RegistrationStep3State extends State<RegistrationStep3> {
 
         // Grade
 
+
         CustomTextField(
-          label: RegistrationStrings.school,
-          hintText: RegistrationStrings.schoolHint,
-          // controller: widget.controller.schoolController,
+          label: "School",
+          hintText: "Your School",
+          controller: widget.controller.schoolController,
+          onChanged: (value) {
+            widget.controller.validateSchoolName(value);
+          },
         ),
+        FieldErrorText( message: widget.controller.schoolNameError),
+
 
         const SizedBox(height: 20),
 
 
         CreativeSelect(
-          label: "Grade",
-          items: ["Grade 1", "Grade 2", "Grade 3", "Grade 4"],
+          label: "Grade*",
+          items: SelectOptions.gradesList,
+          value : widget.controller.selectedGrade,
           onChanged: (value) {
-            debugPrint("Selected: $value");
+            widget.controller.setGrade(value);
           },
         ),
 
@@ -328,37 +311,31 @@ class _RegistrationStep3State extends State<RegistrationStep3> {
 
 
 
+
         CreativeSelect(
-          label: "Province",
-          items: ["Western", "North Western",  "Central", "Southern", "Eastern"],
+          label: "Province*",
+          value : widget.controller.selectedProvince,
+          items: SelectOptions.provinces,
           onChanged: (value) {
-            debugPrint("Selected: $value");
+            widget.controller.setProvince(value);
           },
         ),
-
         const SizedBox(height: 20),
 
 
 
         // Address
 
-        CustomTextField(
-          label: "Address Line 1",
-          hintText: "Address",
-          // controller: widget.controller.schoolController,
-        ),
-
-        const SizedBox(height: 20),
-
 
         CustomTextField(
-          label: "Address Line 2",
+          label: "Address*",
           hintText: "Address",
-          // controller: widget.controller.schoolController,
+          controller: widget.controller.addressController,
+          onChanged: (value) {
+            widget.controller.validateAddressOne(value);
+          },
         ),
-
-
-
+        FieldErrorText( message: widget.controller.addressOneError),
 
 
 

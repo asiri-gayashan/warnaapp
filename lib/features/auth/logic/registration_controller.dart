@@ -15,7 +15,8 @@ class RegistrationController extends ChangeNotifier {
   UserRole? _selectedRole;
   UserRole? get selectedRole => _selectedRole;
 
-  // Step 1: Basic Information
+  // -------------------------------------------------------------------Step 1: Basic Information
+
   final TextEditingController fullNameController = TextEditingController();
   final TextEditingController emailController = TextEditingController();
   final TextEditingController mobileController = TextEditingController();
@@ -24,17 +25,14 @@ class RegistrationController extends ChangeNotifier {
   bool get emailValidated => _emailValidated;
   String? _emailError;
   String? get emailError => _emailError;
-
-
+                     //  Email
 
   bool _fullNameValidated  = false;
   bool get fullNameValidated {
     return _fullNameValidated;
   }
   String? _fullNameError;
-  String? get fullNameError => _fullNameError;
-
-
+  String? get fullNameError => _fullNameError;                   /// Full Name
 
   bool _mobileValidated  = false;
   bool get mobileValidated {
@@ -42,26 +40,10 @@ class RegistrationController extends ChangeNotifier {
   }
   String? _mobileError;
   String? get mobileError => _mobileError;
+              /// Mobile number
 
 
-// Address Line 1 validation state
-  bool _addressOneValidated = false;
-  bool get addressOneValidated => _addressOneValidated;
-
-  String? _addressOneError;
-  String? get addressOneError => _addressOneError;
-
-// Address Line 2 validation state
-
-
-  bool _addressTwoValidated = false;
-  bool get addressTwoValidated => _addressTwoValidated;
-
-  String? _addressTwoError;
-  String? get addressTwoError => _addressTwoError;
-
-
-
+  //----------------------------------------------------------------------Step 2
 
 
   // Step 2: Account Security
@@ -85,64 +67,89 @@ class RegistrationController extends ChangeNotifier {
   bool get hasSpecialChar => _hasSpecialChar;
   bool get passwordsMatch => _passwordsMatch;
 
-  // Step 3: Role Specific Details
-  // Admin Fields
+
+  //----------------------------------------------------------------------Step 3
+
+
+  final TextEditingController addressController = TextEditingController();
   final TextEditingController instituteNameController = TextEditingController();
   String? _instituteType;
   String? get instituteType => _instituteType;
-  final TextEditingController addressController = TextEditingController();
   final TextEditingController cityController = TextEditingController();
   final TextEditingController teachersCountController = TextEditingController();
-
-  // ----------------------------------------------------------------------------------------------Teacher Fields
-
-
   final TextEditingController subjectsController = TextEditingController();
   String? _teachingType;
   String? get teachingType => _teachingType;
   final TextEditingController experienceController = TextEditingController();
   final TextEditingController qualificationController = TextEditingController();
 
-//select province
+
+// Address Line 1 validation state
+  bool _addressOneValidated = false;
+  bool get addressOneValidated => _addressOneValidated;
+  String? _addressOneError;
+  String? get addressOneError => _addressOneError;
+
+
+
+  bool _addressTwoValidated = false;
+  bool get addressTwoValidated => _addressTwoValidated;
+  String? _addressTwoError;
+  String? get addressTwoError => _addressTwoError;
 
   bool _provinceValidated = false;
   bool get provinceValidated => _provinceValidated;
-
   String? _provinceError;
   String? get provinceError => _provinceError;
-
   String? _selectedProvince;
-  String? get selectedProvince => _selectedProvince;
+  String? get selectedProvince => _selectedProvince;                       //Province
 
-
-
-
-  // Major Subject Validation
+  String? _selectedTeacherCount;
+  String? get selectedTeacherCount => _selectedTeacherCount;
+  bool _teacherCountValidated = false;
+  bool get teacherCountValidated => _teacherCountValidated;
+  String? _teacherCountError;
+  String? get teacherCountError => _teacherCountError;                  //Teacher
 
   String? _selectedMajorSubject;
   String? get selectedMajorSubject => _selectedMajorSubject;
-
   bool _majorSubjectValidated = false;
   bool get majorSubjectValidated => _majorSubjectValidated;
-
   String? _majorSubjectError;
-  String? get majorSubjectError => _majorSubjectError;
-
-
-
-  //Years of Experience Validation
+  String? get majorSubjectError => _majorSubjectError;                     // Subject
 
   String? _selectedExperience;
   String? get selectedExperience => _selectedExperience;
-
   bool _experienceValidated = false;
   bool get experienceValidated => _experienceValidated;
-
   String? _experienceError;
-  String? get experienceError => _experienceError;
+  String? get experienceError => _experienceError;                   //Experience
 
 
+  bool _instituteNameValidated = false;
+  bool get instituteNameValidated => _instituteNameValidated;
+  String? _instituteNameError;
+  String? get instituteNameError => _instituteNameError;                    // Institute Name
 
+
+  bool _schoolNameValidated = true;
+  bool get schoolNameValidated => _schoolNameValidated;
+  String? _schoolNameError;
+  String? get schoolNameError => _schoolNameError;                            // School Name
+
+  String? _selectedStudentCount;
+  String? get selectedStudentCount => _selectedStudentCount;
+  bool _studentCountValidated = false;
+  bool get studentCountValidated => _studentCountValidated;
+  String? _studentCountError;
+  String? get studentCountError => _studentCountError;                           //Student Count
+
+  String? _selectedGrade;
+  String? get selectedGrade => _selectedGrade;
+  bool _gradeValidated = false;
+  bool get gradeValidated => _gradeValidated;
+  String? _gradeError;
+  String? get gradeError => _gradeError;                                      //Grade
 
 
 
@@ -162,6 +169,7 @@ class RegistrationController extends ChangeNotifier {
   bool get isOtpVerified => _isOtpVerified;
   bool get isResendEnabled => _isResendEnabled;
   int get resendTimer => _resendTimer;
+
 
   // Methods
   void selectRole(UserRole role) {
@@ -196,7 +204,6 @@ class RegistrationController extends ChangeNotifier {
 
   void validateFullName(String value) {
     final name = value.trim();
-
     final RegExp nameRegex = RegExp(r'^[a-zA-Z]+(?: [a-zA-Z]+)*$');
 
     if (name.isEmpty) {
@@ -218,6 +225,8 @@ class RegistrationController extends ChangeNotifier {
     else {
       _fullNameValidated = true;
       _fullNameError = null;
+
+
     }
 
     notifyListeners();
@@ -227,6 +236,8 @@ class RegistrationController extends ChangeNotifier {
 // Validate mobile number
   void validateMobile(String value) {
     final phone = value.trim();
+
+
 
     final RegExp phoneRegex = RegExp(r'^[0-9]+$');
 
@@ -247,8 +258,11 @@ class RegistrationController extends ChangeNotifier {
       _mobileError = "Mobile number must contain only digits";
     }
     else {
+      // print(value);
+
       _mobileValidated = true;
       _mobileError = null;
+
     }
 
     notifyListeners();
@@ -258,6 +272,7 @@ class RegistrationController extends ChangeNotifier {
   // Email Validation
   void validateEmail(String value) {
 
+    // String  _emailValue;
     final emailRegex = RegExp(
         r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
     );
@@ -271,7 +286,6 @@ class RegistrationController extends ChangeNotifier {
     }else{
       _emailValidated = true;
       _emailError = null;
-
     }
     notifyListeners();
   }
@@ -305,17 +319,12 @@ class RegistrationController extends ChangeNotifier {
     _instituteType = type;
     notifyListeners();
   }
-  // void setProvince(String? type) {
-  //   _province = type;
-  //   notifyListeners();
-  // }
 
   // Teaching Type
   void setTeachingType(String? type) {
     _teachingType = type;
     notifyListeners();
   }
-
 
   // Teacher validation
   void validateAddressOne(String value) {
@@ -351,36 +360,28 @@ class RegistrationController extends ChangeNotifier {
     notifyListeners();
   }
 
-
-  void validateAddressTwo(String value) {
-    final address = value.trim();
-
-    // Allows letters, numbers, space, comma, dot, slash, hyphen
-    final RegExp addressRegex = RegExp(
-        r'^(?=.*[a-zA-Z0-9])[a-zA-Z0-9\s,.\-\/]+$'
-    );
-  if(address.length == 0){
-    _addressTwoError = null;
-  } else if (!addressRegex.hasMatch(address)) {
-    _addressTwoValidated = false;
-    _addressTwoError =
-    "Only letters, numbers, space [ , . / - ] allowed";
-  } else if (address.length < 5) {
-      _addressTwoValidated = false;
-      _addressTwoError = "Address must be at least 5 characters";
-    }
-    else if (address.length > 50) {
-     _addressTwoValidated = false;
-     _addressTwoError = "Address must not exceed 50 characters";
-    }
-
-    else {
-     _addressTwoValidated = true;
-     _addressTwoError = null;
-    }
-
-    notifyListeners();
-  }
+  //
+  // void validateAddressTwo(String value) {
+  //   final address = value.trim();
+  //
+  //   // Allows letters, numbers, space, comma, dot, slash, hyphen
+  //   final RegExp addressRegex = RegExp(
+  //       r'^(?=.*[a-zA-Z0-9])[a-zA-Z0-9\s,.\-\/]+$'
+  //   );
+  //
+  //
+  //   if ((address.length > 10 ) || !addressRegex.hasMatch(address)) {
+  //     _addressTwoValidated = false;
+  //     _addressTwoError = "Character limit exceed";
+  //   }else{
+  //     _addressTwoValidated = true;
+  //     _addressTwoError = null;
+  //
+  //   }
+  //
+  //
+  //   notifyListeners();
+  // }
 
 
 
@@ -486,28 +487,178 @@ class RegistrationController extends ChangeNotifier {
 
 
 
+//----------------------------------------------------------------------------Student Valiadation
+
+
+  void validateSchoolName(String value) {
+    final school = value.trim();
+    // _schoolName = school;
+
+    // Regex: letters + single spaces only
+    final RegExp schoolRegex = RegExp(r'^[a-zA-Z]+(?: [a-zA-Z]+)*$');
+
+    // Optional → allow empty
+    if (school.isEmpty) {
+      _schoolNameValidated = true;
+      _schoolNameError = null;
+    }
+    else if (!schoolRegex.hasMatch(school)) {
+      _schoolNameValidated = false;
+      _schoolNameError = "School name cannot contain numbers or special characters";
+    }
+    else {
+      _schoolNameValidated = true;
+      _schoolNameError = null;
+    }
+
+    notifyListeners();
+  }
+
+
+  //----------------------------------------------------------------------------------------Grades Selection Validation
+
+  void setGrade(String value) {
+    _selectedGrade = value;
+    if (_selectedGrade == null || _selectedGrade!.isEmpty) {
+      _gradeValidated = false;
+      _gradeError = "Grade is required";
+    } else {
+      _gradeValidated = true;
+      _gradeError = null;
+    }
+    notifyListeners();
+  }
+
+//------------------------------------------------------------------------ institute validation
 
 
 
+  void validateInstituteName(String value) {
+    final institute = value.trim();
+
+    //  letters, spaces, dot, brack
+    final RegExp instituteRegex =
+    RegExp(r'^[a-zA-Z(). ]+$');
+
+    if (institute.isEmpty) {
+      _instituteNameValidated = false;
+      _instituteNameError = "Institute name is required";
+    }
+    else if (institute.length < 5) {
+      _instituteNameValidated = false;
+      _instituteNameError =
+      "Institute name must be at least 5 characters";
+    }
+    else if (institute.length > 50) {
+      _instituteNameValidated = false;
+      _instituteNameError =
+      "Institute name must not exceed 50 characters";
+    }
+    else if (!instituteRegex.hasMatch(institute)) {
+      _instituteNameValidated = false;
+      _instituteNameError =
+      "Only letters, spaces, '.' and brackets () are allowed";
+    }
+    else {
+      _instituteNameValidated = true;
+      _instituteNameError = null;
+    }
+
+    notifyListeners();
+  }
+
+
+  void setStudentCount(String value) {
+    _selectedStudentCount = value;
+
+    if (_selectedStudentCount == null ||
+        _selectedStudentCount!.isEmpty) {
+      _studentCountValidated = false;
+      _studentCountError = "Student count is required";
+    } else {
+      _studentCountValidated = true;
+      _studentCountError = null;
+    }
+
+    notifyListeners();
+  }
+
+
+  void setTeacherCount(String value) {
+    _selectedTeacherCount = value;
+
+    if (_selectedTeacherCount == null ||
+        _selectedTeacherCount!.isEmpty) {
+      _teacherCountValidated = false;
+      _teacherCountError = "Teacher count is required";
+    } else {
+      _teacherCountValidated = true;
+      _teacherCountError = null;
+    }
+
+    notifyListeners();
+  }
+
+
+  void printData() {
+    final studentData = {
+      "full name": fullNameController.text,
+      "email": emailController.text,
+      "mobile": mobileController.text,
+      "School": schoolController.text,
+      "grade": selectedGrade,
+      "province": selectedProvince,
+      "Address": addressController.text,
+    };
+
+    final tutorData = {
+      "full name": fullNameController.text,
+      "email": emailController.text,
+      "mobile": mobileController.text,
+      "password": passwordController.text,
+      "Subject": selectedMajorSubject,
+      "Student Count": selectedStudentCount,
+      "Experience": selectedExperience,
+      "province": selectedProvince,
+      "Address": addressController.text,
+    };
+
+    final institiuteData = {
+      "full name": fullNameController.text,
+      "email": emailController.text,
+      "mobile": mobileController.text,
+      "password": passwordController.text,
+      "Institute Name": instituteNameController.text,
+      "Student Count": selectedStudentCount,
+      "Teacher Count": selectedTeacherCount,
+      "province": selectedProvince,
+      "Address": addressController.text,
+    };
+    // debugPrint(studentData.toString());
+    debugPrint(institiuteData.toString());
+
+  }
 
 
   bool isStep3Valid() {
     switch (_selectedRole) {
       case UserRole.instituteAdmin:
-        return instituteNameController.text.isNotEmpty &&
-            _instituteType != null &&
-            addressController.text.isNotEmpty &&
-            cityController.text.isNotEmpty;
+        return _instituteNameValidated && _studentCountValidated
+        && _teacherCountValidated && _provinceValidated &&
+            _addressOneValidated;
 
       case UserRole.teacher:
         return _addressOneValidated &&
-            _addressTwoValidated &&
+            // _addressTwoValidated &&
             _provinceValidated &&
             _experienceValidated  &&
             _majorSubjectValidated;
 
       case UserRole.student:
-        return gradeController.text.isNotEmpty;
+        return _schoolNameValidated &&
+            _gradeValidated  &&
+            _provinceValidated &&
+            _addressOneValidated;
 
       default:
         return false;
@@ -545,6 +696,7 @@ class RegistrationController extends ChangeNotifier {
     qualificationController.dispose();
     gradeController.dispose();
     schoolController.dispose();
+
     enrolledSubjectsController.dispose();
     super.dispose();
   }
