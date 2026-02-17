@@ -640,7 +640,30 @@ class RegistrationController extends ChangeNotifier {
   }
 
 
+  bool isStep3Valid() {
+    switch (_selectedRole) {
+      case UserRole.instituteAdmin:
+        return _instituteNameValidated && _studentCountValidated
+        && _teacherCountValidated && _provinceValidated &&
+            _addressOneValidated;
 
+      case UserRole.teacher:
+        return _addressOneValidated &&
+            // _addressTwoValidated &&
+            _provinceValidated &&
+            _experienceValidated  &&
+            _majorSubjectValidated;
+
+      case UserRole.student:
+        return _schoolNameValidated &&
+            _gradeValidated  &&
+            _provinceValidated &&
+            _addressOneValidated;
+
+      default:
+        return false;
+    }
+  }
 
   bool isStep4Valid() {
     return _otp.length == 6 && _isOtpVerified;
