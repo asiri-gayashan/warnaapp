@@ -600,46 +600,6 @@ class RegistrationController extends ChangeNotifier {
   }
 
 
-  void printData() {
-    final studentData = {
-      "full name": fullNameController.text,
-      "email": emailController.text,
-      "mobile": mobileController.text,
-      "School": schoolController.text,
-      "grade": selectedGrade,
-      "province": selectedProvince,
-      "Address": addressController.text,
-    };
-
-    final tutorData = {
-      "full name": fullNameController.text,
-      "email": emailController.text,
-      "mobile": mobileController.text,
-      "password": passwordController.text,
-      "Subject": selectedMajorSubject,
-      "Student Count": selectedStudentCount,
-      "Experience": selectedExperience,
-      "province": selectedProvince,
-      "Address": addressController.text,
-    };
-
-    final institiuteData = {
-      "full name": fullNameController.text,
-      "email": emailController.text,
-      "mobile": mobileController.text,
-      "password": passwordController.text,
-      "Institute Name": instituteNameController.text,
-      "Student Count": selectedStudentCount,
-      "Teacher Count": selectedTeacherCount,
-      "province": selectedProvince,
-      "Address": addressController.text,
-    };
-    // debugPrint(studentData.toString());
-    debugPrint(institiuteData.toString());
-
-  }
-
-
   bool isStep3Valid() {
     switch (_selectedRole) {
       case UserRole.instituteAdmin:
