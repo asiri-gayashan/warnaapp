@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:warna_app/core/constants/app_colors.dart';
 import 'home_top_section.dart';
 
 class HomeHeader extends StatelessWidget {
@@ -45,6 +46,7 @@ class HomeHeader extends StatelessWidget {
                     "Grade 9",
                     style: TextStyle(color: Colors.white70),
                   ),
+
                 ],
               ),
               const Spacer(),

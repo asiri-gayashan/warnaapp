@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:warna_app/features/student/ui/navigation/student_navigation.dart';
+import 'package:warna_app/features/test_student_page.dart';
 import '../../../../../shared/widgets/custom_button.dart';
 import '../../../../../shared/widgets/custom_textfield.dart';
 import '../../../../../shared/widgets/field_error_text.dart';
@@ -86,9 +87,18 @@ class _LoginScreenState extends State<LoginScreen> {
 
 
 
+                      Navigator.pushReplacement(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => TestStudentPage(token: token),
+                        ),
+                      );
+
                       // Navigator.pushReplacementNamed(context, '/student');
 
-                      Navigator.push( context, MaterialPageRoute( builder: (context) => StudentNavigation(token: token)));
+
+
+                      // Navigator.push( context, MaterialPageRoute( builder: (context) => StudentNavigation(token: token)));
                     }
                   }
                 },

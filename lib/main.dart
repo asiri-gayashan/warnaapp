@@ -20,8 +20,7 @@ class Warna extends StatelessWidget {
       home: const LoginScreen(),
       routes: {
         '/login': (context) => const LoginScreen(),
-        '/register': (context) => const RegistrationScreen(),
-        '/student': (context) => const StudentNavigation(),
+        '/register': (context) => const RegistrationScreen()
       },
     );
   }

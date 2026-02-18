@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:warna_app/features/auth/ui/screens/login/login_screen.dart';
 import '../../../../shared/widgets/student_tab_container.dart';
 import '../../../../features/student/ui/screens/home_page.dart';
 import '../../../../features/student/ui/screens/profile_page.dart';
@@ -8,11 +9,11 @@ import '../../../../features/student/ui/screens/record_page.dart';
 import 'package:jwt_decoder/jwt_decoder.dart';
 
 class StudentNavigation extends StatefulWidget {
-  final token;
-  const StudentNavigation({
-    @required this.token,
-    Key? key,
+  final String token;
 
+  const StudentNavigation({
+    Key? key,
+    required this.token,
   }) : super(key: key);
 
   @override
@@ -22,6 +23,37 @@ class StudentNavigation extends StatefulWidget {
 class _StudentNavigationState extends State<StudentNavigation> {
   int _selectedIndex = 0;
   // late
+
+  void _logout() {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      Navigator.pushAndRemoveUntil(
+        context,
+        MaterialPageRoute(builder: (_) => LoginScreen()),
+            (route) => false,
+      );
+    });
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _checkToken();
+  }
+
+  void _checkToken() {
+    if (widget.token.isEmpty) {
+      _logout();
+      return;
+    }
+
+    bool isExpired = JwtDecoder.isExpired(widget.token);
+
+    if (isExpired) {
+      _logout();
+    }
+  }
+
+
   static const List<Widget> _pages = <Widget>[
     HomePage(),
     ClassesPage(),
