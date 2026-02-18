@@ -1,4 +1,8 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
+import '../../../config/config.dart';
 
 enum UserRole {
   instituteAdmin,
@@ -602,7 +606,7 @@ class RegistrationController extends ChangeNotifier {
   }
 
 
-  void printData() {
+  void printData() async{
 
     String? userTypeRole;
 
@@ -663,7 +667,23 @@ class RegistrationController extends ChangeNotifier {
       "address": addressController.text
     };
     // debugPrint(studentData.toString());
-    debugPrint(user.toString());
+    //
+    var response= await http.post(Uri.parse("http://10.0.2.2:5001/api/auth/register"),
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: jsonEncode(user),
+
+    );
+    //
+
+    var jsonResponse = jsonDecode(response.body);
+
+
+    // debugPrint("Status Code: ${response.statusCode}");
+    // debugPrint("Response Body: ${response.body}");
+
+    // debugPrint(user.toString());
 
   }
 
