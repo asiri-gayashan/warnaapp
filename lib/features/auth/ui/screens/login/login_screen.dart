@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:warna_app/features/student/ui/navigation/student_navigation.dart';
 import '../../../../../shared/widgets/custom_button.dart';
 import '../../../../../shared/widgets/custom_textfield.dart';
 import '../../../../../shared/widgets/field_error_text.dart';
@@ -68,7 +69,30 @@ class _LoginScreenState extends State<LoginScreen> {
               // Login Button
               CustomButton(
                 text: AppStrings.loginButton,
-                onPressed: _controller.loginUser,
+                onPressed: () async {
+
+                  var result = await _controller.loginUser();
+
+                  if (result != null) {
+
+                    String role = result['role'];
+                    String token = result['token'];
+
+                    print(role + "From login screen");
+                    print(token);
+
+
+                    if (role == "STUDENT") {
+
+
+
+                      // Navigator.pushReplacementNamed(context, '/student');
+
+                      Navigator.push( context, MaterialPageRoute( builder: (context) => StudentNavigation(token: token)));
+                    }
+                  }
+                },
+
                 isLoading: _controller.isLoading,
                 // isDisabled: !_controller.isFormValid() && !_controller.isLoading,
               ),

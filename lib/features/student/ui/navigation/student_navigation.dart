@@ -5,9 +5,15 @@ import '../../../../features/student/ui/screens/profile_page.dart';
 import '../../../../features/student/ui/screens/classes_page.dart';
 import '../../../../features/student/ui/screens/notifications_page.dart';
 import '../../../../features/student/ui/screens/record_page.dart';
+import 'package:jwt_decoder/jwt_decoder.dart';
 
 class StudentNavigation extends StatefulWidget {
-  const StudentNavigation({Key? key}) : super(key: key);
+  final token;
+  const StudentNavigation({
+    @required this.token,
+    Key? key,
+
+  }) : super(key: key);
 
   @override
   State<StudentNavigation> createState() => _StudentNavigationState();
@@ -15,7 +21,7 @@ class StudentNavigation extends StatefulWidget {
 
 class _StudentNavigationState extends State<StudentNavigation> {
   int _selectedIndex = 0;
-
+  // late
   static const List<Widget> _pages = <Widget>[
     HomePage(),
     ClassesPage(),

@@ -2,6 +2,8 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import '../../../../config/config.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+
 
 class LoginController extends ChangeNotifier {
   // Form Fields
@@ -33,6 +35,14 @@ class LoginController extends ChangeNotifier {
   String? get emailError => _emailError;
   String? get passwordError => _passwordError;
   String? get generalError => _generalError;
+
+  bool _isNotValidated = false;
+  late SharedPreferences prefs;
+
+
+  void initSharedPref() async{
+    prefs = await SharedPreferences.getInstance();
+  }
 
   // Email Validation
   void validateEmail(String value) {
@@ -93,53 +103,95 @@ class LoginController extends ChangeNotifier {
 
 
 
-
-  void loginUser() async{
-
-    // String? userTypeRole;
-    //
-    // switch (_selectedRole) {
-    //   case UserRole.instituteAdmin:
-    //     userTypeRole = "INSTITUTE";
-    //   case UserRole.teacher:
-    //     userTypeRole = "TUTOR";
-    //
-    //   case UserRole.student:
-    //     userTypeRole = "STUDENT";
-    //
-    //   default:
-    //     userTypeRole = null;
-    // }
-
-    if(_emailValidated && _passwordValidated){
-
+  Future<Map<String, dynamic>?> loginUser() async {
+    if (_emailValidated && _passwordValidated) {
 
       final user = {
         "email": emailController.text,
         "password": passwordController.text
       };
 
-      var response= await http.post(Uri.parse("http://10.0.2.2:5001/api/auth/login"),
-        headers: {
-          "Content-Type": "application/json",
-        },
+      var response = await http.post(
+        Uri.parse("http://10.0.2.2:5001/api/auth/login"),
+        headers: {"Content-Type": "application/json"},
         body: jsonEncode(user),
-
       );
 
       var jsonResponse = jsonDecode(response.body);
 
-
-      debugPrint("Status Code: ${response.statusCode}");
-      debugPrint("Response Body: ${response.body}");
-
-
-      // debugPrint(user.toString());
-
+      if (jsonResponse['status'] == true) {
+        return {
+          "role": jsonResponse['data']['role'],
+          "token": jsonResponse['token']
+        };
+      }
     }
 
-
+    return null;
   }
+
+
+
+
+  //
+  // void loginUser() async{
+  //   bool status = false;
+  //   // String? userTypeRole;
+  //   //
+  //   // switch (_selectedRole) {
+  //   //   case UserRole.instituteAdmin:
+  //   //     userTypeRole = "INSTITUTE";
+  //   //   case UserRole.teacher:
+  //   //     userTypeRole = "TUTOR";
+  //   //
+  //   //   case UserRole.student:
+  //   //     userTypeRole = "STUDENT";
+  //   //
+  //   //   default:
+  //   //     userTypeRole = null;
+  //   // }
+  //
+  //   if(_emailValidated && _passwordValidated){
+  //
+  //
+  //     final user = {
+  //       "email": emailController.text,
+  //       "password": passwordController.text
+  //     };
+  //
+  //     var response= await http.post(Uri.parse("http://10.0.2.2:5001/api/auth/login"),
+  //       headers: {
+  //         "Content-Type": "application/json",
+  //       },
+  //       body: jsonEncode(user),
+  //
+  //     );
+  //
+  //     var jsonResponse = jsonDecode(response.body);
+  //
+  //       // debugPrint("Status Code: ${response.statusCode}");
+  //       // debugPrint("Response Body: ${response.body}");
+  //     if (jsonResponse['status'] == true) {
+  //       // print(jsonResponse['token']);
+  //       // print(jsonResponse['data']['role']);
+  //       var myToken = jsonResponse['token'];
+  //       prefs.setString('token', myToken);
+  //       // Navigator.pushReplacementNamed(context, '/student');
+  //
+  //
+  //     }else{
+  //       print("Something went wrong");
+  //     }
+  //
+  //     // debugPrint(user.toString());
+  //
+  //   }
+  //
+  //
+  // }
+  //
+
+
 
 
 
