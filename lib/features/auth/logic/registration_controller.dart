@@ -10,10 +10,12 @@ class RegistrationController extends ChangeNotifier {
   // Current Step
   int _currentStep = 1;
   int get currentStep => _currentStep;
-
+  bool isAPIcallProcess = false;
   // Role Selection
   UserRole? _selectedRole;
   UserRole? get selectedRole => _selectedRole;
+
+
 
   // -------------------------------------------------------------------Step 1: Basic Information
 
@@ -601,6 +603,22 @@ class RegistrationController extends ChangeNotifier {
 
 
   void printData() {
+
+    String? userTypeRole;
+
+    switch (_selectedRole) {
+      case UserRole.instituteAdmin:
+        userTypeRole = "INSTITUTE";
+      case UserRole.teacher:
+        userTypeRole = "TUTOR";
+
+      case UserRole.student:
+        userTypeRole = "STUDENT";
+
+      default:
+        userTypeRole = null;
+    }
+
     final studentData = {
       "full name": fullNameController.text,
       "email": emailController.text,
@@ -634,8 +652,18 @@ class RegistrationController extends ChangeNotifier {
       "province": selectedProvince,
       "Address": addressController.text,
     };
+
+    final user = {
+      "fullName":fullNameController.text,
+      "email": emailController.text,
+      "mobile": mobileController.text,
+      "password": passwordController.text,
+      "role": userTypeRole,
+      "province": selectedProvince,
+      "address": addressController.text
+    };
     // debugPrint(studentData.toString());
-    debugPrint(institiuteData.toString());
+    debugPrint(user.toString());
 
   }
 
