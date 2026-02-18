@@ -39,6 +39,8 @@ class _TestStudentPageState extends State<TestStudentPage> {
   }
 
   void _logout() {
+
+    // await secureStorage.delete(key: 'token');
     Navigator.pushAndRemoveUntil(
       context,
       MaterialPageRoute(builder: (_) => const LoginScreen()),

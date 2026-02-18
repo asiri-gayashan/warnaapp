@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:warna_app/features/student/ui/navigation/student_navigation.dart';
 import 'package:warna_app/features/test_student_page.dart';
+import 'package:warna_app/features/tutor/ui/navigation/tutor_navigation.dart';
 import '../../../../../shared/widgets/custom_button.dart';
 import '../../../../../shared/widgets/custom_textfield.dart';
 import '../../../../../shared/widgets/field_error_text.dart';
@@ -82,24 +83,29 @@ class _LoginScreenState extends State<LoginScreen> {
                     print(role + "From login screen");
                     print(token);
 
-
                     if (role == "STUDENT") {
-
-
-
                       Navigator.pushReplacement(
                         context,
                         MaterialPageRoute(
                           builder: (_) => TestStudentPage(token: token),
                         ),
                       );
-
                       // Navigator.pushReplacementNamed(context, '/student');
-
-
-
                       // Navigator.push( context, MaterialPageRoute( builder: (context) => StudentNavigation(token: token)));
+                    }else if (role == "TUTOR"){
+                      print("Reidercting to the TUTOR dashboard");
+                      Navigator.pushReplacement(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => TutorNavigation(),
+                        ),
+                      );
+                    }else if (role == "INSTITUTE"){
+                      print("Reidercting to the INSTITUTE dashboard");
+                    }else{
+                      print("Some thing went wrong");
                     }
+
                   }
                 },
 

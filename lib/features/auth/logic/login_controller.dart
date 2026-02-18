@@ -120,6 +120,7 @@ class LoginController extends ChangeNotifier {
       var jsonResponse = jsonDecode(response.body);
 
       if (jsonResponse['status'] == true) {
+        // prefs.setString("token", jsonResponse['token']);
         return {
           "role": jsonResponse['data']['role'],
           "token": jsonResponse['token']
@@ -129,69 +130,6 @@ class LoginController extends ChangeNotifier {
 
     return null;
   }
-
-
-
-
-  //
-  // void loginUser() async{
-  //   bool status = false;
-  //   // String? userTypeRole;
-  //   //
-  //   // switch (_selectedRole) {
-  //   //   case UserRole.instituteAdmin:
-  //   //     userTypeRole = "INSTITUTE";
-  //   //   case UserRole.teacher:
-  //   //     userTypeRole = "TUTOR";
-  //   //
-  //   //   case UserRole.student:
-  //   //     userTypeRole = "STUDENT";
-  //   //
-  //   //   default:
-  //   //     userTypeRole = null;
-  //   // }
-  //
-  //   if(_emailValidated && _passwordValidated){
-  //
-  //
-  //     final user = {
-  //       "email": emailController.text,
-  //       "password": passwordController.text
-  //     };
-  //
-  //     var response= await http.post(Uri.parse("http://10.0.2.2:5001/api/auth/login"),
-  //       headers: {
-  //         "Content-Type": "application/json",
-  //       },
-  //       body: jsonEncode(user),
-  //
-  //     );
-  //
-  //     var jsonResponse = jsonDecode(response.body);
-  //
-  //       // debugPrint("Status Code: ${response.statusCode}");
-  //       // debugPrint("Response Body: ${response.body}");
-  //     if (jsonResponse['status'] == true) {
-  //       // print(jsonResponse['token']);
-  //       // print(jsonResponse['data']['role']);
-  //       var myToken = jsonResponse['token'];
-  //       prefs.setString('token', myToken);
-  //       // Navigator.pushReplacementNamed(context, '/student');
-  //
-  //
-  //     }else{
-  //       print("Something went wrong");
-  //     }
-  //
-  //     // debugPrint(user.toString());
-  //
-  //   }
-  //
-  //
-  // }
-  //
-
-
 
 
 
