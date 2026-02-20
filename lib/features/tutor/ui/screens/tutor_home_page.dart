@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:warna_app/features/tutor/models/class_model.dart';
+import 'package:warna_app/features/tutor/ui/screens/create_class_page.dart';
 import 'package:warna_app/services/token_service.dart';
 import '../../../../core/constants/app_colors.dart';
 
@@ -153,26 +155,62 @@ class _TutorHomePageState extends State<TutorHomePage> {
 
             Row(
               children: [
-                _buildQuickActionCard(
-                  icon: Icons.video_call,
-                  label: 'Create Class',
-                  color: AppColors.primary,
+                Expanded(
+                  child: GestureDetector(
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const CreateClassPage(),
+                        ),
+                      ).then((newClass) {
+                        if (newClass != null) {
+                          // Optionally refresh the classes list or show success message
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              content: Text('Class "${(newClass as ClassModel).name}" created successfully!'),
+                              backgroundColor: AppColors.success,
+                              duration: const Duration(seconds: 2),
+                            ),
+                          );
+                        }
+                      });
+                    },
+                    child: _buildQuickActionCard(
+                      icon: Icons.video_call,
+                      label: 'Create Class',
+                      color: AppColors.primary,
+                    ),
+                  ),
                 ),
                 const SizedBox(width: 12),
-                _buildQuickActionCard(
-                  icon: Icons.assignment_add,
-                  label: 'Attendance',
-                  color: AppColors.secondary,
+                Expanded(
+                  child: GestureDetector(
+                    onTap: () {
+                      // Navigate to Attendance page
+                    },
+                    child: _buildQuickActionCard(
+                      icon: Icons.assignment_add,
+                      label: 'Attendance',
+                      color: AppColors.secondary,
+                    ),
+                  ),
                 ),
                 const SizedBox(width: 12),
-                _buildQuickActionCard(
-                  icon: Icons.payment,
-                  label: 'Payements',
-                  color: Colors.orange,
+                Expanded(
+                  child: GestureDetector(
+                    onTap: () {
+                      // Navigate to Payments page
+                    },
+                    child: _buildQuickActionCard(
+                      icon: Icons.payment,
+                      label: 'Payments',
+                      color: Colors.orange,
+                    ),
+                  ),
                 ),
               ],
             ),
-
             const SizedBox(height: 24),
 
             /// Upcoming Sessions
@@ -252,8 +290,7 @@ class _TutorHomePageState extends State<TutorHomePage> {
     required String label,
     required Color color,
   }) {
-    return Expanded(
-      child: Container(
+      return Container(
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
           color: color.withOpacity(0.1),
@@ -273,7 +310,6 @@ class _TutorHomePageState extends State<TutorHomePage> {
             ),
           ],
         ),
-      ),
     );
   }
 

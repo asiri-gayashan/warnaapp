@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
+import 'dart:convert';
+import 'package:http/http.dart' as http;
 import 'package:warna_app/core/constants/app_colors.dart';
 import 'package:warna_app/core/constants/select_options.dart';
 import 'package:warna_app/features/tutor/models/class_model.dart';
+import 'package:warna_app/services/token_service.dart';
 import 'package:warna_app/shared/widgets/custom_button.dart';
 import 'package:warna_app/shared/widgets/custom_textfield.dart';
 import 'package:warna_app/shared/widgets/customselect.dart';
@@ -72,8 +75,8 @@ class _CreateClassPageState extends State<CreateClassPage> {
 
   void _validateGrade() {
     setState(() {
-      if (_gradeController.text.isEmpty) {
-        _gradeError = 'Grade is required';
+      if (_selectedGrade == null || _selectedGrade!.isEmpty) {
+        _gradeError = 'Please select a grade';
       } else {
         _gradeError = null;
       }
@@ -136,8 +139,10 @@ class _CreateClassPageState extends State<CreateClassPage> {
         _durationError == null &&
         _locationError == null &&
         _descriptionError == null &&
-        _subjectController.text.isNotEmpty &&
-        _gradeController.text.isNotEmpty &&
+        _selectedSubject != null &&
+        _selectedSubject!.isNotEmpty &&
+        _selectedGrade != null &&
+        _selectedGrade!.isNotEmpty &&
         _selectedDay != null &&
         _timeController.text.isNotEmpty &&
         _durationController.text.isNotEmpty &&
@@ -154,6 +159,16 @@ class _CreateClassPageState extends State<CreateClassPage> {
     _validateLocation();
     _validateDescription();
 
+
+    String? userId = await TokenService.getUserId();
+
+
+    setState(() {
+      if (_selectedDay == null) _dayError = 'Please select a day';
+      if (_selectedSubject == null) _subjectError = 'Please select a subject';
+      if (_selectedGrade == null) _gradeError = 'Please select a grade';
+    });
+
     if (!_isFormValid) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
@@ -168,25 +183,43 @@ class _CreateClassPageState extends State<CreateClassPage> {
       _isLoading = true;
     });
 
+
+
+
     try {
-      // Create class object
-      final newClass = ClassModel(
-        id: DateTime.now().millisecondsSinceEpoch.toString(),
-        name: _subjectController.text,
-        subject: _selectedSubject ?? _subjectController.text,
-        grade: _gradeController.text,
-        day: _selectedDay!,
-        time: _timeController.text,
-        duration: _durationController.text,
-        totalStudents: 0,
-        description: _descriptionController.text,
-        location: _locationController.text,
-        status: true,
-        instituteId: null,
-      );
+      final newClass = {
+        "name": _subjectController.text,
+        "subject": _selectedSubject ?? _subjectController.text,
+        "grade": _selectedGrade!,
+        "day": _selectedDay!,
+        "teacherId": userId,
+        "time": _timeController.text,
+        "duration": _durationController.text,
+        "description": _descriptionController.text,
+        "location": _locationController.text,
+        "status": true,
+        "instituteId": null,
+      };
+
 
       // TODO: Save to backend
-      await Future.delayed(const Duration(seconds: 2)); // Simulate API call
+      // print(newClass);
+
+
+      print("Sending data:");
+
+      final response = await http.post(
+        Uri.parse("http://10.0.2.2:5001/api/classes/"),
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: jsonEncode(newClass),
+      );
+
+      print("Response status: ${response.statusCode}");
+      print("Response body: ${response.body}");
+
+
 
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -320,11 +353,17 @@ class _CreateClassPageState extends State<CreateClassPage> {
             const SizedBox(height: 20),
 
             // Grade Field
-            CustomTextField(
+
+
+            CreativeSelect(
               label: 'Grade*',
-              hintText: 'e.g., Grade 10, Year 11, etc.',
-              controller: _gradeController,
+              items: SelectOptions.gradesList,
+              value: _selectedGrade,
               onChanged: (value) {
+                setState(() {
+                  _selectedGrade = value;
+                  _gradeController.text = value ?? '';
+                });
                 _validateGrade();
               },
             ),
@@ -332,6 +371,7 @@ class _CreateClassPageState extends State<CreateClassPage> {
               const SizedBox(height: 4),
               FieldErrorText(message: _gradeError!),
             ],
+
 
             const SizedBox(height: 24),
 
@@ -439,30 +479,35 @@ class _CreateClassPageState extends State<CreateClassPage> {
 
             const SizedBox(height: 30),
 
-            // Create Button
-            CustomButton(
-              text: _isLoading ? 'Creating...' : 'Create Class',
-              onPressed: _isLoading ? null : _createClass,
-              isDisabled: !_isFormValid || _isLoading,
-              hasShadow: true,
-            ),
-
-            const SizedBox(height: 20),
-
-            // Cancel Button
-            OutlinedButton(
-              onPressed: _isLoading ? null : () => Navigator.pop(context),
-              style: OutlinedButton.styleFrom(
-                foregroundColor: AppColors.textSecondary,
-                side: const BorderSide(color: AppColors.textDisabled),
-                padding: const EdgeInsets.symmetric(vertical: 16),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
+            Row(
+              children: [
+                // Cancel Button
+                Expanded(
+                  child: ElevatedButton(
+                    onPressed: _isLoading ? null : () => Navigator.pop(context),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.red,
+                      foregroundColor: Colors.white,
+                      padding: const EdgeInsets.symmetric(vertical: 16),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                    ),
+                    child: const Text('Cancel'),
+                  ),
                 ),
-              ),
-              child: const Text('Cancel'),
+                const SizedBox(width: 12),
+                // Create Button
+                Expanded(
+                  child: CustomButton(
+                    text: _isLoading ? 'Creating...' : 'Create Class',
+                    onPressed: _isLoading ? null : _createClass,
+                    isDisabled: !_isFormValid || _isLoading,
+                    hasShadow: true,
+                  ),
+                ),
+              ],
             ),
-
             const SizedBox(height: 30),
           ],
         ),

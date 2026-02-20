@@ -7,7 +7,7 @@ class ClassModel {
   final String name;
 
 
-
+    final String? teacherId;
   // Schedule
   final String day;
   final String time;
@@ -40,6 +40,7 @@ class ClassModel {
     required this.description,
     required this.status,
     this.instituteId,
+    this.teacherId,
      this.totalStudents,
   });
 
