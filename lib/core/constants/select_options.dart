@@ -134,6 +134,18 @@ class SelectOptions {
 
   // ------------------------------------------------------------------ studentCountList
 
+
+  static const List<String> daysList = [
+    'Monday',
+    'Tuesday',
+    'Wednesday',
+    'Thursday',
+    'Friday',
+    'Saturday',
+    'Sunday',
+  ];
+
+
   static const List<String> studentCountList = [
     "1 - 50",
     "51 - 100",

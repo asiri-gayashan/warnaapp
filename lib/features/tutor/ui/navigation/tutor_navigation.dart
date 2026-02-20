@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:warna_app/features/tutor/ui/screens/classes_page.dart';
 import '../screens/tutor_home_page.dart';
 import '../screens/sessions_page.dart';
 import '../screens/students_page.dart';
@@ -18,7 +19,8 @@ class _TutorNavigationState extends State<TutorNavigation> {
 
   static const List<Widget> _pages = <Widget>[
     TutorHomePage(),
-    SessionsPage(),
+    // SessionsPage(),
+    ClassesPage(),
     StudentsPage(),
     EarningsPage(),
     NotificationsPage(),
