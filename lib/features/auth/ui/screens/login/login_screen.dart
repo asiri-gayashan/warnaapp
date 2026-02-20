@@ -80,18 +80,19 @@ class _LoginScreenState extends State<LoginScreen> {
                     String role = result['role'];
                     String token = result['token'];
 
-                    print(role + "From login screen");
+                    print(role + " Logged In Successfully");
                     print(token);
 
                     if (role == "STUDENT") {
                       Navigator.pushReplacement(
                         context,
                         MaterialPageRoute(
-                          builder: (_) => TestStudentPage(token: token),
+                          builder: (_) => TestStudentPage(),
                         ),
                       );
                       // Navigator.pushReplacementNamed(context, '/student');
-                      // Navigator.push( context, MaterialPageRoute( builder: (context) => StudentNavigation(token: token)));
+                      Navigator.push( context, MaterialPageRoute( builder: (context) => StudentNavigation(token: token)));
+
                     }else if (role == "TUTOR"){
                       print("Reidercting to the TUTOR dashboard");
                       Navigator.pushReplacement(

@@ -1,46 +1,48 @@
 import 'package:flutter/material.dart';
 import 'package:jwt_decoder/jwt_decoder.dart';
 import 'package:warna_app/features/auth/ui/screens/login/login_screen.dart';
-// import './auth/ui/screens/login/login_screen.dart';
+import 'package:warna_app/services/token_service.dart';
+// import 'core/services/token_service.dart';
 
 class TestStudentPage extends StatefulWidget {
-  final String token;
-
-  const TestStudentPage({
-    Key? key,
-    required this.token,
-  }) : super(key: key);
+  const TestStudentPage({Key? key}) : super(key: key);
 
   @override
   State<TestStudentPage> createState() => _TestStudentPageState();
 }
 
 class _TestStudentPageState extends State<TestStudentPage> {
-
-  late Map<String, dynamic> decodedToken;
-  late String email;
-  late String userID;
-  late String role;
+  Map<String, dynamic>? decodedToken;
+  String email = "";
+  bool loading = true;
 
   @override
   void initState() {
     super.initState();
-    _validateToken();
+    _loadToken();
   }
 
-  void _validateToken() {
-    if (widget.token.isEmpty || JwtDecoder.isExpired(widget.token)) {
+  /// Load token globally
+  Future<void> _loadToken() async {
+    String? token = await TokenService.getToken();
+
+    if (token == null || token.isEmpty || JwtDecoder.isExpired(token)) {
       _logout();
       return;
     }
 
-    decodedToken = JwtDecoder.decode(widget.token);
-    email = decodedToken['email'] ?? "No Email";
+    decodedToken = JwtDecoder.decode(token);
+
+    setState(() {
+      email = decodedToken?['email'] ?? "No Email";
+      loading = false;
+    });
   }
 
-  void _logout() {
+  /// Logout
+  Future<void> _logout() async {
+    await TokenService.clearToken();
 
-    // await secureStorage.delete(key: 'token');
     Navigator.pushAndRemoveUntil(
       context,
       MaterialPageRoute(builder: (_) => const LoginScreen()),
@@ -50,6 +52,12 @@ class _TestStudentPageState extends State<TestStudentPage> {
 
   @override
   Widget build(BuildContext context) {
+    if (loading) {
+      return const Scaffold(
+        body: Center(child: CircularProgressIndicator()),
+      );
+    }
+
     return Scaffold(
       appBar: AppBar(
         title: const Text("Test Student Page"),

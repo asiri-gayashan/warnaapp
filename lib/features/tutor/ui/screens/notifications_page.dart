@@ -1,117 +1,206 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/cupertino.dart';
+
 import '../../../../core/constants/app_colors.dart';
 
 class NotificationsPage extends StatelessWidget {
-  const NotificationsPage({Key? key}) : super(key: key);
+  const NotificationsPage({super.key});
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text(
-          'Alerts',
-          style: TextStyle(
-            fontWeight: FontWeight.w600,
-            color: AppColors.textPrimary,
-          ),
+      backgroundColor: const Color(0xFFF5F9FF),
+      body: SafeArea(
+        child: Column(
+          children: [
+            _buildHeader(),
+            Expanded(
+              child: ListView(
+                padding: const EdgeInsets.symmetric(horizontal: 20),
+                children: [
+                  _buildSectionTitle("Today"),
+                  _buildNotificationItem(
+                    icon: CupertinoIcons.book_fill,
+                    title: "New course available!",
+                    subtitle:
+                    "Lorem Ipsum is simply dummy text of the printing and typesetting industry.",
+                    isNew: true,
+                  ),
+                  _buildNotificationItem(
+                    icon: CupertinoIcons.rosette,
+                    title: "Congrats on finishing!",
+                    subtitle:
+                    "Lorem Ipsum is simply dummy text of the printing and typesetting industry.",
+                  ),
+                  _buildNotificationItem(
+                    icon: CupertinoIcons.bookmark_fill,
+                    title: "New material added!",
+                    subtitle:
+                    "Lorem Ipsum is simply dummy text of the printing and typesetting industry.",
+                    isNew: true,
+                  ),
+                  _buildNotificationItem(
+                    icon: CupertinoIcons.time_solid,
+                    title: "Limited-time offer!",
+                    subtitle:
+                    "Lorem Ipsum is simply dummy text of the printing and typesetting industry.",
+                  ),
+
+                  const SizedBox(height: 25),
+                  _buildSectionTitle("Yesterday"),
+                  _buildNotificationItem(
+                    icon: CupertinoIcons.creditcard_fill,
+                    title: "Payment successful!",
+                    subtitle:
+                    "Lorem Ipsum is simply dummy text of the printing and typesetting industry.",
+                  ),
+                  _buildNotificationItem(
+                    icon: CupertinoIcons.link_circle_fill,
+                    title: "Credit card connected!",
+                    subtitle:
+                    "Lorem Ipsum is simply dummy text of the printing and typesetting industry.",
+                  ),
+                ],
+              ),
+            ),
+          ],
         ),
-        backgroundColor: Colors.white,
-        elevation: 0,
-        actions: [
-          IconButton(
-            onPressed: () {},
-            icon: const Icon(Icons.done_all, color: AppColors.textPrimary),
+      ),
+    );
+  }
+
+  // 🔹 HEADER
+  Widget _buildHeader() {
+    return Padding(
+      padding: const EdgeInsets.all(20),
+      child: Row(
+        children: [
+          const Icon(CupertinoIcons.back),
+          const SizedBox(width: 12),
+          const Expanded(
+            child: Text(
+              "Notification",
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                fontSize: 20,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ),
+          const SizedBox(width: 24), // balance the back icon
+        ],
+      ),
+    );
+  }
+
+  // 🔹 SECTION TITLE (Today / Yesterday)
+  Widget _buildSectionTitle(String title) {
+    return Padding(
+      padding: const EdgeInsets.only(top: 10, bottom: 10),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Text(
+            title,
+            style: const TextStyle(
+              fontSize: 16,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          const Text(
+            "Mark all as read",
+            style: TextStyle(
+              color: AppColors.primary,
+              fontWeight: FontWeight.w500,
+            ),
           ),
         ],
       ),
-      body: ListView.builder(
-        padding: const EdgeInsets.all(16),
-        itemCount: 8,
-        itemBuilder: (context, index) {
-          return Container(
-            margin: const EdgeInsets.only(bottom: 12),
-            padding: const EdgeInsets.all(16),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(16),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.grey.withOpacity(0.1),
-                  blurRadius: 10,
-                  offset: const Offset(0, 2),
-                ),
-              ],
+    );
+  }
+
+  // 🔹 SINGLE NOTIFICATION ITEM
+  Widget _buildNotificationItem({
+    required IconData icon,
+    required String title,
+    required String subtitle,
+    bool isNew = false,
+  }) {
+    return Container(
+      margin: const EdgeInsets.only(bottom: 15),
+      padding: const EdgeInsets.all(14),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.grey.withOpacity(0.08),
+            blurRadius: 8,
+            offset: const Offset(0, 4),
+          )
+        ],
+      ),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // ICON CIRCLE
+          Container(
+            padding: const EdgeInsets.all(12),
+            decoration: const BoxDecoration(
+              color: Color(0xFFEAF3FF),
+              shape: BoxShape.circle,
             ),
-            child: Row(
+            child: Icon(icon, color: AppColors.primary, size: 18),
+          ),
+
+          const SizedBox(width: 12),
+
+          // TEXTS
+          Expanded(
+            child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Container(
-                  padding: const EdgeInsets.all(10),
-                  decoration: BoxDecoration(
-                    color: index == 0
-                        ? AppColors.primary.withOpacity(0.1)
-                        : Colors.grey.withOpacity(0.1),
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: Icon(
-                    index == 0 ? Icons.video_call :
-                    index == 1 ? Icons.payment :
-                    index == 2 ? Icons.message : Icons.notifications,
-                    color: index == 0
-                        ? AppColors.primary
-                        : AppColors.textSecondary,
-                    size: 20,
-                  ),
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        index == 0 ? 'New Session Request' :
-                        index == 1 ? 'Payment Received' :
-                        index == 2 ? 'New Message' : 'System Update',
+                Row(
+                  children: [
+                    Expanded(
+                      child: Text(
+                        title,
                         style: const TextStyle(
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                      const SizedBox(height: 4),
-                      Text(
-                        index == 0 ? 'Emma Watson requested a session' :
-                        index == 1 ? '\$45 received from James Smith' :
-                        index == 2 ? 'You have 3 unread messages' : 'App version 2.0 is available',
-                        style: TextStyle(
-                          color: AppColors.textSecondary,
+                          fontWeight: FontWeight.bold,
                           fontSize: 14,
                         ),
                       ),
-                      const SizedBox(height: 8),
-                      Text(
-                        index == 0 ? '5 min ago' :
-                        index == 1 ? '1 hour ago' :
-                        index == 2 ? '3 hours ago' : 'Yesterday',
-                        style: const TextStyle(
-                          color: AppColors.textDisabled,
-                          fontSize: 12,
+                    ),
+                    if (isNew)
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 6, vertical: 0),
+                        decoration: BoxDecoration(
+                          color: Colors.blue,
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: const Text(
+                          "",
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 10,
+                          ),
                         ),
                       ),
-                    ],
+                  ],
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  subtitle,
+                  style: const TextStyle(
+                    fontSize: 12,
+                    color: Colors.grey,
                   ),
                 ),
-                if (index == 0)
-                  Container(
-                    width: 8,
-                    height: 8,
-                    decoration: const BoxDecoration(
-                      color: AppColors.primary,
-                      shape: BoxShape.circle,
-                    ),
-                  ),
               ],
             ),
-          );
-        },
+          ),
+        ],
       ),
     );
   }

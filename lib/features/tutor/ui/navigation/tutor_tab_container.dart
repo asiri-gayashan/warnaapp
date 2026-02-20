@@ -44,7 +44,7 @@ class TutorTabContainer extends StatelessWidget {
                 index: 1,
                 icon: Icons.video_call_outlined,
                 activeIcon: Icons.video_call,
-                label: 'Sessions',
+                label: 'Classes',
               ),
               _buildTabItem(
                 index: 2,
@@ -54,9 +54,9 @@ class TutorTabContainer extends StatelessWidget {
               ),
               _buildTabItem(
                 index: 3,
-                icon: Icons.account_balance_wallet_outlined,
-                activeIcon: Icons.account_balance_wallet,
-                label: 'Earnings',
+                icon: Icons.payment_outlined,
+                activeIcon: Icons.payment,
+                label: 'Payments',
               ),
               _buildTabItem(
                 index: 4,

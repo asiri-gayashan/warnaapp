@@ -1,8 +1,10 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'package:warna_app/services/token_service.dart';
 import '../../../../config/config.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+
+
 
 
 class LoginController extends ChangeNotifier {
@@ -37,12 +39,7 @@ class LoginController extends ChangeNotifier {
   String? get generalError => _generalError;
 
   bool _isNotValidated = false;
-  late SharedPreferences prefs;
 
-
-  void initSharedPref() async{
-    prefs = await SharedPreferences.getInstance();
-  }
 
   // Email Validation
   void validateEmail(String value) {
@@ -98,11 +95,6 @@ class LoginController extends ChangeNotifier {
   }
 
   // Login Method
-
-
-
-
-
   Future<Map<String, dynamic>?> loginUser() async {
     if (_emailValidated && _passwordValidated) {
 
@@ -120,14 +112,13 @@ class LoginController extends ChangeNotifier {
       var jsonResponse = jsonDecode(response.body);
 
       if (jsonResponse['status'] == true) {
-        // prefs.setString("token", jsonResponse['token']);
+        await TokenService.saveToken(jsonResponse['token']);
         return {
           "role": jsonResponse['data']['role'],
           "token": jsonResponse['token']
         };
       }
     }
-
     return null;
   }
 

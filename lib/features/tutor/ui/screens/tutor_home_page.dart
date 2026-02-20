@@ -1,11 +1,56 @@
 import 'package:flutter/material.dart';
+import 'package:warna_app/services/token_service.dart';
 import '../../../../core/constants/app_colors.dart';
 
-class TutorHomePage extends StatelessWidget {
+
+
+
+
+class TutorHomePage extends StatefulWidget {
   const TutorHomePage({Key? key}) : super(key: key);
 
   @override
+  State<TutorHomePage> createState() => _TutorHomePageState();
+}
+
+
+
+class _TutorHomePageState extends State<TutorHomePage> {
+
+  String fullName = "";
+  String email = "";
+  String role = "";
+  bool loading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    loadUser();
+  }
+
+  Future<void> loadUser() async {
+    String? name = await TokenService.getFullName();
+    String? userEmail = await TokenService.getEmail();
+    String? userRole = await TokenService.getRole();
+
+
+    setState(() {
+      fullName = name ?? "Tutor";
+      email = userEmail ?? "tutor@warna.com";
+      role = userRole ?? "Tutor";
+      loading = false;
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
+
+    if (loading) {
+      return const Scaffold(
+        body: Center(child: CircularProgressIndicator()),
+      );
+    }
+
     return Scaffold(
       appBar: AppBar(
         title: const Text(
@@ -33,12 +78,14 @@ class TutorHomePage extends StatelessWidget {
           ),
         ],
       ),
+
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(20),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Welcome Card
+
+            /// Welcome Card
             Container(
               padding: const EdgeInsets.all(20),
               decoration: BoxDecoration(
@@ -49,9 +96,11 @@ class TutorHomePage extends StatelessWidget {
                 ),
                 borderRadius: BorderRadius.circular(20),
               ),
+
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
+
                   const Text(
                     'Welcome back,',
                     style: TextStyle(
@@ -59,20 +108,30 @@ class TutorHomePage extends StatelessWidget {
                       fontSize: 16,
                     ),
                   ),
-                  const Text(
-                    'Dr. Smith',
-                    style: TextStyle(
+
+                  Text(
+                    fullName,
+                    style: const TextStyle(
                       color: Colors.white,
                       fontSize: 24,
                       fontWeight: FontWeight.bold,
                     ),
                   ),
+                  Text(
+                    email,
+                    style: TextStyle(
+                      color: Colors.tealAccent,
+                      fontSize: 14,
+                    ),
+                  ),
+
                   const SizedBox(height: 16),
+
                   Row(
                     children: [
-                      _buildStatChip('12', 'Today\'s Sessions'),
+                      _buildStatChip('12', 'Total Classes'),
                       const SizedBox(width: 12),
-                      _buildStatChip('85%', 'Attendance'),
+                      _buildStatChip('200', 'Student Count'),
                     ],
                   ),
                 ],
@@ -81,7 +140,7 @@ class TutorHomePage extends StatelessWidget {
 
             const SizedBox(height: 24),
 
-            // Quick Actions
+            /// Quick Actions
             const Text(
               'Quick Actions',
               style: TextStyle(
@@ -89,24 +148,26 @@ class TutorHomePage extends StatelessWidget {
                 fontWeight: FontWeight.w600,
               ),
             ),
+
             const SizedBox(height: 16),
+
             Row(
               children: [
                 _buildQuickActionCard(
                   icon: Icons.video_call,
-                  label: 'Start Session',
+                  label: 'Create Class',
                   color: AppColors.primary,
                 ),
                 const SizedBox(width: 12),
                 _buildQuickActionCard(
-                  icon: Icons.assignment,
-                  label: 'Grade Work',
+                  icon: Icons.assignment_add,
+                  label: 'Attendance',
                   color: AppColors.secondary,
                 ),
                 const SizedBox(width: 12),
                 _buildQuickActionCard(
-                  icon: Icons.message,
-                  label: 'Messages',
+                  icon: Icons.payment,
+                  label: 'Payements',
                   color: Colors.orange,
                 ),
               ],
@@ -114,12 +175,12 @@ class TutorHomePage extends StatelessWidget {
 
             const SizedBox(height: 24),
 
-            // Upcoming Sessions
+            /// Upcoming Sessions
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 const Text(
-                  'Upcoming Sessions',
+                  'Upcoming Classes',
                   style: TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.w600,
@@ -131,13 +192,16 @@ class TutorHomePage extends StatelessWidget {
                 ),
               ],
             ),
+
             const SizedBox(height: 12),
+
             _buildSessionCard(
               student: 'Emma Watson',
               subject: 'Mathematics',
               time: '10:30 AM',
               duration: '60 min',
             ),
+
             _buildSessionCard(
               student: 'James Smith',
               subject: 'Physics',
@@ -149,6 +213,9 @@ class TutorHomePage extends StatelessWidget {
       ),
     );
   }
+
+
+  /// ---------------- Widgets ----------------
 
   Widget _buildStatChip(String value, String label) {
     return Container(

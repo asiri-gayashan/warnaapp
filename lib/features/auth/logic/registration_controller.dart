@@ -680,8 +680,8 @@ class RegistrationController extends ChangeNotifier {
     var jsonResponse = jsonDecode(response.body);
 
 
-    // debugPrint("Status Code: ${response.statusCode}");
-    // debugPrint("Response Body: ${response.body}");
+    debugPrint("Status Code: ${response.statusCode}");
+    debugPrint("Response Body: ${response.body}");
 
     // debugPrint(user.toString());
 
