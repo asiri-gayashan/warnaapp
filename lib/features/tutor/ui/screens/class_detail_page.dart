@@ -152,7 +152,7 @@ class ClassDetailPage extends StatelessWidget {
                   _buildScheduleItem(
                     icon: Icons.timer,
                     label: 'Duration',
-                    value: classItem.duration,
+                    value: classItem.duration + " mins",
                   ),
                 ],
               ),
@@ -160,7 +160,12 @@ class ClassDetailPage extends StatelessWidget {
 
 
 
+
+
+
             const SizedBox(height: 24),
+
+
 
             // Description
             const Text(

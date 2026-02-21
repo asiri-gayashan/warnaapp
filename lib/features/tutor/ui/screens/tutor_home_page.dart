@@ -1,12 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
 import 'package:warna_app/features/tutor/models/class_model.dart';
 import 'package:warna_app/features/tutor/ui/screens/create_class_page.dart';
+import 'package:warna_app/features/tutor/ui/screens/class_detail_page.dart'; // Add this import
 import 'package:warna_app/services/token_service.dart';
 import '../../../../core/constants/app_colors.dart';
-
-
-
-
 
 class TutorHomePage extends StatefulWidget {
   const TutorHomePage({Key? key}) : super(key: key);
@@ -15,26 +14,27 @@ class TutorHomePage extends StatefulWidget {
   State<TutorHomePage> createState() => _TutorHomePageState();
 }
 
-
-
 class _TutorHomePageState extends State<TutorHomePage> {
-
   String fullName = "";
   String email = "";
   String role = "";
   bool loading = true;
+  bool classesLoading = true;
+
+  List<ClassModel> _upcomingClasses = [];
+  String? _errorMessage;
 
   @override
   void initState() {
     super.initState();
     loadUser();
+    _fetchUpcomingClasses();
   }
 
   Future<void> loadUser() async {
     String? name = await TokenService.getFullName();
     String? userEmail = await TokenService.getEmail();
     String? userRole = await TokenService.getRole();
-
 
     setState(() {
       fullName = name ?? "Tutor";
@@ -44,9 +44,52 @@ class _TutorHomePageState extends State<TutorHomePage> {
     });
   }
 
+  Future<void> _fetchUpcomingClasses() async {
+    setState(() {
+      classesLoading = true;
+      _errorMessage = null;
+    });
+
+    try {
+      final response = await http.get(
+        Uri.parse("http://10.0.2.2:5001/api/classes/"),
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      );
+
+      if (response.statusCode == 200) {
+        Map<String, dynamic> responseData = json.decode(response.body);
+
+        if (responseData['status'] == true && responseData.containsKey('data')) {
+          List<dynamic> classesList = responseData['data'];
+
+          setState(() {
+            // Sort classes by day (you might want to sort by date/time)
+            _upcomingClasses = classesList
+                .map((json) => ClassModel.fromJson(json))
+                .where((classItem) => classItem.status == true) // Only show active classes
+                .take(3) // Show only first 3 classes
+                .toList();
+            classesLoading = false;
+          });
+        }
+      } else {
+        setState(() {
+          _errorMessage = 'Failed to load classes';
+          classesLoading = false;
+        });
+      }
+    } catch (e) {
+      setState(() {
+        _errorMessage = 'Error loading classes';
+        classesLoading = false;
+      });
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
-
     if (loading) {
       return const Scaffold(
         body: Center(child: CircularProgressIndicator()),
@@ -86,7 +129,6 @@ class _TutorHomePageState extends State<TutorHomePage> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-
             /// Welcome Card
             Container(
               padding: const EdgeInsets.all(20),
@@ -98,11 +140,9 @@ class _TutorHomePageState extends State<TutorHomePage> {
                 ),
                 borderRadius: BorderRadius.circular(20),
               ),
-
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-
                   const Text(
                     'Welcome back,',
                     style: TextStyle(
@@ -110,7 +150,6 @@ class _TutorHomePageState extends State<TutorHomePage> {
                       fontSize: 16,
                     ),
                   ),
-
                   Text(
                     fullName,
                     style: const TextStyle(
@@ -126,12 +165,10 @@ class _TutorHomePageState extends State<TutorHomePage> {
                       fontSize: 14,
                     ),
                   ),
-
                   const SizedBox(height: 16),
-
                   Row(
                     children: [
-                      _buildStatChip('12', 'Total Classes'),
+                      _buildStatChip(_upcomingClasses.length.toString(), 'Upcoming Classes'),
                       const SizedBox(width: 12),
                       _buildStatChip('200', 'Student Count'),
                     ],
@@ -150,7 +187,6 @@ class _TutorHomePageState extends State<TutorHomePage> {
                 fontWeight: FontWeight.w600,
               ),
             ),
-
             const SizedBox(height: 16),
 
             Row(
@@ -165,7 +201,6 @@ class _TutorHomePageState extends State<TutorHomePage> {
                         ),
                       ).then((newClass) {
                         if (newClass != null) {
-                          // Optionally refresh the classes list or show success message
                           ScaffoldMessenger.of(context).showSnackBar(
                             SnackBar(
                               content: Text('Class "${(newClass as ClassModel).name}" created successfully!'),
@@ -173,6 +208,7 @@ class _TutorHomePageState extends State<TutorHomePage> {
                               duration: const Duration(seconds: 2),
                             ),
                           );
+                          _fetchUpcomingClasses(); // Refresh classes after creating new one
                         }
                       });
                     },
@@ -211,6 +247,7 @@ class _TutorHomePageState extends State<TutorHomePage> {
                 ),
               ],
             ),
+
             const SizedBox(height: 24),
 
             /// Upcoming Sessions
@@ -225,7 +262,10 @@ class _TutorHomePageState extends State<TutorHomePage> {
                   ),
                 ),
                 TextButton(
-                  onPressed: () {},
+                  onPressed: () {
+                    // Navigate to all classes page
+                    Navigator.pushNamed(context, '/classes');
+                  },
                   child: const Text('View All'),
                 ),
               ],
@@ -233,25 +273,54 @@ class _TutorHomePageState extends State<TutorHomePage> {
 
             const SizedBox(height: 12),
 
-            _buildSessionCard(
-              student: 'Emma Watson',
-              subject: 'Mathematics',
-              time: '10:30 AM',
-              duration: '60 min',
-            ),
+            // Show loading indicator while fetching classes
+            if (classesLoading)
+              const Center(child: CircularProgressIndicator())
 
-            _buildSessionCard(
-              student: 'James Smith',
-              subject: 'Physics',
-              time: '2:00 PM',
-              duration: '90 min',
-            ),
+            // Show error message if there's an error
+            else if (_errorMessage != null)
+              Center(
+                child: Column(
+                  children: [
+                    Text(
+                      _errorMessage!,
+                      style: const TextStyle(color: Colors.red),
+                    ),
+                    TextButton(
+                      onPressed: _fetchUpcomingClasses,
+                      child: const Text('Retry'),
+                    ),
+                  ],
+                ),
+              )
+
+            // Show message if no classes
+            else if (_upcomingClasses.isEmpty)
+                const Center(
+                  child: Padding(
+                    padding: EdgeInsets.all(20),
+                    child: Text(
+                      'No upcoming classes',
+                      style: TextStyle(
+                        color: AppColors.textSecondary,
+                        fontSize: 16,
+                      ),
+                    ),
+                  ),
+                )
+
+              // Show classes
+              else
+                ..._upcomingClasses.map((classItem) =>
+                    _buildSessionCard(
+                      classItem: classItem,
+                    ),
+                ),
           ],
         ),
       ),
     );
   }
-
 
   /// ---------------- Widgets ----------------
 
@@ -290,103 +359,137 @@ class _TutorHomePageState extends State<TutorHomePage> {
     required String label,
     required Color color,
   }) {
-      return Container(
-        padding: const EdgeInsets.all(16),
-        decoration: BoxDecoration(
-          color: color.withOpacity(0.1),
-          borderRadius: BorderRadius.circular(16),
-        ),
-        child: Column(
-          children: [
-            Icon(icon, color: color, size: 28),
-            const SizedBox(height: 8),
-            Text(
-              label,
-              style: TextStyle(
-                color: color,
-                fontWeight: FontWeight.w500,
-                fontSize: 12,
-              ),
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: color.withOpacity(0.1),
+        borderRadius: BorderRadius.circular(16),
+      ),
+      child: Column(
+        children: [
+          Icon(icon, color: color, size: 28),
+          const SizedBox(height: 8),
+          Text(
+            label,
+            style: TextStyle(
+              color: color,
+              fontWeight: FontWeight.w500,
+              fontSize: 12,
             ),
-          ],
-        ),
+          ),
+        ],
+      ),
     );
   }
 
   Widget _buildSessionCard({
-    required String student,
-    required String subject,
-    required String time,
-    required String duration,
+    required ClassModel classItem,
   }) {
-    return Container(
-      margin: const EdgeInsets.only(bottom: 12),
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.grey.withOpacity(0.1),
-            blurRadius: 10,
-            offset: const Offset(0, 2),
-          ),
-        ],
-      ),
-      child: Row(
-        children: [
-          CircleAvatar(
-            backgroundColor: AppColors.primary.withOpacity(0.1),
-            child: Text(
-              student[0],
-              style: const TextStyle(
-                color: AppColors.primary,
-                fontWeight: FontWeight.bold,
-              ),
+    return GestureDetector(
+      onTap: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => ClassDetailPage(
+              classItem: classItem,
             ),
           ),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+        );
+      },
+      child: Container(
+        margin: const EdgeInsets.only(bottom: 12),
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(16),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.grey.withOpacity(0.1),
+              blurRadius: 10,
+              offset: const Offset(0, 2),
+            ),
+          ],
+        ),
+        child: Row(
+          children: [
+            CircleAvatar(
+              backgroundColor: AppColors.primary.withOpacity(0.1),
+              child: Text(
+                classItem.name.isNotEmpty ? classItem.name[0] : 'C',
+                style: const TextStyle(
+                  color: AppColors.primary,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    classItem.name,
+                    style: const TextStyle(
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    '${classItem.subject} • ${classItem.grade}',
+                    style: const TextStyle(
+                      color: AppColors.textSecondary,
+                      fontSize: 12,
+                    ),
+                  ),
+                  const SizedBox(height: 2),
+                  Text(
+                    classItem.location,
+                    style: const TextStyle(
+                      color: AppColors.textSecondary,
+                      fontSize: 11,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.end,
               children: [
-                Text(
-                  student,
-                  style: const TextStyle(
-                    fontWeight: FontWeight.w600,
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                  decoration: BoxDecoration(
+                    color: AppColors.primary.withOpacity(0.1),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Text(
+                    classItem.day,
+                    style: const TextStyle(
+                      fontSize: 11,
+                      fontWeight: FontWeight.w600,
+                      color: AppColors.primary,
+                    ),
                   ),
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  subject,
+                  classItem.time,
+                  style: const TextStyle(
+                    fontWeight: FontWeight.w600,
+                    color: AppColors.textPrimary,
+                    fontSize: 13,
+                  ),
+                ),
+                Text(
+                  '${classItem.duration} mins',
                   style: const TextStyle(
                     color: AppColors.textSecondary,
-                    fontSize: 12,
+                    fontSize: 11,
                   ),
                 ),
               ],
             ),
-          ),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.end,
-            children: [
-              Text(
-                time,
-                style: const TextStyle(
-                  fontWeight: FontWeight.w600,
-                  color: AppColors.primary,
-                ),
-              ),
-              Text(
-                duration,
-                style: const TextStyle(
-                  color: AppColors.textSecondary,
-                  fontSize: 12,
-                ),
-              ),
-            ],
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

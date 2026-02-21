@@ -24,6 +24,7 @@ class _CreateClassPageState extends State<CreateClassPage> {
   final TextEditingController _timeController = TextEditingController();
   final TextEditingController _durationController = TextEditingController();
   final TextEditingController _locationController = TextEditingController();
+  final TextEditingController _classNameController = TextEditingController();
   final TextEditingController _descriptionController = TextEditingController();
 
   // Selected values for dropdowns
@@ -39,6 +40,7 @@ class _CreateClassPageState extends State<CreateClassPage> {
   String? _timeError;
   String? _durationError;
   String? _locationError;
+  String? _classNameError;
   String? _descriptionError;
 
   // Loading state
@@ -57,6 +59,7 @@ class _CreateClassPageState extends State<CreateClassPage> {
     _timeController.addListener(_validateTime);
     _durationController.addListener(_validateDuration);
     _locationController.addListener(_validateLocation);
+    _classNameController.addListener(_validateClassname);
     _descriptionController.addListener(_validateDescription);
   }
 
@@ -119,6 +122,22 @@ class _CreateClassPageState extends State<CreateClassPage> {
     });
   }
 
+
+
+  void _validateClassname() {
+    setState(() {
+      if (_classNameController.text.isEmpty) {
+        _classNameError = 'Class name is required';
+      } else if(_classNameController.text.trim().length > 20){
+        _classNameError = 'Characters limit is 20';
+      }else {
+        _classNameError = null;
+      }
+    });
+  }
+
+
+
   void _validateDescription() {
     setState(() {
       if (_descriptionController.text.isEmpty) {
@@ -138,6 +157,7 @@ class _CreateClassPageState extends State<CreateClassPage> {
         _timeError == null &&
         _durationError == null &&
         _locationError == null &&
+        _classNameError == null &&
         _descriptionError == null &&
         _selectedSubject != null &&
         _selectedSubject!.isNotEmpty &&
@@ -157,6 +177,7 @@ class _CreateClassPageState extends State<CreateClassPage> {
     _validateTime();
     _validateDuration();
     _validateLocation();
+    _validateClassname();
     _validateDescription();
 
 
@@ -188,7 +209,7 @@ class _CreateClassPageState extends State<CreateClassPage> {
 
     try {
       final newClass = {
-        "name": _subjectController.text,
+        "name": _classNameController.text,
         "subject": _selectedSubject ?? _subjectController.text,
         "grade": _selectedGrade!,
         "day": _selectedDay!,
@@ -331,6 +352,24 @@ class _CreateClassPageState extends State<CreateClassPage> {
               ),
             ),
             const SizedBox(height: 16),
+
+
+            CustomTextField(
+              label: 'Class Name*',
+              hintText: 'Your Class Name',
+              controller: _classNameController,
+              onChanged: (value) {
+                _validateClassname();
+              },
+            ),
+            if (_classNameError != null) ...[
+              const SizedBox(height: 4),
+              FieldErrorText(message: _classNameError!),
+            ],
+
+
+            const SizedBox(height: 20),
+
 
             // Subject Field
             CreativeSelect(
@@ -522,6 +561,7 @@ class _CreateClassPageState extends State<CreateClassPage> {
     _timeController.dispose();
     _durationController.dispose();
     _locationController.dispose();
+    _classNameController.dispose();
     _descriptionController.dispose();
     super.dispose();
   }

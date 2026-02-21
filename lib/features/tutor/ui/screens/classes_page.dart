@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
 import '../../../../core/constants/app_colors.dart';
+import '../../../../core/constants/select_options.dart';
 import '../../../../shared/widgets/class_card2.dart';
 import '../../models/class_model.dart';
 import 'class_detail_page.dart';
@@ -13,121 +16,128 @@ class ClassesPage extends StatefulWidget {
 
 class _ClassesPageState extends State<ClassesPage> {
   final TextEditingController _searchController = TextEditingController();
+  final TextEditingController _gradeController = TextEditingController();
+
   String _selectedDay = 'All';
   String _selectedSubject = 'All';
   String _selectedGrade = 'All';
+  String? _gradeError;
+
   int _currentPage = 1;
   final int _itemsPerPage = 4;
 
-  final List<String> _days = ['All', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
-  final List<String> _subjects = ['All', 'Mathematics', 'Physics', 'Chemistry', 'Biology', 'English', 'History', 'Computer Science'];
-  final List<String> _grades = ['All', 'Grade 9', 'Grade 10', 'Grade 11', 'Grade 12'];
+  bool _isLoading = true;
+  String? _errorMessage;
 
-  // Sample class data
-  final List<ClassModel> _allClasses = [
-    ClassModel(
-      id: '1',
-      name: 'Advanced Mathematics',
-      subject: 'Mathematics',
-      grade: 'Grade 10',
-      day: 'Monday',
-      time: '10:30 AM',
-      duration: '60 min',
-      totalStudents: 24,
-      location: "Kurunegala",
-      description: 'Advanced mathematics course covering algebra, calculus, and trigonometry with practical applications.',
-      status: true,
-    ),
-    ClassModel(
-      id: '2',
-      name: 'Physics Fundamentals',
-      subject: 'Physics',
-      grade: 'Grade 11',
-      day: 'Tuesday',
-      time: '2:00 PM',
-      duration: '90 min',
-      totalStudents: 18,
-      location: "Kurunegala",
-      description: 'Comprehensive physics course covering mechanics, thermodynamics, and wave phenomena.',
+  List<ClassModel> _allClasses = [];
+  List<ClassModel> _filteredClasses = [];
 
-      status: true,
-    ),
-    ClassModel(
-      id: '3',
-      name: 'Chemistry Lab',
-      subject: 'Chemistry',
-      grade: 'Grade 10',
-      day: 'Wednesday',
-      time: '9:00 AM',
-      duration: '120 min',
-      totalStudents: 16,
-      location: "Kurunegala",
-      description: 'Hands-on chemistry laboratory sessions covering experiments, safety, and analysis.',
+  @override
+  void initState() {
+    super.initState();
+    _fetchClasses();
+  }
 
-      status: true,
-    ),
-    ClassModel(
-      id: '4',
-      name: 'English Literature',
-      subject: 'English',
-      grade: 'Grade 9',
-      day: 'Thursday',
-      time: '11:30 AM',
-      duration: '60 min',
-      totalStudents: 22,
-      location: "Kurunegala",
-      description: 'Explore classic and modern literature with focus on analysis, writing, and discussion.',
 
-      status: true,
-    ),
-    ClassModel(
-      id: '5',
-      name: 'Computer Science',
-      subject: 'Computer Science',
-      grade: 'Grade 11',
-      day: 'Friday',
-      time: '3:30 PM',
-      duration: '90 min',
-      totalStudents: 20,
-      location: "Kurunegala",
-      description: 'Introduction to programming, algorithms, and data structures using Python.',
+  Future<void> _fetchClasses() async {
+    setState(() {
+      _isLoading = true;
+      _errorMessage = null;
+    });
 
-      status: true,
-    ),
-    ClassModel(
-      id: '6',
-      name: 'Biology Essentials',
-      subject: 'Biology',
-      grade: 'Grade 10',
-      day: 'Monday',
-      time: '1:00 PM',
-      duration: '60 min',
-      totalStudents: 19,
-      location: "Kurunegala",
-      description: 'Fundamental concepts of biology including cell structure, genetics, and ecology.',
-      status: true,
-    ),
-  ];
+    try {
+      final response = await http.get(
+        Uri.parse("http://10.0.2.2:5001/api/classes/"),
+        headers: {
+          'Content-Type': 'application/json',
+          // Add your authorization header if needed
+          // 'Authorization': 'Bearer your_token',
+        },
+      );
 
-  List<ClassModel> get _filteredClasses {
-    return _allClasses.where((classItem) {
-      // Search filter
-      final searchMatch = _searchController.text.isEmpty ||
-          classItem.name.toLowerCase().contains(_searchController.text.toLowerCase()) ||
-          classItem.location.toLowerCase().contains(_searchController.text.toLowerCase()) ||
-          classItem.subject.toLowerCase().contains(_searchController.text.toLowerCase());
+      if (response.statusCode == 200) {
+        Map<String, dynamic> responseData = json.decode(response.body);
 
-      // Day filter
-      final dayMatch = _selectedDay == 'All' || classItem.day == _selectedDay;
+        // Check if the response has the expected structure
+        if (responseData['status'] == true && responseData.containsKey('data')) {
+          List<dynamic> classesList = responseData['data'];
 
-      // Subject filter
-      final subjectMatch = _selectedSubject == 'All' || classItem.subject == _selectedSubject;
+          setState(() {
+            _allClasses = classesList.map((json) => _parseClassModel(json)).toList();
+            _applyFilters();
+            _isLoading = false;
+          });
 
-      // Grade filter
-      final gradeMatch = _selectedGrade == 'All' || classItem.grade == _selectedGrade;
+          print('Successfully loaded ${_allClasses.length} classes');
+        } else {
+          setState(() {
+            _errorMessage = 'Invalid response format from server';
+            _isLoading = false;
+          });
+        }
+      } else {
+        setState(() {
+          _errorMessage = 'Failed to load classes. Status: ${response.statusCode}';
+          _isLoading = false;
+        });
+      }
+    } catch (e) {
+      print('Error details: $e');
+      setState(() {
+        _errorMessage = 'Error connecting to server: $e';
+        _isLoading = false;
+      });
+    }
+  }
 
-      return searchMatch && dayMatch && subjectMatch && gradeMatch;
-    }).toList();
+  ClassModel _parseClassModel(Map<String, dynamic> json) {
+    return ClassModel(
+      id: json['id']?.toString() ?? '',
+      subject: json['subject'] ?? '',
+      grade: json['grade'] ?? '',
+      day: json['day'] ?? '',
+      name: json['name'] ?? '',
+      time: json['time'] ?? '',
+      duration: json['duration']?.toString() ?? '',
+      location: json['location'] ?? '',
+      description: json['description'] ?? '',
+      status: json['status'] ?? true,
+      instituteId: json['instituteId']?.toString(),
+      teacherId: json['teacherId']?.toString(),
+      totalStudents: json['students'] != null ? (json['students'] as List).length : 0,
+    );
+  }
+
+
+
+
+
+  void _applyFilters() {
+    setState(() {
+      _filteredClasses = _allClasses.where((classItem) {
+        // Search filter - check multiple fields
+        final searchTerm = _searchController.text.toLowerCase();
+        final searchMatch = _searchController.text.isEmpty ||
+            classItem.name.toLowerCase().contains(searchTerm) ||
+            classItem.subject.toLowerCase().contains(searchTerm) ||
+            classItem.location.toLowerCase().contains(searchTerm) ||
+            (classItem.description.toLowerCase().contains(searchTerm)) ||
+            (classItem.grade.toLowerCase().contains(searchTerm));
+
+        // Day filter
+        final dayMatch = _selectedDay == 'All' || classItem.day == _selectedDay;
+
+        // Subject filter
+        final subjectMatch = _selectedSubject == 'All' || classItem.subject == _selectedSubject;
+
+        // Grade filter
+        final gradeMatch = _selectedGrade == 'All' || classItem.grade == _selectedGrade;
+
+        return searchMatch && dayMatch && subjectMatch && gradeMatch;
+      }).toList();
+
+      _currentPage = 1;
+    });
   }
 
   List<ClassModel> get _paginatedClasses {
@@ -145,11 +155,25 @@ class _ClassesPageState extends State<ClassesPage> {
   void _resetFilters() {
     setState(() {
       _searchController.clear();
+      _gradeController.clear();
       _selectedDay = 'All';
       _selectedSubject = 'All';
       _selectedGrade = 'All';
-      _currentPage = 1;
+      _gradeError = null;
+      _applyFilters();
     });
+  }
+
+  void _validateGrade() {
+    if (_selectedGrade == 'All' || _selectedGrade.isEmpty) {
+      setState(() {
+        _gradeError = 'Please select a grade';
+      });
+    } else {
+      setState(() {
+        _gradeError = null;
+      });
+    }
   }
 
   Widget _buildPageButton(int pageNum) {
@@ -201,9 +225,17 @@ class _ClassesPageState extends State<ClassesPage> {
             onPressed: _resetFilters,
             icon: const Icon(Icons.refresh, color: AppColors.textPrimary),
           ),
+          IconButton(
+            onPressed: _fetchClasses,
+            icon: const Icon(Icons.sync, color: AppColors.textPrimary),
+          ),
         ],
       ),
-      body: Column(
+      body: _isLoading
+          ? const Center(child: CircularProgressIndicator())
+          : _errorMessage != null
+          ? _buildErrorState()
+          : Column(
         children: [
           // Search Bar
           Container(
@@ -220,7 +252,7 @@ class _ClassesPageState extends State<ClassesPage> {
                   child: TextField(
                     controller: _searchController,
                     decoration: InputDecoration(
-                      hintText: 'Search classes by name, tutor, or subject...',
+                      hintText: 'Search classes by name, subject, or location...',
                       hintStyle: TextStyle(color: AppColors.textDisabled),
                       prefixIcon: const Icon(Icons.search, color: AppColors.textSecondary),
                       suffixIcon: _searchController.text.isNotEmpty
@@ -229,6 +261,7 @@ class _ClassesPageState extends State<ClassesPage> {
                         onPressed: () {
                           setState(() {
                             _searchController.clear();
+                            _applyFilters();
                           });
                         },
                       )
@@ -237,9 +270,7 @@ class _ClassesPageState extends State<ClassesPage> {
                       contentPadding: const EdgeInsets.symmetric(vertical: 14),
                     ),
                     onChanged: (value) {
-                      setState(() {
-                        _currentPage = 1;
-                      });
+                      _applyFilters();
                     },
                   ),
                 ),
@@ -247,7 +278,7 @@ class _ClassesPageState extends State<ClassesPage> {
             ),
           ),
 
-          // Filter Chips
+          // Advanced Filter Chips
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
             color: Colors.white,
@@ -298,11 +329,19 @@ class _ClassesPageState extends State<ClassesPage> {
                     fontSize: 14,
                   ),
                 ),
+                if (_filteredClasses.isNotEmpty)
+                  Text(
+                    'Showing ${_paginatedClasses.length} of ${_filteredClasses.length}',
+                    style: TextStyle(
+                      color: AppColors.textDisabled,
+                      fontSize: 12,
+                    ),
+                  ),
               ],
             ),
           ),
 
-          // Classes List with Pagination at the Bottom (scrolls with content)
+          // Classes List with Pagination
           Expanded(
             child: _filteredClasses.isEmpty
                 ? _buildEmptyState()
@@ -324,13 +363,12 @@ class _ClassesPageState extends State<ClassesPage> {
                   },
                 )).toList(),
 
-                // Pagination at the bottom of the list (scrolls with content)
+                // Pagination
                 if (_filteredClasses.isNotEmpty && _totalPages > 1)
                   Container(
                     padding: const EdgeInsets.symmetric(vertical: 24, horizontal: 8),
                     child: Column(
                       children: [
-                        // Page info
                         Padding(
                           padding: const EdgeInsets.only(bottom: 12),
                           child: Text(
@@ -342,13 +380,11 @@ class _ClassesPageState extends State<ClassesPage> {
                             ),
                           ),
                         ),
-                        // Scrollable page numbers
                         SingleChildScrollView(
                           scrollDirection: Axis.horizontal,
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
-                              // Previous button
                               Container(
                                 margin: const EdgeInsets.only(right: 8),
                                 child: IconButton(
@@ -364,14 +400,10 @@ class _ClassesPageState extends State<ClassesPage> {
                                   iconSize: 24,
                                 ),
                               ),
-
-                              // All page numbers
                               ...List.generate(_totalPages, (index) {
                                 final pageNum = index + 1;
                                 return _buildPageButton(pageNum);
                               }),
-
-                              // Next button
                               Container(
                                 margin: const EdgeInsets.only(left: 8),
                                 child: IconButton(
@@ -393,8 +425,6 @@ class _ClassesPageState extends State<ClassesPage> {
                       ],
                     ),
                   ),
-
-                // Add some bottom padding for better scrolling experience
                 const SizedBox(height: 20),
               ],
             ),
@@ -409,30 +439,43 @@ class _ClassesPageState extends State<ClassesPage> {
     required IconData icon,
     required VoidCallback onTap,
   }) {
+    bool isActive = !label.contains('All');
+
     return GestureDetector(
       onTap: onTap,
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
         decoration: BoxDecoration(
-          color: Colors.grey.shade100,
+          color: isActive ? AppColors.primary.withOpacity(0.1) : Colors.grey.shade100,
           borderRadius: BorderRadius.circular(20),
-          border: Border.all(color: Colors.grey.shade300),
+          border: Border.all(
+            color: isActive ? AppColors.primary : Colors.grey.shade300,
+            width: isActive ? 1.5 : 1,
+          ),
         ),
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(icon, size: 16, color: AppColors.textSecondary),
+            Icon(
+              icon,
+              size: 16,
+              color: isActive ? AppColors.primary : AppColors.textSecondary,
+            ),
             const SizedBox(width: 6),
             Text(
               label,
               style: TextStyle(
-                color: AppColors.textPrimary,
+                color: isActive ? AppColors.primary : AppColors.textPrimary,
                 fontSize: 13,
-                fontWeight: FontWeight.w500,
+                fontWeight: isActive ? FontWeight.w600 : FontWeight.w500,
               ),
             ),
             const SizedBox(width: 4),
-            const Icon(Icons.arrow_drop_down, size: 18, color: AppColors.textSecondary),
+            Icon(
+              Icons.arrow_drop_down,
+              size: 18,
+              color: isActive ? AppColors.primary : AppColors.textSecondary,
+            ),
           ],
         ),
       ),
@@ -446,17 +489,17 @@ class _ClassesPageState extends State<ClassesPage> {
 
     switch (filterType) {
       case 'day':
-        options = _days;
+        options = ['All', ...SelectOptions.daysList];
         title = 'Select Day';
         selectedValue = _selectedDay;
         break;
       case 'subject':
-        options = _subjects;
+        options = ['All', ...SelectOptions.subjects];
         title = 'Select Subject';
         selectedValue = _selectedSubject;
         break;
       case 'grade':
-        options = _grades;
+        options = ['All', ...SelectOptions.gradesList];
         title = 'Select Grade';
         selectedValue = _selectedGrade;
         break;
@@ -510,9 +553,15 @@ class _ClassesPageState extends State<ClassesPage> {
                             break;
                           case 'grade':
                             _selectedGrade = value!;
+                            if (value != 'All') {
+                              _gradeController.text = value!;
+                            } else {
+                              _gradeController.clear();
+                            }
+                            _validateGrade();
                             break;
                         }
-                        _currentPage = 1;
+                        _applyFilters();
                       });
                       Navigator.pop(context);
                     },
@@ -524,6 +573,54 @@ class _ClassesPageState extends State<ClassesPage> {
           ),
         );
       },
+    );
+  }
+
+  Widget _buildErrorState() {
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(
+            Icons.error_outline,
+            size: 80,
+            color: Colors.red.withOpacity(0.5),
+          ),
+          const SizedBox(height: 16),
+          const Text(
+            'Something went wrong',
+            style: TextStyle(
+              fontSize: 18,
+              fontWeight: FontWeight.w600,
+              color: AppColors.textPrimary,
+            ),
+          ),
+          const SizedBox(height: 8),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 32),
+            child: Text(
+              _errorMessage ?? 'Failed to load classes',
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                color: AppColors.textSecondary,
+                fontSize: 14,
+              ),
+            ),
+          ),
+          const SizedBox(height: 20),
+          ElevatedButton(
+            onPressed: _fetchClasses,
+            style: ElevatedButton.styleFrom(
+              backgroundColor: AppColors.primary,
+              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
+            ),
+            child: const Text('Try Again'),
+          ),
+        ],
+      ),
     );
   }
 
@@ -548,24 +645,41 @@ class _ClassesPageState extends State<ClassesPage> {
           ),
           const SizedBox(height: 8),
           Text(
-            'Try adjusting your search or filters',
+            _allClasses.isEmpty
+                ? 'No classes available. Pull to refresh.'
+                : 'Try adjusting your search or filters',
             style: TextStyle(
               color: AppColors.textSecondary,
               fontSize: 14,
             ),
           ),
-          const SizedBox(height: 20),
-          ElevatedButton(
-            onPressed: _resetFilters,
-            style: ElevatedButton.styleFrom(
-              backgroundColor: AppColors.primary,
-              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12),
+          if (_allClasses.isNotEmpty) ...[
+            const SizedBox(height: 20),
+            ElevatedButton(
+              onPressed: _resetFilters,
+              style: ElevatedButton.styleFrom(
+                backgroundColor: AppColors.primary,
+                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
               ),
+              child: const Text('Clear Filters'),
             ),
-            child: const Text('Clear Filters'),
-          ),
+          ] else ...[
+            const SizedBox(height: 20),
+            ElevatedButton(
+              onPressed: _fetchClasses,
+              style: ElevatedButton.styleFrom(
+                backgroundColor: AppColors.primary,
+                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+              ),
+              child: const Text('Refresh'),
+            ),
+          ],
         ],
       ),
     );
@@ -574,6 +688,7 @@ class _ClassesPageState extends State<ClassesPage> {
   @override
   void dispose() {
     _searchController.dispose();
+    _gradeController.dispose();
     super.dispose();
   }
 }
