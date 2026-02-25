@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:warna_app/features/tutor/ui/screens/fees_attendance_page.dart';
 import '../../../../core/constants/app_colors.dart';
 import '../../models/class_model.dart';
 
@@ -101,13 +102,21 @@ class ClassDetailPage extends StatelessWidget {
                         icon: Icons.people,
                         label: '${classItem.totalStudents} Students',
                       ),
+                      const SizedBox(width: 12),
+                      _buildInfoChip(
+                        icon: Icons.edit,
+                        label: 'Edit',
+                      ),
                     ],
                   ),
+
                 ],
               ),
             ),
 
             const SizedBox(height: 24),
+
+
 
             // Schedule Information
             const Text(
@@ -191,6 +200,7 @@ class ClassDetailPage extends StatelessWidget {
                           fontWeight: FontWeight.w600,
                         ),
                       ),
+
                     ],
                   ),
                   const SizedBox(height: 16),
@@ -253,7 +263,7 @@ class ClassDetailPage extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          'Institute Payment',
+                          'Susipwin Kurunegala',
                           style: TextStyle(
                             fontSize: 16,
                             fontWeight: FontWeight.w600,
@@ -261,7 +271,7 @@ class ClassDetailPage extends StatelessWidget {
                         ),
                         SizedBox(height: 4),
                         Text(
-                          'Susipwin Kurunegala',
+                          'Institute Payment Received',
                           style: TextStyle(
                             fontSize: 13,
                             color: AppColors.textSecondary,
@@ -271,7 +281,7 @@ class ClassDetailPage extends StatelessWidget {
                     ),
                   ),
                   // TODO: Replace this boolean with actual payment status
-                  _buildPaymentStatusButton(isPaid: true),
+
                 ],
               ),
             ),
@@ -309,25 +319,7 @@ class ClassDetailPage extends StatelessWidget {
             const SizedBox(height: 12),
 
             // Enroll Students Button
-            Container(
-              width: double.infinity,
-              margin: const EdgeInsets.only(bottom: 12),
-              child: ElevatedButton.icon(
-                onPressed: () {
-                  // TODO: Implement enroll students functionality
-                },
-                icon: const Icon(Icons.person_add_alt_1),
-                label: const Text('Enroll Students'),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: AppColors.primary,
-                  foregroundColor: Colors.white,
-                  padding: const EdgeInsets.symmetric(vertical: 16),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                ),
-              ),
-            ),
+
 
             // Fees & Attendance and Edit Row
             Row(
@@ -335,13 +327,20 @@ class ClassDetailPage extends StatelessWidget {
                 Expanded(
                   child: ElevatedButton(
                     onPressed: () {
-                      // TODO: Implement fees & attendance functionality
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const FeesAttendancePage(),
+                        ),
+                      );
                     },
                     style: ElevatedButton.styleFrom(
                       backgroundColor: AppColors.primary,
                       foregroundColor: Colors.white,
                       padding: const EdgeInsets.symmetric(vertical: 16),
                       shape: RoundedRectangleBorder(
+
+
                         borderRadius: BorderRadius.circular(12),
                       ),
                     ),
@@ -356,9 +355,9 @@ class ClassDetailPage extends StatelessWidget {
                   ),
                   child: IconButton(
                     onPressed: () {
-                      // TODO: Implement edit functionality
+
                     },
-                    icon: const Icon(Icons.edit),
+                    icon: const Icon(Icons.person_add_alt_1),
                     color: AppColors.textPrimary,
                     iconSize: 24,
                   ),
@@ -366,35 +365,14 @@ class ClassDetailPage extends StatelessWidget {
               ],
             ),
 
-            const SizedBox(height: 12),
 
-            // Remove Class Button
-            Container(
-              width: double.infinity,
-              decoration: BoxDecoration(
-                border: Border.all(color: Colors.red.shade200),
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: TextButton.icon(
-                onPressed: () {
-                  _showRemoveClassDialog(context);
-                },
-                icon: const Icon(Icons.delete_outline, color: Colors.red),
-                label: const Text(
-                  'Remove Class',
-                  style: TextStyle(
-                    color: Colors.red,
-                    fontSize: 16,
-                  ),
-                ),
-                style: TextButton.styleFrom(
-                  padding: const EdgeInsets.symmetric(vertical: 16),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                ),
-              ),
-            ),
+
+            const SizedBox(height: 10),
+
+
+
+
+
 
             const SizedBox(height: 20),
           ],
@@ -493,39 +471,45 @@ class ClassDetailPage extends StatelessWidget {
     );
   }
 
-  Widget _buildPaymentStatusButton({required bool isPaid}) {
-    return ElevatedButton(
-      onPressed: () {
-        // TODO: Toggle payment status
-      },
-      style: ElevatedButton.styleFrom(
-        backgroundColor: isPaid ? Colors.green : Colors.red,
-        foregroundColor: Colors.white,
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(8),
+
+
+  Widget _buildQuickActionButton({
+    required IconData icon,
+    required String label,
+    required Color color,
+    required VoidCallback onTap,
+  }) {
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(12),
+        child: Container(
+          padding: const EdgeInsets.symmetric(vertical: 12),
+          decoration: BoxDecoration(
+            color: color.withOpacity(0.1),
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(color: color.withOpacity(0.3)),
+          ),
+          child: Column(
+            children: [
+              Icon(icon, color: color, size: 24),
+              const SizedBox(height: 4),
+              Text(
+                label,
+                style: TextStyle(
+                  color: color,
+                  fontSize: 12,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ],
+          ),
         ),
-        minimumSize: const Size(60, 40),
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Icon(
-            isPaid ? Icons.check_circle : Icons.cancel,
-            size: 18,
-          ),
-          const SizedBox(width: 6),
-          Text(
-            isPaid ? 'Received' : 'Not Paid',
-            style: const TextStyle(
-              fontSize: 13,
-              fontWeight: FontWeight.w500,
-            ),
-          ),
-        ],
       ),
     );
   }
+
 
   void _showRemoveClassDialog(BuildContext context) {
     showDialog(
