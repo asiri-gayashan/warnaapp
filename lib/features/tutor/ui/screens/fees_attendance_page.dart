@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:warna_app/core/constants/app_colors.dart';
+import 'package:warna_app/features/tutor/ui/screens/mark_attendance_page.dart';
 
 class FeesAttendancePage extends StatefulWidget {
   const FeesAttendancePage({Key? key}) : super(key: key);
@@ -834,7 +835,16 @@ class _FeesAttendancePageState extends State<FeesAttendancePage> {
       children: [
         Expanded(
           child: ElevatedButton(
-            onPressed: () {},
+            onPressed: () {
+
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const MarkAttendancePage(),
+                ),
+              );
+
+            },
             style: ElevatedButton.styleFrom(
               backgroundColor: AppColors.primary,
               foregroundColor: Colors.white,
