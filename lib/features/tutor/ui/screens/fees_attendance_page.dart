@@ -11,7 +11,7 @@ class FeesAttendancePage extends StatefulWidget {
 class _FeesAttendancePageState extends State<FeesAttendancePage> {
   final TextEditingController _searchController = TextEditingController();
   DateTime _selectedDate = DateTime.now();
-  String _selectedFilter = 'All'; // All, Paid, Pending
+  String _selectedFilter = 'All';
   int _currentPage = 1;
   final int _itemsPerPage = 10;
 
@@ -101,6 +101,18 @@ class _FeesAttendancePageState extends State<FeesAttendancePage> {
   double get _attendancePercentage => _totalStudents > 0 ? (_presentCount / _totalStudents) * 100 : 0;
   double get _paymentPercentage => _totalStudents > 0 ? (_paidCount / _totalStudents) * 100 : 0;
 
+  void _exportData() {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: const Text('Exporting data...'),
+        backgroundColor: AppColors.primary,
+        behavior: SnackBarBehavior.floating,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+      ),
+    );
+    // TODO: Implement actual export logic
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -116,6 +128,12 @@ class _FeesAttendancePageState extends State<FeesAttendancePage> {
         backgroundColor: Colors.white,
         elevation: 0,
         centerTitle: true,
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.notifications_outlined, color: AppColors.textPrimary),
+            onPressed: () {},
+          ),
+        ],
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16),
@@ -124,18 +142,18 @@ class _FeesAttendancePageState extends State<FeesAttendancePage> {
           children: [
             // Class Details
             _buildClassDetails(),
-
             const SizedBox(height: 24),
 
             // March 2024 Days
             _buildMarchDays(),
+            const SizedBox(height: 24),
 
-
+            // Stats Header with View All
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 const Text(
-                  'Stats For This Month',
+                  'Monthly Statistics',
                   style: TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.w600,
@@ -143,46 +161,56 @@ class _FeesAttendancePageState extends State<FeesAttendancePage> {
                 ),
                 TextButton(
                   onPressed: () {},
-                  child: const Text('View All'),
+                  style: TextButton.styleFrom(
+                    foregroundColor: AppColors.primary,
+                  ),
+                  child: const Text('View Details'),
                 ),
               ],
             ),
+            const SizedBox(height: 12),
+
             // Stats Cards (Present, Paid, Pending)
             _buildStatsRow(),
-
             const SizedBox(height: 20),
 
-
-            // Date/Amount/Percentage Cards
+            // Financial Stats Cards
             _buildStatsCards(),
-
             const SizedBox(height: 24),
 
             // Action Buttons
             _buildActionButtons(),
-
             const SizedBox(height: 20),
 
             // Search and Filters
             _buildSearchAndFilters(),
-
             const SizedBox(height: 20),
+
+            // Student Table Header with Export
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                const Text(
+                  'Student List',
+                  style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+                _buildExportButton(),
+              ],
+            ),
+            const SizedBox(height: 12),
 
             // Student Table
             _buildStudentTable(),
-
             const SizedBox(height: 20),
 
             // Pagination
             if (_filteredStudents.isNotEmpty && _totalPages > 1)
               _buildPagination(),
 
-
             const SizedBox(height: 20),
-            _buildExportButton(),
-
-            const SizedBox(height: 20),
-
           ],
         ),
       ),
@@ -191,11 +219,10 @@ class _FeesAttendancePageState extends State<FeesAttendancePage> {
 
   Widget _buildExportButton() {
     return InkWell(
-      // onTap: _exportData,
+      onTap: _exportData,
       borderRadius: BorderRadius.circular(8),
       child: Container(
-        width: double.infinity, // Makes it full width
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12), // Increased vertical padding
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
         decoration: BoxDecoration(
           color: AppColors.primary.withOpacity(0.1),
           borderRadius: BorderRadius.circular(8),
@@ -204,20 +231,20 @@ class _FeesAttendancePageState extends State<FeesAttendancePage> {
           ),
         ),
         child: Row(
-          mainAxisAlignment: MainAxisAlignment.center, // Center the content
+          mainAxisSize: MainAxisSize.min,
           children: [
             const Icon(
               Icons.download_rounded,
-              size: 18,
+              size: 16,
               color: AppColors.primary,
             ),
-            const SizedBox(width: 8),
+            const SizedBox(width: 6),
             const Text(
-              'Export Data',
+              'Export',
               style: TextStyle(
                 color: AppColors.primary,
                 fontWeight: FontWeight.w500,
-                fontSize: 14,
+                fontSize: 13,
               ),
             ),
           ],
@@ -251,11 +278,10 @@ class _FeesAttendancePageState extends State<FeesAttendancePage> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          /// Title Section with better hierarchy
+          // Title Section
           Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Icon container with glass morphism effect
               Container(
                 padding: const EdgeInsets.all(14),
                 decoration: BoxDecoration(
@@ -273,8 +299,6 @@ class _FeesAttendancePageState extends State<FeesAttendancePage> {
                 ),
               ),
               const SizedBox(width: 16),
-
-              // Title and subtitle
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -309,10 +333,9 @@ class _FeesAttendancePageState extends State<FeesAttendancePage> {
               ),
             ],
           ),
-
           const SizedBox(height: 24),
 
-          /// Info Chips in a grid for better organization
+          // Info Grid
           Container(
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
@@ -323,11 +346,8 @@ class _FeesAttendancePageState extends State<FeesAttendancePage> {
                 width: 1,
               ),
             ),
-
-
             child: Column(
               children: [
-                // First row - Tutor and Students
                 Row(
                   children: [
                     Expanded(
@@ -343,7 +363,6 @@ class _FeesAttendancePageState extends State<FeesAttendancePage> {
                       color: Colors.white.withOpacity(0.2),
                     ),
                     const SizedBox(width: 10),
-
                     Expanded(
                       child: _buildInfoItem(
                         Icons.people_outline,
@@ -353,10 +372,7 @@ class _FeesAttendancePageState extends State<FeesAttendancePage> {
                     ),
                   ],
                 ),
-
                 const SizedBox(height: 12),
-
-                // Second row - Schedule
                 Row(
                   children: [
                     Expanded(
@@ -371,10 +387,9 @@ class _FeesAttendancePageState extends State<FeesAttendancePage> {
               ],
             ),
           ),
-
           const SizedBox(height: 20),
 
-          /// Fee Section - More prominent
+          // Fee Section
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
             decoration: BoxDecoration(
@@ -429,12 +444,10 @@ class _FeesAttendancePageState extends State<FeesAttendancePage> {
                     ),
                   ],
                 ),
-
-                // Payment status badge
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                   decoration: BoxDecoration(
-                    color: AppColors.success.withOpacity(0.1),
+                    color: AppColors.primary.withOpacity(0.1),
                     borderRadius: BorderRadius.circular(20),
                   ),
                   child: Row(
@@ -443,17 +456,15 @@ class _FeesAttendancePageState extends State<FeesAttendancePage> {
                         width: 8,
                         height: 8,
                         decoration: const BoxDecoration(
-                          color: AppColors.success,
+                          color: AppColors.primary,
                           shape: BoxShape.circle,
                         ),
                       ),
                       const SizedBox(width: 6),
-
                       const Text(
                         'Edit Class',
-
                         style: TextStyle(
-                          color: AppColors.success,
+                          color: AppColors.primary,
                           fontSize: 12,
                           fontWeight: FontWeight.w500,
                         ),
@@ -469,7 +480,6 @@ class _FeesAttendancePageState extends State<FeesAttendancePage> {
     );
   }
 
-  /// Helper widget for info items
   Widget _buildInfoItem(IconData icon, String label, String value) {
     return Row(
       children: [
@@ -505,91 +515,160 @@ class _FeesAttendancePageState extends State<FeesAttendancePage> {
       ],
     );
   }
+
   Widget _buildMarchDays() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            const Text(
-              'March 2024',
-              style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.w600,
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(20),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.03),
+            blurRadius: 12,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              const Text(
+                'March 2024',
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w600,
+                ),
               ),
-            ),
-            TextButton(
-              onPressed: () {},
-              child: const Text('View All'),
-            ),
-          ],
-        ),
-        const SizedBox(height: 12),
-        Wrap(
-          spacing: 8,
-          runSpacing: 8,
-          children: _marchDays.map((day) {
-            Color bgColor;
-            Color textColor;
-            IconData? icon;
-
-            switch(day['status']) {
-              case 'completed':
-                bgColor = AppColors.success.withOpacity(0.1);
-                textColor = AppColors.success;
-                icon = Icons.check;
-                break;
-              case 'today':
-                bgColor = AppColors.primary.withOpacity(0.1);
-                textColor = AppColors.primary;
-                icon = Icons.circle;
-                break;
-              default:
-                bgColor = Colors.grey.shade100;
-                textColor = AppColors.textSecondary;
-                icon = null;
-            }
-
-            return Container(
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-              decoration: BoxDecoration(
-                color: bgColor,
-                borderRadius: BorderRadius.circular(20),
-              ),
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Text(
-                    day['date'],
-                    style: TextStyle(
-                      color: textColor,
-                      fontWeight: FontWeight.w500,
-                    ),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                decoration: BoxDecoration(
+                  color: AppColors.primary.withOpacity(0.1),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: const Text(
+                  '12 Classes',
+                  style: TextStyle(
+                    fontSize: 12,
+                    color: AppColors.primary,
+                    fontWeight: FontWeight.w500,
                   ),
-                  if (icon != null) ...[
-                    const SizedBox(width: 4),
-                    Icon(icon, size: 14, color: textColor),
-                  ],
-                ],
+                ),
               ),
-            );
-          }).toList(),
-        ),
-        const SizedBox(height: 12),
+            ],
+          ),
+          const SizedBox(height: 16),
+          Wrap(
+            spacing: 8,
+            runSpacing: 8,
+            children: _marchDays.map((day) {
+              Color bgColor;
+              Color textColor;
+              IconData? icon;
 
+              switch(day['status']) {
+                case 'completed':
+                  bgColor = AppColors.success.withOpacity(0.1);
+                  textColor = AppColors.success;
+                  icon = Icons.check;
+                  break;
+                case 'today':
+                  bgColor = AppColors.primary.withOpacity(0.1);
+                  textColor = AppColors.primary;
+                  icon = Icons.circle;
+                  break;
+                default:
+                  bgColor = Colors.grey.shade50;
+                  textColor = AppColors.textSecondary;
+                  icon = null;
+              }
+
+              return Container(
+                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                decoration: BoxDecoration(
+                  color: bgColor,
+                  borderRadius: BorderRadius.circular(20),
+                  border: Border.all(
+                    color: textColor.withOpacity(0.2),
+                  ),
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(
+                      day['date'],
+                      style: TextStyle(
+                        color: textColor,
+                        fontWeight: FontWeight.w500,
+                        fontSize: 12,
+                      ),
+                    ),
+                    if (icon != null) ...[
+                      const SizedBox(width: 4),
+                      Icon(icon, size: 12, color: textColor),
+                    ],
+                  ],
+                ),
+              );
+            }).toList(),
+          ),
+          const SizedBox(height: 12),
+          Row(
+            children: [
+              _buildLegendItem(AppColors.success, 'Completed'),
+              const SizedBox(width: 12),
+              _buildLegendItem(AppColors.primary, 'Today'),
+              const SizedBox(width: 12),
+              _buildLegendItem(AppColors.textSecondary, 'Upcoming'),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildLegendItem(Color color, String label) {
+    return Row(
+      children: [
+        Container(
+          width: 8,
+          height: 8,
+          decoration: BoxDecoration(
+            color: color,
+            shape: BoxShape.circle,
+          ),
+        ),
+        const SizedBox(width: 4),
+        Text(
+          label,
+          style: TextStyle(
+            fontSize: 11,
+            color: AppColors.textSecondary,
+          ),
+        ),
       ],
     );
   }
 
   Widget _buildStatsRow() {
-
     return Row(
       children: [
         Expanded(
           child: _buildStatItem(
-            'Students',
-            '25',
+            'Total Students',
+            '$_totalStudents',
+            Icons.people_alt,
+            AppColors.primary,
+          ),
+        ),
+        const SizedBox(width: 12),
+        Expanded(
+          child: _buildStatItem(
+            'Present',
+            '$_presentCount',
             Icons.check_circle,
             AppColors.success,
           ),
@@ -597,17 +676,8 @@ class _FeesAttendancePageState extends State<FeesAttendancePage> {
         const SizedBox(width: 12),
         Expanded(
           child: _buildStatItem(
-            'Paid',
-            '10/25',
-            Icons.payments,
-            AppColors.primary,
-          ),
-        ),
-        const SizedBox(width: 12),
-        Expanded(
-          child: _buildStatItem(
             'Pending',
-            '15/25',
+            '${_totalStudents - _paidCount}',
             Icons.pending,
             Colors.orange,
           ),
@@ -621,38 +691,44 @@ class _FeesAttendancePageState extends State<FeesAttendancePage> {
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: Colors.grey.withOpacity(0.1),
-            blurRadius: 5,
+            color: Colors.grey.withOpacity(0.05),
+            blurRadius: 10,
             offset: const Offset(0, 2),
           ),
         ],
       ),
       child: Column(
         children: [
-          Icon(icon, color: color, size: 20),
-          const SizedBox(height: 4),
+          Container(
+            padding: const EdgeInsets.all(8),
+            decoration: BoxDecoration(
+              color: color.withOpacity(0.1),
+              borderRadius: BorderRadius.circular(10),
+            ),
+            child: Icon(icon, color: color, size: 18),
+          ),
+          const SizedBox(height: 8),
           Text(
             value,
             style: const TextStyle(
               fontWeight: FontWeight.bold,
-              fontSize: 16,
+              fontSize: 18,
             ),
           ),
           Text(
             label,
             style: TextStyle(
               color: AppColors.textSecondary,
-              fontSize: 12,
+              fontSize: 11,
             ),
           ),
         ],
       ),
     );
   }
-
 
   Widget _buildStatsCards() {
     final totalReceivable = _totalStudents * _classDetails['monthlyFee'];
@@ -661,27 +737,22 @@ class _FeesAttendancePageState extends State<FeesAttendancePage> {
 
     return Row(
       children: [
-        // Total Receivable Card
         Expanded(
           child: _buildStatCard(
             title: 'Total Receivable',
             amount: 'Rs ${totalReceivable.toStringAsFixed(0)}',
             subAmount: 'Rs ${totalPending.toStringAsFixed(0)} pending',
-
             icon: Icons.account_balance_wallet_outlined,
             color: AppColors.primary,
             backgroundColor: AppColors.primary.withOpacity(0.1),
           ),
         ),
         const SizedBox(width: 12),
-
-        // Received Payments Card
         Expanded(
           child: _buildStatCard(
             title: 'Received',
             amount: 'Rs ${totalReceived.toStringAsFixed(0)}',
             subAmount: '${_paidCount}/${_totalStudents} students',
-
             icon: Icons.payments_outlined,
             color: AppColors.success,
             backgroundColor: AppColors.success.withOpacity(0.1),
@@ -715,7 +786,6 @@ class _FeesAttendancePageState extends State<FeesAttendancePage> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Header with icon and title
           Row(
             children: [
               Container(
@@ -724,39 +794,29 @@ class _FeesAttendancePageState extends State<FeesAttendancePage> {
                   color: backgroundColor,
                   borderRadius: BorderRadius.circular(10),
                 ),
-                child: Icon(
-                  icon,
-                  color: color,
-                  size: 16,
-                ),
+                child: Icon(icon, color: color, size: 16),
               ),
               const SizedBox(width: 8),
               Text(
                 title,
                 style: TextStyle(
-                  fontSize: 13,
+                  fontSize: 12,
                   color: AppColors.textSecondary,
                   fontWeight: FontWeight.w500,
                 ),
               ),
             ],
           ),
-
           const SizedBox(height: 12),
-
-          // Amount
           Text(
             amount,
             style: const TextStyle(
-              fontSize: 22,
+              fontSize: 20,
               fontWeight: FontWeight.bold,
               color: AppColors.textPrimary,
             ),
           ),
-
           const SizedBox(height: 4),
-
-          // Sub amount (pending or student count)
           Text(
             subAmount,
             style: TextStyle(
@@ -764,11 +824,6 @@ class _FeesAttendancePageState extends State<FeesAttendancePage> {
               color: AppColors.textSecondary,
             ),
           ),
-
-          const SizedBox(height: 10),
-
-          // Progress bar
-
         ],
       ),
     );
@@ -785,22 +840,23 @@ class _FeesAttendancePageState extends State<FeesAttendancePage> {
               foregroundColor: Colors.white,
               padding: const EdgeInsets.symmetric(vertical: 14),
               shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(8),
+                borderRadius: BorderRadius.circular(12),
               ),
+              elevation: 0,
             ),
             child: const Text('Mark Attendance'),
           ),
         ),
         const SizedBox(width: 12),
         Expanded(
-          child: ElevatedButton(
+          child: OutlinedButton(
             onPressed: () {},
-            style: ElevatedButton.styleFrom(
-              backgroundColor: AppColors.primary,
-              foregroundColor: Colors.white,
+            style: OutlinedButton.styleFrom(
+              foregroundColor: AppColors.primary,
+              side: const BorderSide(color: AppColors.primary),
               padding: const EdgeInsets.symmetric(vertical: 14),
               shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(8),
+                borderRadius: BorderRadius.circular(12),
               ),
             ),
             child: const Text('Mark Payment'),
@@ -811,22 +867,23 @@ class _FeesAttendancePageState extends State<FeesAttendancePage> {
   }
 
   Widget _buildSearchAndFilters() {
-    return Column(
-      children: [
-        // Search Bar
-        Container(
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(8),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.grey.withOpacity(0.1),
-                blurRadius: 5,
-                offset: const Offset(0, 2),
-              ),
-            ],
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.03),
+            blurRadius: 12,
+            offset: const Offset(0, 4),
           ),
-          child: TextField(
+        ],
+      ),
+      child: Column(
+        children: [
+          // Search Bar
+          TextField(
             controller: _searchController,
             decoration: InputDecoration(
               hintText: 'Search by name or roll number...',
@@ -842,7 +899,12 @@ class _FeesAttendancePageState extends State<FeesAttendancePage> {
                 },
               )
                   : null,
-              border: InputBorder.none,
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12),
+                borderSide: BorderSide.none,
+              ),
+              filled: true,
+              fillColor: AppColors.background,
               contentPadding: const EdgeInsets.symmetric(vertical: 14),
             ),
             onChanged: (value) {
@@ -851,46 +913,46 @@ class _FeesAttendancePageState extends State<FeesAttendancePage> {
               });
             },
           ),
-        ),
+          const SizedBox(height: 12),
 
-        const SizedBox(height: 12),
-
-        // Filter Row
-        SingleChildScrollView(
-          scrollDirection: Axis.horizontal,
-          child: Row(
-            children: [
-              // Date
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(8),
-                  border: Border.all(color: Colors.grey.shade200),
+          // Filter Row
+          SingleChildScrollView(
+            scrollDirection: Axis.horizontal,
+            child: Row(
+              children: [
+                // Date
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                  decoration: BoxDecoration(
+                    color: AppColors.background,
+                    borderRadius: BorderRadius.circular(20),
+                  ),
+                  child: Row(
+                    children: [
+                      const Icon(Icons.calendar_today, size: 14, color: AppColors.textSecondary),
+                      const SizedBox(width: 6),
+                      Text(
+                        '${_selectedDate.day}/${_selectedDate.month}/${_selectedDate.year}',
+                        style: const TextStyle(fontSize: 12),
+                      ),
+                      const SizedBox(width: 4),
+                      const Icon(Icons.arrow_drop_down, size: 16, color: AppColors.textSecondary),
+                    ],
+                  ),
                 ),
-                child: Row(
-                  children: [
-                    Text(
-                      '${_selectedDate.day}/${_selectedDate.month}/${_selectedDate.year}',
-                      style: const TextStyle(fontSize: 13),
-                    ),
-                    const SizedBox(width: 4),
-                    const Icon(Icons.arrow_drop_down, size: 18),
-                  ],
-                ),
-              ),
-              const SizedBox(width: 8),
+                const SizedBox(width: 8),
 
-              // Filter Chips
-              _buildFilterChip('All'),
-              const SizedBox(width: 8),
-              _buildFilterChip('Paid'),
-              const SizedBox(width: 8),
-              _buildFilterChip('Pending'),
-            ],
+                // Filter Chips
+                _buildFilterChip('All'),
+                const SizedBox(width: 6),
+                _buildFilterChip('Paid'),
+                const SizedBox(width: 6),
+                _buildFilterChip('Pending'),
+              ],
+            ),
           ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 
@@ -904,20 +966,17 @@ class _FeesAttendancePageState extends State<FeesAttendancePage> {
         });
       },
       child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
         decoration: BoxDecoration(
-          color: isSelected ? AppColors.primary : Colors.white,
+          color: isSelected ? AppColors.primary : AppColors.background,
           borderRadius: BorderRadius.circular(20),
-          border: Border.all(
-            color: isSelected ? AppColors.primary : Colors.grey.shade300,
-          ),
         ),
         child: Text(
           label,
           style: TextStyle(
             color: isSelected ? Colors.white : AppColors.textSecondary,
             fontWeight: isSelected ? FontWeight.w500 : FontWeight.normal,
-            fontSize: 13,
+            fontSize: 12,
           ),
         ),
       ),
@@ -928,29 +987,28 @@ class _FeesAttendancePageState extends State<FeesAttendancePage> {
     return Container(
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: Colors.grey.withOpacity(0.1),
-            blurRadius: 5,
-            offset: const Offset(0, 2),
+            color: Colors.black.withOpacity(0.03),
+            blurRadius: 12,
+            offset: const Offset(0, 4),
           ),
         ],
       ),
       child: ClipRRect(
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(16),
         child: Column(
           children: [
             // Table Header
             Container(
-              padding: const EdgeInsets.all(12),
-              color: Colors.grey.shade50,
+              padding: const EdgeInsets.all(14),
+              color: AppColors.primary.withOpacity(0.04),
               child: const Row(
                 children: [
-                  Expanded(flex: 2, child: Text('Roll No', style: TextStyle(fontWeight: FontWeight.w600))),
-                  Expanded(flex: 3, child: Text('Student Name', style: TextStyle(fontWeight: FontWeight.w600))),
-                  Expanded(flex: 2, child: Text('Attendance', style: TextStyle(fontWeight: FontWeight.w600))),
-
+                  Expanded(flex: 2, child: Text('Roll No', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 13))),
+                  Expanded(flex: 3, child: Text('Student Name', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 13))),
+                  Expanded(flex: 2, child: Text('Attendance', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 13))),
                 ],
               ),
             ),
@@ -962,20 +1020,18 @@ class _FeesAttendancePageState extends State<FeesAttendancePage> {
               itemCount: _paginatedStudents.length,
               itemBuilder: (context, index) {
                 final student = _paginatedStudents[index];
+                final isEven = index % 2 == 0;
+
                 return Container(
-                  padding: const EdgeInsets.all(12),
-                  decoration: BoxDecoration(
-                    border: index < _paginatedStudents.length - 1
-                        ? Border(bottom: BorderSide(color: Colors.grey.shade100))
-                        : null,
-                  ),
+                  padding: const EdgeInsets.all(14),
+                  color: isEven ? Colors.white : AppColors.background.withOpacity(0.3),
                   child: Row(
                     children: [
                       Expanded(
                         flex: 2,
                         child: Text(
                           student['rollNo'],
-                          style: const TextStyle(fontSize: 13),
+                          style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w500),
                         ),
                       ),
                       Expanded(
@@ -992,23 +1048,32 @@ class _FeesAttendancePageState extends State<FeesAttendancePage> {
                         flex: 2,
                         child: Row(
                           children: [
-                            Icon(
-                              student['attendance'] ? Icons.check_circle : Icons.cancel,
-                              color: student['attendance'] ? AppColors.success : Colors.red,
-                              size: 18,
+                            Container(
+                              padding: const EdgeInsets.all(4),
+                              decoration: BoxDecoration(
+                                color: student['attendance']
+                                    ? AppColors.success.withOpacity(0.1)
+                                    : Colors.red.withOpacity(0.1),
+                                shape: BoxShape.circle,
+                              ),
+                              child: Icon(
+                                student['attendance'] ? Icons.check : Icons.close,
+                                color: student['attendance'] ? AppColors.success : Colors.red,
+                                size: 14,
+                              ),
                             ),
-                            const SizedBox(width: 4),
+                            const SizedBox(width: 6),
                             Text(
                               student['attendance'] ? 'Present' : 'Absent',
                               style: TextStyle(
                                 fontSize: 12,
                                 color: student['attendance'] ? AppColors.success : Colors.red,
+                                fontWeight: FontWeight.w500,
                               ),
                             ),
                           ],
                         ),
                       ),
-
                     ],
                   ),
                 );
@@ -1021,71 +1086,77 @@ class _FeesAttendancePageState extends State<FeesAttendancePage> {
   }
 
   Widget _buildPagination() {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        IconButton(
-          onPressed: _currentPage > 1
-              ? () {
-            setState(() {
-              _currentPage--;
-            });
-          }
-              : null,
-          icon: const Icon(Icons.chevron_left),
-          color: _currentPage > 1 ? AppColors.primary : AppColors.textDisabled,
-        ),
-        const SizedBox(width: 8),
-        ...List.generate(
-          _totalPages > 3 ? 3 : _totalPages,
-              (index) {
-            int pageNum = index + 1;
-            return GestureDetector(
-              onTap: () {
-                setState(() {
-                  _currentPage = pageNum;
-                });
-              },
-              child: Container(
-                margin: const EdgeInsets.symmetric(horizontal: 4),
-                width: 36,
-                height: 36,
-                decoration: BoxDecoration(
-                  color: _currentPage == pageNum
-                      ? AppColors.primary
-                      : Colors.transparent,
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: Center(
-                  child: Text(
-                    pageNum.toString(),
-                    style: TextStyle(
-                      color: _currentPage == pageNum
-                          ? Colors.white
-                          : AppColors.textPrimary,
-                      fontWeight: _currentPage == pageNum
-                          ? FontWeight.w600
-                          : FontWeight.normal,
+    return Container(
+      padding: const EdgeInsets.symmetric(vertical: 8),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          IconButton(
+            onPressed: _currentPage > 1
+                ? () {
+              setState(() {
+                _currentPage--;
+              });
+            }
+                : null,
+            icon: const Icon(Icons.chevron_left),
+            color: _currentPage > 1 ? AppColors.primary : AppColors.textDisabled,
+            iconSize: 20,
+          ),
+          const SizedBox(width: 4),
+          ...List.generate(
+            _totalPages > 3 ? 3 : _totalPages,
+                (index) {
+              int pageNum = index + 1;
+              return GestureDetector(
+                onTap: () {
+                  setState(() {
+                    _currentPage = pageNum;
+                  });
+                },
+                child: Container(
+                  margin: const EdgeInsets.symmetric(horizontal: 4),
+                  width: 32,
+                  height: 32,
+                  decoration: BoxDecoration(
+                    color: _currentPage == pageNum
+                        ? AppColors.primary
+                        : Colors.transparent,
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Center(
+                    child: Text(
+                      pageNum.toString(),
+                      style: TextStyle(
+                        color: _currentPage == pageNum
+                            ? Colors.white
+                            : AppColors.textPrimary,
+                        fontWeight: _currentPage == pageNum
+                            ? FontWeight.w600
+                            : FontWeight.normal,
+                        fontSize: 13,
+                      ),
                     ),
                   ),
                 ),
-              ),
-            );
-          },
-        ),
-        const SizedBox(width: 8),
-        IconButton(
-          onPressed: _currentPage < _totalPages
-              ? () {
-            setState(() {
-              _currentPage++;
-            });
-          }
-              : null,
-          icon: const Icon(Icons.chevron_right),
-          color: _currentPage < _totalPages ? AppColors.primary : AppColors.textDisabled,
-        ),
-      ],
+              );
+            },
+          ),
+          const SizedBox(width: 4),
+          IconButton(
+            onPressed: _currentPage < _totalPages
+                ? () {
+              setState(() {
+                _currentPage++;
+              });
+            }
+                : null,
+            icon: const Icon(Icons.chevron_right),
+            color: _currentPage < _totalPages ? AppColors.primary : AppColors.textDisabled,
+            iconSize: 20,
+          ),
+        ],
+      ),
     );
   }
 
