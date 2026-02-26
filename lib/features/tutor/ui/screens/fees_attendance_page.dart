@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:warna_app/core/constants/app_colors.dart';
 import 'package:warna_app/features/tutor/ui/screens/mark_attendance_page.dart';
+import 'package:warna_app/features/tutor/ui/screens/mark_payment_page.dart';
 
 class FeesAttendancePage extends StatefulWidget {
   const FeesAttendancePage({Key? key}) : super(key: key);
@@ -218,41 +219,6 @@ class _FeesAttendancePageState extends State<FeesAttendancePage> {
     );
   }
 
-  Widget _buildExportButton() {
-    return InkWell(
-      onTap: _exportData,
-      borderRadius: BorderRadius.circular(8),
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-        decoration: BoxDecoration(
-          color: AppColors.primary.withOpacity(0.1),
-          borderRadius: BorderRadius.circular(8),
-          border: Border.all(
-            color: AppColors.primary.withOpacity(0.3),
-          ),
-        ),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            const Icon(
-              Icons.download_rounded,
-              size: 16,
-              color: AppColors.primary,
-            ),
-            const SizedBox(width: 6),
-            const Text(
-              'Export',
-              style: TextStyle(
-                color: AppColors.primary,
-                fontWeight: FontWeight.w500,
-                fontSize: 13,
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
 
   Widget _buildClassDetails() {
     return Container(
@@ -860,7 +826,16 @@ class _FeesAttendancePageState extends State<FeesAttendancePage> {
         const SizedBox(width: 12),
         Expanded(
           child: OutlinedButton(
-            onPressed: () {},
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const MarkPaymentPage(),
+                ),
+              );
+            },
+
+
             style: OutlinedButton.styleFrom(
               foregroundColor: AppColors.primary,
               side: const BorderSide(color: AppColors.primary),
@@ -942,7 +917,7 @@ class _FeesAttendancePageState extends State<FeesAttendancePage> {
                       const Icon(Icons.calendar_today, size: 14, color: AppColors.textSecondary),
                       const SizedBox(width: 6),
                       Text(
-                        '${_selectedDate.day}/${_selectedDate.month}/${_selectedDate.year}',
+                        'June',
                         style: const TextStyle(fontSize: 12),
                       ),
                       const SizedBox(width: 4),
@@ -1168,6 +1143,451 @@ class _FeesAttendancePageState extends State<FeesAttendancePage> {
         ],
       ),
     );
+  }
+
+
+  Widget _buildExportButton() {
+    return InkWell(
+      onTap: _showExportModal,  // Changed to open modal
+      borderRadius: BorderRadius.circular(8),
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+        decoration: BoxDecoration(
+          color: AppColors.primary.withOpacity(0.1),
+          borderRadius: BorderRadius.circular(8),
+          border: Border.all(
+            color: AppColors.primary.withOpacity(0.3),
+          ),
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const Icon(
+              Icons.download_rounded,
+              size: 16,
+              color: AppColors.primary,
+            ),
+            const SizedBox(width: 6),
+            const Text(
+              'Export',
+              style: TextStyle(
+                color: AppColors.primary,
+                fontWeight: FontWeight.w500,
+                fontSize: 13,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+
+  void _showExportModal() {
+    String selectedMonth = 'March';
+    String selectedYear = '2024';
+    String selectedDate = '15';
+    String selectedPaymentStatus = 'All';
+    bool includeAttendance = true;
+
+    final List<String> months = [
+      'January', 'February', 'March', 'April', 'May', 'June',
+      'July', 'August', 'September', 'October', 'November', 'December'
+    ];
+
+    final List<String> years = ['2023', '2024', '2025'];
+
+    final List<String> dates = List.generate(31, (index) => (index + 1).toString());
+
+    final List<String> paymentStatuses = ['All', 'Paid', 'Unpaid', 'Pending'];
+
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (context) {
+        return StatefulBuilder(
+          builder: (context, setState) {
+            return Container(
+              height: MediaQuery.of(context).size.height * 0.7,
+              decoration: const BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+              ),
+              child: Column(
+                children: [
+                  // Handle bar
+                  Container(
+                    margin: const EdgeInsets.only(top: 12),
+                    width: 40,
+                    height: 4,
+                    decoration: BoxDecoration(
+                      color: Colors.grey.shade300,
+                      borderRadius: BorderRadius.circular(2),
+                    ),
+                  ),
+
+                  // Header
+                  Padding(
+                    padding: const EdgeInsets.all(20),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        const Text(
+                          'Export Data',
+                          style: TextStyle(
+                            fontSize: 20,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        IconButton(
+                          onPressed: () => Navigator.pop(context),
+                          icon: const Icon(Icons.close),
+                        ),
+                      ],
+                    ),
+                  ),
+
+                  // Divider
+                  Divider(color: Colors.grey.shade200, height: 1),
+
+                  // Content
+                  Expanded(
+                    child: SingleChildScrollView(
+                      padding: const EdgeInsets.all(20),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          // Month Selection
+                          const Text(
+                            'Select Month',
+                            style: TextStyle(
+                              fontSize: 14,
+                              fontWeight: FontWeight.w600,
+                              color: AppColors.textPrimary,
+                            ),
+                          ),
+                          const SizedBox(height: 8),
+                          Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 16),
+                            decoration: BoxDecoration(
+                              color: AppColors.background,
+                              borderRadius: BorderRadius.circular(12),
+                              border: Border.all(color: Colors.grey.shade200),
+                            ),
+                            child: DropdownButtonHideUnderline(
+                              child: DropdownButton<String>(
+                                isExpanded: true,
+                                value: selectedMonth,
+                                icon: const Icon(Icons.arrow_drop_down, color: AppColors.textSecondary),
+                                items: months.map((month) {
+                                  return DropdownMenuItem(
+                                    value: month,
+                                    child: Text(month),
+                                  );
+                                }).toList(),
+                                onChanged: (value) {
+                                  setState(() {
+                                    selectedMonth = value!;
+                                  });
+                                },
+                              ),
+                            ),
+                          ),
+
+                          const SizedBox(height: 20),
+
+                          // Year Selection
+                          const Text(
+                            'Select Year',
+                            style: TextStyle(
+                              fontSize: 14,
+                              fontWeight: FontWeight.w600,
+                              color: AppColors.textPrimary,
+                            ),
+                          ),
+                          const SizedBox(height: 8),
+                          Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 16),
+                            decoration: BoxDecoration(
+                              color: AppColors.background,
+                              borderRadius: BorderRadius.circular(12),
+                              border: Border.all(color: Colors.grey.shade200),
+                            ),
+                            child: DropdownButtonHideUnderline(
+                              child: DropdownButton<String>(
+                                isExpanded: true,
+                                value: selectedYear,
+                                icon: const Icon(Icons.arrow_drop_down, color: AppColors.textSecondary),
+                                items: years.map((year) {
+                                  return DropdownMenuItem(
+                                    value: year,
+                                    child: Text(year),
+                                  );
+                                }).toList(),
+                                onChanged: (value) {
+                                  setState(() {
+                                    selectedYear = value!;
+                                  });
+                                },
+                              ),
+                            ),
+                          ),
+
+                          const SizedBox(height: 20),
+
+                          // Date Selection
+                          const Text(
+                            'Select Date (Optional)',
+                            style: TextStyle(
+                              fontSize: 14,
+                              fontWeight: FontWeight.w600,
+                              color: AppColors.textPrimary,
+                            ),
+                          ),
+                          const SizedBox(height: 4),
+                          Text(
+                            'Leave empty for full month report',
+                            style: TextStyle(
+                              fontSize: 12,
+                              color: AppColors.textSecondary,
+                            ),
+                          ),
+                          const SizedBox(height: 8),
+                          Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 16),
+                            decoration: BoxDecoration(
+                              color: AppColors.background,
+                              borderRadius: BorderRadius.circular(12),
+                              border: Border.all(color: Colors.grey.shade200),
+                            ),
+                            child: DropdownButtonHideUnderline(
+                              child: DropdownButton<String>(
+                                isExpanded: true,
+                                value: selectedDate,
+                                icon: const Icon(Icons.arrow_drop_down, color: AppColors.textSecondary),
+                                items: [
+                                  const DropdownMenuItem(
+                                    value: 'All',
+                                    child: Text('All Dates'),
+                                  ),
+                                  ...dates.map((date) {
+                                    return DropdownMenuItem(
+                                      value: date,
+                                      child: Text(date),
+                                    );
+                                  }),
+                                ],
+                                onChanged: (value) {
+                                  setState(() {
+                                    selectedDate = value!;
+                                  });
+                                },
+                              ),
+                            ),
+                          ),
+
+                          const SizedBox(height: 20),
+
+                          // Payment Status Filter
+                          const Text(
+                            'Payment Status',
+                            style: TextStyle(
+                              fontSize: 14,
+                              fontWeight: FontWeight.w600,
+                              color: AppColors.textPrimary,
+                            ),
+                          ),
+                          const SizedBox(height: 8),
+                          Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 16),
+                            decoration: BoxDecoration(
+                              color: AppColors.background,
+                              borderRadius: BorderRadius.circular(12),
+                              border: Border.all(color: Colors.grey.shade200),
+                            ),
+                            child: DropdownButtonHideUnderline(
+                              child: DropdownButton<String>(
+                                isExpanded: true,
+                                value: selectedPaymentStatus,
+                                icon: const Icon(Icons.arrow_drop_down, color: AppColors.textSecondary),
+                                items: paymentStatuses.map((status) {
+                                  return DropdownMenuItem(
+                                    value: status,
+                                    child: Text(status),
+                                  );
+                                }).toList(),
+                                onChanged: (value) {
+                                  setState(() {
+                                    selectedPaymentStatus = value!;
+                                  });
+                                },
+                              ),
+                            ),
+                          ),
+
+                          const SizedBox(height: 20),
+
+                          // Include Attendance Toggle
+                          Container(
+                            padding: const EdgeInsets.all(16),
+                            decoration: BoxDecoration(
+                              color: AppColors.background,
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Expanded(
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      const Text(
+                                        'Include Attendance',
+                                        style: TextStyle(
+                                          fontSize: 14,
+                                          fontWeight: FontWeight.w600,
+                                        ),
+                                      ),
+                                      const SizedBox(height: 4),
+                                      Text(
+                                        'Add attendance data to export',
+                                        style: TextStyle(
+                                          fontSize: 12,
+                                          color: AppColors.textSecondary,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                                GestureDetector(
+                                  onTap: () {
+                                    setState(() {
+                                      includeAttendance = !includeAttendance;
+                                    });
+                                  },
+                                  child: Container(
+                                    width: 50,
+                                    height: 28,
+                                    decoration: BoxDecoration(
+                                      color: includeAttendance
+                                          ? AppColors.primary
+                                          : Colors.grey.shade300,
+                                      borderRadius: BorderRadius.circular(14),
+                                    ),
+                                    child: AnimatedAlign(
+                                      duration: const Duration(milliseconds: 200),
+                                      alignment: includeAttendance
+                                          ? Alignment.centerRight
+                                          : Alignment.centerLeft,
+                                      child: Container(
+                                        width: 24,
+                                        height: 24,
+                                        margin: const EdgeInsets.all(2),
+                                        decoration: const BoxDecoration(
+                                          color: Colors.white,
+                                          shape: BoxShape.circle,
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+
+                  // Bottom Buttons
+                  Container(
+                    padding: const EdgeInsets.all(20),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withOpacity(0.05),
+                          blurRadius: 10,
+                          offset: const Offset(0, -5),
+                        ),
+                      ],
+                    ),
+                    child: Row(
+                      children: [
+                        Expanded(
+                          child: OutlinedButton(
+                            onPressed: () => Navigator.pop(context),
+                            style: OutlinedButton.styleFrom(
+                              foregroundColor: AppColors.textSecondary,
+                              side: BorderSide(color: Colors.grey.shade300),
+                              padding: const EdgeInsets.symmetric(vertical: 14),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                            ),
+                            child: const Text('Cancel'),
+                          ),
+                        ),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: ElevatedButton(
+                            onPressed: () {
+                              Navigator.pop(context);
+                              _performExport(
+                                month: selectedMonth,
+                                year: selectedYear,
+                                date: selectedDate,
+                                paymentStatus: selectedPaymentStatus,
+                                includeAttendance: includeAttendance,
+                              );
+                            },
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: AppColors.primary,
+                              foregroundColor: Colors.white,
+                              padding: const EdgeInsets.symmetric(vertical: 14),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                            ),
+                            child: const Text('Export'),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            );
+          },
+        );
+      },
+    );
+  }
+
+  void _performExport({
+    required String month,
+    required String year,
+    required String date,
+    required String paymentStatus,
+    required bool includeAttendance,
+  }) {
+    String dateFilter = date == 'All' ? 'all dates' : 'date $date';
+    String attendanceText = includeAttendance ? 'with attendance' : 'without attendance';
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(
+          'Exporting data for $month $year ($dateFilter), Payment: $paymentStatus, $attendanceText',
+        ),
+        backgroundColor: AppColors.success,
+        behavior: SnackBarBehavior.floating,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+      ),
+    );
+
+    // TODO: Implement actual export logic here
+    // You can add CSV/PDF generation based on the selected filters
   }
 
   @override

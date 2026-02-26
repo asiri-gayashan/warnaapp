@@ -4,6 +4,8 @@ import 'dart:convert';
 import 'package:warna_app/features/tutor/models/class_model.dart';
 import 'package:warna_app/features/tutor/ui/screens/create_class_page.dart';
 import 'package:warna_app/features/tutor/ui/screens/class_detail_page.dart'; // Add this import
+import 'package:warna_app/features/tutor/ui/screens/mark_attendance_page.dart';
+import 'package:warna_app/features/tutor/ui/screens/mark_payment_page.dart';
 import 'package:warna_app/services/token_service.dart';
 import '../../../../core/constants/app_colors.dart';
 
@@ -223,7 +225,12 @@ class _TutorHomePageState extends State<TutorHomePage> {
                 Expanded(
                   child: GestureDetector(
                     onTap: () {
-                      // Navigate to Attendance page
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const MarkAttendancePage(),
+                        ),
+                      );
                     },
                     child: _buildQuickActionCard(
                       icon: Icons.assignment_add,
@@ -236,7 +243,12 @@ class _TutorHomePageState extends State<TutorHomePage> {
                 Expanded(
                   child: GestureDetector(
                     onTap: () {
-                      // Navigate to Payments page
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const MarkPaymentPage(),
+                        ),
+                      );
                     },
                     child: _buildQuickActionCard(
                       icon: Icons.payment,

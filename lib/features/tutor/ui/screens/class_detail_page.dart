@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:warna_app/features/tutor/ui/screens/enroll_student_page.dart';
 import 'package:warna_app/features/tutor/ui/screens/fees_attendance_page.dart';
 import '../../../../core/constants/app_colors.dart';
 import '../../models/class_model.dart';
@@ -355,7 +356,12 @@ class ClassDetailPage extends StatelessWidget {
                   ),
                   child: IconButton(
                     onPressed: () {
-
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const EnrollStudentPage(),
+                        ),
+                      );
                     },
                     icon: const Icon(Icons.person_add_alt_1),
                     color: AppColors.textPrimary,

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:warna_app/features/tutor/ui/screens/mark_payment_page.dart';
 import '../../../../core/constants/app_colors.dart';
 
 class EarningsPage extends StatelessWidget {
@@ -44,7 +45,7 @@ class EarningsPage extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   const Text(
-                    'Total Earnings',
+                    'Last Month',
                     style: TextStyle(
                       color: Colors.white70,
                       fontSize: 14,
@@ -52,7 +53,7 @@ class EarningsPage extends StatelessWidget {
                   ),
                   const SizedBox(height: 8),
                   const Text(
-                    '\$2,450',
+                    '\Rs 2,450',
                     style: TextStyle(
                       color: Colors.white,
                       fontSize: 36,
@@ -63,9 +64,9 @@ class EarningsPage extends StatelessWidget {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      _buildEarningStat('This Month', '\$850'),
-                      _buildEarningStat('Pending', '\$320'),
-                      _buildEarningStat('Withdrawn', '\$1,280'),
+                      _buildEarningStat('This Month', '\Rs 850'),
+                      _buildEarningStat('Received', '\Rs 320'),
+                      _buildEarningStat('Pending', '\Rs 1,280'),
                     ],
                   ),
                 ],
@@ -87,7 +88,7 @@ class EarningsPage extends StatelessWidget {
             _buildTransactionItem(
               'Session Payment',
               'Mathematics - Emma Watson',
-              '\$45',
+              '\Rs 45',
               '2 hours ago',
               Icons.check_circle,
               AppColors.success,
@@ -95,7 +96,7 @@ class EarningsPage extends StatelessWidget {
             _buildTransactionItem(
               'Session Payment',
               'Physics - James Smith',
-              '\$60',
+              '\Rs 60',
               'Yesterday',
               Icons.check_circle,
               AppColors.success,
@@ -103,7 +104,7 @@ class EarningsPage extends StatelessWidget {
             _buildTransactionItem(
               'Withdrawal',
               'Transfer to Bank',
-              '-\$200',
+              '-\Rs 200',
               '2 days ago',
               Icons.arrow_upward,
               Colors.orange,
@@ -111,7 +112,7 @@ class EarningsPage extends StatelessWidget {
             _buildTransactionItem(
               'Bonus',
               'Referral Program',
-              '\$25',
+              '\Rs 25',
               '3 days ago',
               Icons.star,
               Colors.amber,
@@ -120,10 +121,19 @@ class EarningsPage extends StatelessWidget {
         ),
       ),
       floatingActionButton: FloatingActionButton.extended(
-        onPressed: () {},
+        onPressed: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => const MarkPaymentPage(),
+            ),
+          );
+        },
+
+
         backgroundColor: AppColors.primary,
         icon: const Icon(Icons.account_balance_wallet),
-        label: const Text('Withdraw'),
+        label: const Text('Payment Reports'),
       ),
     );
   }
