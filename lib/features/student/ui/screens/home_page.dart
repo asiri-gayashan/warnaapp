@@ -1,15 +1,52 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import '../../../../core/constants/app_colors.dart';
-
 import '../../../../shared/widgets/class_card.dart';
 import '../../../../shared/widgets/status_card.dart';
 import '../../../../shared/widgets/home_header.dart';
 import '../../../../shared/widgets/home_top_section.dart';
+import '../../../../services/token_service.dart';
+import '../../../auth/ui/screens/login/login_screen.dart';
 
-
-class HomePage extends StatelessWidget {
+class HomePage extends StatefulWidget {
   const HomePage({Key? key}) : super(key: key);
+
+  @override
+  State<HomePage> createState() => _HomePageState();
+}
+
+class _HomePageState extends State<HomePage> {
+  Future<void> _logout() async {
+    // Show confirmation dialog
+    final shouldLogout = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Logout'),
+        content: const Text('Are you sure you want to logout?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text('Cancel'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(context, true),
+            child: const Text('Logout'),
+          ),
+        ],
+      ),
+    );
+
+    if (shouldLogout == true) {
+      await TokenService.clearToken();
+      if (context.mounted) {
+        Navigator.pushAndRemoveUntil(
+          context,
+          MaterialPageRoute(builder: (_) => const LoginScreen()),
+              (route) => false,
+        );
+      }
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -17,11 +54,10 @@ class HomePage extends StatelessWidget {
       backgroundColor: AppColors.background,
       body: SafeArea(
         child: SingleChildScrollView(
-          child: Column(   // 🔥 Column FIRST
+          child: Column(
             children: [
-
-              // 🔵 FULL WIDTH HEADER
-              const HomeHeader(),
+              // Pass the logout function to HomeHeader
+              HomeHeader(onLogout: _logout),
               const SizedBox(height: 30),
 
               // Other content with side padding
@@ -30,15 +66,10 @@ class HomePage extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-
-
-
                     _buildTodayClasses(),
                     const SizedBox(height: 24),
-
                     _buildQuickStatus(),
                     const SizedBox(height: 24),
-
                   ],
                 ),
               ),
@@ -49,67 +80,7 @@ class HomePage extends StatelessWidget {
     );
   }
 
-  Widget _buildHeader() {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        // Greeting Text
-        Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              'Good Morning,',
-              style: TextStyle(
-                fontSize: 16,
-                color: AppColors.textSecondary,
-              ),
-            ),
-            const SizedBox(height: 4),
-            Text(
-              'Sarah Johnson',
-              style: const TextStyle(
-                fontSize: 24,
-                fontWeight: FontWeight.w700,
-                color: AppColors.textPrimary,
-              ),
-            ),
-          ],
-        ),
-
-        // Profile Avatar
-        Container(
-          width: 50,
-          height: 50,
-          decoration: BoxDecoration(
-            shape: BoxShape.circle,
-            border: Border.all(
-              color: AppColors.primary.withOpacity(0.2),
-              width: 2,
-            ),
-          ),
-          child: ClipOval(
-            child: Image.network(
-              'https://images.unsplash.com/photo-1494790108755-2616b786d4d4?w=400&h=400&fit=crop&crop=face',
-              fit: BoxFit.cover,
-              errorBuilder: (context, error, stackTrace) {
-                return Container(
-                  color: AppColors.primaryLight,
-                  child: const Icon(
-                    CupertinoIcons.person_fill,
-                    color: AppColors.primary,
-                    size: 28,
-                  ),
-                );
-              },
-            ),
-          ),
-        ),
-      ],
-    );
-  }
-
-
-
+  // Keep your existing _buildTodayClasses and _buildQuickStatus methods
   Widget _buildTodayClasses() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -182,4 +153,6 @@ class HomePage extends StatelessWidget {
       onAction: () {},
     );
   }
+
+// You can remove _buildHeader since it's now in HomeHeader
 }

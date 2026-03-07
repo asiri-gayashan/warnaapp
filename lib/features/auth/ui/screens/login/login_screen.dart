@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:warna_app/features/institute/ui/navigation/institute_navigation.dart';
 import 'package:warna_app/features/student/ui/navigation/student_navigation.dart';
 import 'package:warna_app/features/test_student_page.dart';
 import 'package:warna_app/features/tutor/ui/navigation/tutor_navigation.dart';
@@ -10,6 +11,7 @@ import '../../../../../core/constants/app_strings.dart';
 import '../../../../../config/theme/text_styles.dart';
 import '../../../logic/login_controller.dart';
 import '../registration/registration_screen.dart';
+import '../../../../../services/token_service.dart'; // Add this import
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({Key? key}) : super(key: key);
@@ -20,6 +22,7 @@ class LoginScreen extends StatefulWidget {
 
 class _LoginScreenState extends State<LoginScreen> {
   late final LoginController _controller;
+  bool _isCheckingToken = true;
 
   @override
   void initState() {
@@ -29,6 +32,9 @@ class _LoginScreenState extends State<LoginScreen> {
     // Add listeners for real-time validation
     _controller.emailController.addListener(_onEmailChanged);
     _controller.passwordController.addListener(_onPasswordChanged);
+
+    // Check for existing token
+    _checkExistingToken();
   }
 
   void _onEmailChanged() {
@@ -39,6 +45,69 @@ class _LoginScreenState extends State<LoginScreen> {
     _controller.validatePassword(_controller.passwordController.text);
   }
 
+  Future<void> _checkExistingToken() async {
+    // Get decoded token from TokenService
+    final decodedToken = await TokenService.getDecodedToken();
+
+    if (decodedToken != null) {
+      // Token exists and is not expired
+      String role = decodedToken['role'] ?? '';
+      String? token = await TokenService.getToken();
+
+      if (mounted) {
+        setState(() {
+          _isCheckingToken = false;
+        });
+
+        // Redirect based on role
+        _redirectToDashboard(role, token);
+      }
+    } else {
+      // No valid token
+      if (mounted) {
+        setState(() {
+          _isCheckingToken = false;
+        });
+      }
+    }
+  }
+
+  void _redirectToDashboard(String role, String? token) {
+    if (!mounted) return;
+
+    switch (role) {
+      case "STUDENT":
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(
+            builder: (_) => StudentNavigation(token: token ?? ''),
+          ),
+        );
+        break;
+      case "TUTOR":
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(
+            builder: (_) => TutorNavigation(),
+          ),
+        );
+        break;
+      case "INSTITUTE":
+      // Add institute dashboard navigation here
+        print("Redirecting to INSTITUTE dashboard");
+        // Navigator.pushReplacement(
+        //   context,
+        //   MaterialPageRoute(
+        //     builder: (_) => InstituteNavigation(),
+        //   ),
+        // );
+        break;
+      default:
+        print("Unknown role: $role");
+        break;
+    }
+  }
+
   @override
   void dispose() {
     _controller.emailController.removeListener(_onEmailChanged);
@@ -47,9 +116,17 @@ class _LoginScreenState extends State<LoginScreen> {
     super.dispose();
   }
 
-
   @override
   Widget build(BuildContext context) {
+    // Show loading indicator while checking token
+    if (_isCheckingToken) {
+      return const Scaffold(
+        body: Center(
+          child: CircularProgressIndicator(),
+        ),
+      );
+    }
+
     return Scaffold(
       body: SafeArea(
         child: SingleChildScrollView(
@@ -67,55 +144,54 @@ class _LoginScreenState extends State<LoginScreen> {
               _buildForm(),
               const SizedBox(height: 32),
 
-
               // Login Button
               CustomButton(
                 text: AppStrings.loginButton,
                 onPressed: () async {
-
                   var result = await _controller.loginUser();
 
                   if (result != null) {
-
                     String role = result['role'];
                     String token = result['token'];
 
-                    print(role + " Logged In Successfully");
+                    print("$role Logged In Successfully");
                     print(token);
 
                     if (role == "STUDENT") {
                       Navigator.pushReplacement(
                         context,
                         MaterialPageRoute(
-                          builder: (_) => TestStudentPage(),
+                          builder: (_) => StudentNavigation(token: token),
                         ),
                       );
-                      // Navigator.pushReplacementNamed(context, '/student');
-                      Navigator.push( context, MaterialPageRoute( builder: (context) => StudentNavigation(token: token)));
-
-                    }else if (role == "TUTOR"){
-                      print("Reidercting to the TUTOR dashboard");
+                    } else if (role == "TUTOR") {
+                      print("Redirecting to the TUTOR dashboard");
                       Navigator.pushReplacement(
                         context,
                         MaterialPageRoute(
                           builder: (_) => TutorNavigation(),
                         ),
                       );
-                    }else if (role == "INSTITUTE"){
-                      print("Reidercting to the INSTITUTE dashboard");
-                    }else{
-                      print("Some thing went wrong");
-                    }
+                    } else if (role == "INSTITUTE") {
+                      print("Redirecting to the INSTITUTE dashboard");
+                      // Add institute navigation here
+                      Navigator.pushReplacement(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => InstituteNavigation(),
+                        ),
+                      );
+                    } else {
+                      print("Something went wrong");
 
+
+                    }
                   }
                 },
-
                 isLoading: _controller.isLoading,
                 // isDisabled: !_controller.isFormValid() && !_controller.isLoading,
               ),
               const SizedBox(height: 32),
-
-
 
               // Divider
               _buildDivider(),
@@ -257,7 +333,6 @@ class _LoginScreenState extends State<LoginScreen> {
                 ),
 
                 // Forgot Password
-
               ],
             ),
           ],
@@ -319,6 +394,4 @@ class _LoginScreenState extends State<LoginScreen> {
       ),
     );
   }
-
-
 }

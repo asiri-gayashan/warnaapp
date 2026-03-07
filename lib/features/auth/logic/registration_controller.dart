@@ -691,7 +691,7 @@ class RegistrationController extends ChangeNotifier {
   bool isStep3Valid() {
     switch (_selectedRole) {
       case UserRole.instituteAdmin:
-        return _instituteNameValidated && _studentCountValidated
+        return  _studentCountValidated
         && _teacherCountValidated && _provinceValidated &&
             _addressOneValidated;
 

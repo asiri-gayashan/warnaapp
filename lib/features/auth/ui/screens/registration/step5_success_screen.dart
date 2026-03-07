@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:warna_app/features/auth/ui/screens/login/login_screen.dart';
 import '../../../../../shared/widgets/custom_button.dart';
 import '../../../../../core/constants/app_colors.dart';
 import '../../../../../core/constants/registration_strings.dart';
@@ -62,10 +63,16 @@ class RegistrationStep5 extends StatelessWidget {
 
         // Dashboard Button
         CustomButton(
-          text: RegistrationStrings.goToDashboard,
+          text: "Login to Dashboard",
           onPressed: () {
             // Navigate to student dashboard
-            Navigator.pushReplacementNamed(context, '/student');
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => const LoginScreen(),
+              ),
+            );
+            // Navigator.pushReplacementNamed(context, '/student');
           },
           hasShadow: true,
           backgroundColor: AppColors.success,

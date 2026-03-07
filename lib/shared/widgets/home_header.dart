@@ -5,7 +5,9 @@ import 'package:warna_app/services/token_service.dart';
 import 'home_top_section.dart';
 
 class HomeHeader extends StatelessWidget {
-  const HomeHeader({super.key});
+  final VoidCallback? onLogout; // Add this
+
+  const HomeHeader({super.key, this.onLogout}); // Update constructor
 
   Future<String?> _loadName() async {
     return await TokenService.getFullName();
@@ -16,13 +18,11 @@ class HomeHeader extends StatelessWidget {
     return FutureBuilder<String?>(
       future: _loadName(),
       builder: (context, snapshot) {
-
         String fullName = snapshot.data ?? "User";
 
         return Stack(
           clipBehavior: Clip.none,
           children: [
-
             // 🔵 Blue Header Background
             Container(
               width: double.infinity,
@@ -42,7 +42,6 @@ class HomeHeader extends StatelessWidget {
                     NetworkImage("https://i.pravatar.cc/150?img=3"),
                   ),
                   const SizedBox(width: 12),
-
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
@@ -60,30 +59,32 @@ class HomeHeader extends StatelessWidget {
                       ),
                     ],
                   ),
-
                   const Spacer(),
-
-                  Container(
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 14, vertical: 8),
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(20),
-                      border: Border.all(color: Colors.white70),
-                    ),
-                    child: const Row(
-                      children: [
-                        Icon(CupertinoIcons.search,
-                            color: Colors.white, size: 18),
-                        SizedBox(width: 6),
-                        Text("Search",
-                            style: TextStyle(color: Colors.white)),
-                      ],
+                  InkWell(
+                    borderRadius: BorderRadius.circular(20),
+                    onTap: onLogout, // Use the callback
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(20),
+                        border: Border.all(color: Colors.white70),
+                      ),
+                      child: const Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(Icons.logout_outlined, color: Colors.white, size: 18),
+                          SizedBox(width: 6),
+                          Text(
+                            "Logout",
+                            style: TextStyle(color: Colors.white),
+                          ),
+                        ],
+                      ),
                     ),
                   )
                 ],
               ),
             ),
-
             // Cards Section
             const Positioned(
               bottom: 70,

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'package:warna_app/features/auth/ui/screens/login/login_screen.dart';
 import 'dart:convert';
 import 'package:warna_app/features/tutor/models/class_model.dart';
 import 'package:warna_app/features/tutor/ui/screens/create_class_page.dart';
@@ -45,6 +46,39 @@ class _TutorHomePageState extends State<TutorHomePage> {
       loading = false;
     });
   }
+
+
+  Future<void> _logout() async {
+    final shouldLogout = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Logout'),
+        content: const Text('Are you sure you want to logout?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text('Cancel'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(context, true),
+            child: const Text('Logout'),
+          ),
+        ],
+      ),
+    );
+
+    if (shouldLogout == true) {
+      await TokenService.clearToken();
+      if (context.mounted) {
+        Navigator.pushAndRemoveUntil(
+          context,
+          MaterialPageRoute(builder: (_) => const LoginScreen()),
+              (route) => false,
+        );
+      }
+    }
+  }
+
 
   Future<void> _fetchUpcomingClasses() async {
     setState(() {
@@ -111,6 +145,21 @@ class _TutorHomePageState extends State<TutorHomePage> {
         elevation: 0,
         centerTitle: true,
         actions: [
+          GestureDetector(
+            onTap: _logout,
+            child: Container(
+              margin: const EdgeInsets.only(right: 16),
+              child: CircleAvatar(
+                radius: 16,
+                backgroundColor: AppColors.primary.withOpacity(0.1),
+                child: const Icon(
+                  Icons.logout,
+                  size: 18,
+                  color: AppColors.primary,
+                ),
+              ),
+            ),
+          ),
           Container(
             margin: const EdgeInsets.only(right: 16),
             child: CircleAvatar(

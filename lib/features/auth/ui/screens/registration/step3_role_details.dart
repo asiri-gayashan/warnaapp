@@ -58,11 +58,14 @@ class _RegistrationStep3State extends State<RegistrationStep3> {
           const SizedBox(height: 40),
 
           // Next Button
-          CustomButton(
+           CustomButton (
             text: RegistrationStrings.next,
-            onPressed: widget.controller.isStep3Valid() ? widget.onNext : null,
-            // onPressed: widget.onNext,
-
+            onPressed: widget.controller.isStep3Valid()
+                ? () {
+              widget.controller.printData(); // do current task
+              widget.onNext();                // call next function
+            }
+                : null,
             // onPressed: _buildTeacherForm.,
             isDisabled: !widget.controller.isStep3Valid(),
             hasShadow: true,
@@ -125,19 +128,19 @@ class _RegistrationStep3State extends State<RegistrationStep3> {
     return Column(
       children: [
         // Institute Name
-        CustomTextField(
-          label: RegistrationStrings.instituteName,
-          hintText: RegistrationStrings.instituteNameHint,
-          controller: widget.controller.instituteNameController,
-          onChanged: (value) {
-            widget.controller.validateInstituteName(value);
-          },
-        ),
-
-
-        FieldErrorText( message: widget.controller.instituteNameError),
-
-        const SizedBox(height: 20),
+        // CustomTextField(
+        //   label: RegistrationStrings.instituteName,
+        //   hintText: RegistrationStrings.instituteNameHint,
+        //   controller: widget.controller.instituteNameController,
+        //   onChanged: (value) {
+        //     widget.controller.validateInstituteName(value);
+        //   },
+        // ),
+        //
+        //
+        // FieldErrorText( message: widget.controller.instituteNameError),
+        //
+        // const SizedBox(height: 20),
 
 
 

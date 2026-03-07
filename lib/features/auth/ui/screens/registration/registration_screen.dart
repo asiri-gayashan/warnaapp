@@ -112,6 +112,12 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                       onBack: _goToPreviousStep,
                     ),
 
+                    // Step 5: Success Screen
+                    RegistrationStep5(
+                      controller: _controller,
+                      onComplete: _completeRegistration,
+                    ),
+
                     // Step 4: Email Verification
                     RegistrationStep4(
                       controller: _controller,
@@ -119,11 +125,7 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                       onBack: _goToPreviousStep,
                     ),
 
-                    // Step 5: Success Screen
-                    RegistrationStep5(
-                      controller: _controller,
-                      onComplete: _completeRegistration,
-                    ),
+
                   ],
                 ),
               ),
