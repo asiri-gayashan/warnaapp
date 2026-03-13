@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:warna_app/core/constants/app_colors.dart';
+import 'package:warna_app/features/institute/ui/screens/mark_payement_teachers_page.dart';
 
 class TutorDetailPage extends StatefulWidget {
   final Map<String, dynamic> tutor;
@@ -200,12 +201,12 @@ class _TutorDetailPageState extends State<TutorDetailPage> {
               child: ElevatedButton.icon(
                 onPressed: () {
                   // Navigate to mark payment page
-                  // Navigator.push(
-                  //   context,
-                  //   MaterialPageRoute(
-                  //     builder: (context) => const MarkPaymentPage(),
-                  //   ),
-                  // );
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const InstituteMarkPaymentPage(),
+                    ),
+                  );
                 },
                 icon: const Icon(Icons.payment),
                 label: const Text('Mark Payments'),
