@@ -151,7 +151,7 @@ class _MarkPaymentPageState extends State<MarkPaymentPage> {
       backgroundColor: AppColors.background,
       appBar: AppBar(
         title: const Text(
-          'Mark Payments',
+          ' Institute Mark Payments',
           style: TextStyle(
             fontWeight: FontWeight.w600,
             color: AppColors.textPrimary,

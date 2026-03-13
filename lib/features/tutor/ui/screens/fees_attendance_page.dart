@@ -634,7 +634,7 @@ class _FeesAttendancePageState extends State<FeesAttendancePage> {
         const SizedBox(width: 12),
         Expanded(
           child: _buildStatItem(
-            'Present',
+            'Paid',
             '$_presentCount',
             Icons.check_circle,
             AppColors.success,
@@ -993,7 +993,7 @@ class _FeesAttendancePageState extends State<FeesAttendancePage> {
                 children: [
                   Expanded(flex: 2, child: Text('Roll No', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 13))),
                   Expanded(flex: 3, child: Text('Student Name', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 13))),
-                  Expanded(flex: 2, child: Text('Attendance', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 13))),
+                  Expanded(flex: 2, child: Text('Mobile', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 13))),
                 ],
               ),
             ),
@@ -1033,26 +1033,12 @@ class _FeesAttendancePageState extends State<FeesAttendancePage> {
                         flex: 2,
                         child: Row(
                           children: [
-                            Container(
-                              padding: const EdgeInsets.all(4),
-                              decoration: BoxDecoration(
-                                color: student['attendance']
-                                    ? AppColors.success.withOpacity(0.1)
-                                    : Colors.red.withOpacity(0.1),
-                                shape: BoxShape.circle,
-                              ),
-                              child: Icon(
-                                student['attendance'] ? Icons.check : Icons.close,
-                                color: student['attendance'] ? AppColors.success : Colors.red,
-                                size: 14,
-                              ),
-                            ),
-                            const SizedBox(width: 6),
+
                             Text(
-                              student['attendance'] ? 'Present' : 'Absent',
+                              "0768645011",
                               style: TextStyle(
                                 fontSize: 12,
-                                color: student['attendance'] ? AppColors.success : Colors.red,
+                                color: AppColors.success ,
                                 fontWeight: FontWeight.w500,
                               ),
                             ),

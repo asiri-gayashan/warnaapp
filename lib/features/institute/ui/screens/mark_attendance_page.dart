@@ -1,18 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:warna_app/core/constants/app_colors.dart';
 
-class MarkPaymentPage extends StatefulWidget {
-  const MarkPaymentPage({Key? key}) : super(key: key);
+class MarkAttendancePage extends StatefulWidget {
+  const MarkAttendancePage({Key? key}) : super(key: key);
 
   @override
-  State<MarkPaymentPage> createState() => _MarkPaymentPageState();
+  State<MarkAttendancePage> createState() => _MarkAttendancePageState();
 }
 
-class _MarkPaymentPageState extends State<MarkPaymentPage> {
+class _MarkAttendancePageState extends State<MarkAttendancePage> {
   final TextEditingController _searchController = TextEditingController();
   String? _selectedClass;
   DateTime _selectedDate = DateTime.now();
-  String _selectedFilter = 'All'; // All, Paid, Unpaid
   bool _selectAll = false;
   int _currentPage = 1;
   final int _itemsPerPage = 10;
@@ -26,41 +25,32 @@ class _MarkPaymentPageState extends State<MarkPaymentPage> {
     'Computer Science - Grade 11',
   ];
 
-  // Sample students with payment data
+  // Sample students
   final List<Map<String, dynamic>> _allStudents = [
-    {'rollNo': 'S001', 'name': 'Emma Watson', 'payment': true, 'amount': 2500, 'dueDate': '2024-03-15', 'paymentDate': '2024-03-01'},
-    {'rollNo': 'S002', 'name': 'James Smith', 'payment': false, 'amount': 2500, 'dueDate': '2024-03-15', 'paymentDate': null},
-    {'rollNo': 'S003', 'name': 'Michael Brown', 'payment': true, 'amount': 2500, 'dueDate': '2024-03-15', 'paymentDate': '2024-03-02'},
-    {'rollNo': 'S004', 'name': 'Sarah Johnson', 'payment': true, 'amount': 2500, 'dueDate': '2024-03-15', 'paymentDate': '2024-03-01'},
-    {'rollNo': 'S005', 'name': 'David Wilson', 'payment': false, 'amount': 2500, 'dueDate': '2024-03-15', 'paymentDate': null},
-    {'rollNo': 'S006', 'name': 'Emily Davis', 'payment': true, 'amount': 2500, 'dueDate': '2024-03-15', 'paymentDate': '2024-03-03'},
-    {'rollNo': 'S007', 'name': 'Daniel Martinez', 'payment': true, 'amount': 2500, 'dueDate': '2024-03-15', 'paymentDate': '2024-03-01'},
-    {'rollNo': 'S008', 'name': 'Lisa Anderson', 'payment': false, 'amount': 2500, 'dueDate': '2024-03-15', 'paymentDate': null},
-    {'rollNo': 'S009', 'name': 'Robert Taylor', 'payment': true, 'amount': 2500, 'dueDate': '2024-03-15', 'paymentDate': '2024-03-02'},
-    {'rollNo': 'S010', 'name': 'Jennifer Thomas', 'payment': true, 'amount': 2500, 'dueDate': '2024-03-15', 'paymentDate': '2024-03-01'},
-    {'rollNo': 'S011', 'name': 'William Jackson', 'payment': false, 'amount': 2500, 'dueDate': '2024-03-15', 'paymentDate': null},
-    {'rollNo': 'S012', 'name': 'Mary White', 'payment': true, 'amount': 2500, 'dueDate': '2024-03-15', 'paymentDate': '2024-03-03'},
-    {'rollNo': 'S013', 'name': 'Joseph Harris', 'payment': true, 'amount': 2500, 'dueDate': '2024-03-15', 'paymentDate': '2024-03-01'},
-    {'rollNo': 'S014', 'name': 'Patricia Martin', 'payment': false, 'amount': 2500, 'dueDate': '2024-03-15', 'paymentDate': null},
-    {'rollNo': 'S015', 'name': 'Charles Thompson', 'payment': true, 'amount': 2500, 'dueDate': '2024-03-15', 'paymentDate': '2024-03-02'},
+    {'rollNo': 'S001', 'name': 'Emma Watson', 'attendance': false},
+    {'rollNo': 'S002', 'name': 'James Smith', 'attendance': false},
+    {'rollNo': 'S003', 'name': 'Michael Brown', 'attendance': false},
+    {'rollNo': 'S004', 'name': 'Sarah Johnson', 'attendance': false},
+    {'rollNo': 'S005', 'name': 'David Wilson', 'attendance': false},
+    {'rollNo': 'S006', 'name': 'Emily Davis', 'attendance': false},
+    {'rollNo': 'S007', 'name': 'Daniel Martinez', 'attendance': false},
+    {'rollNo': 'S008', 'name': 'Lisa Anderson', 'attendance': false},
+    {'rollNo': 'S009', 'name': 'Robert Taylor', 'attendance': false},
+    {'rollNo': 'S010', 'name': 'Jennifer Thomas', 'attendance': false},
+    {'rollNo': 'S011', 'name': 'William Jackson', 'attendance': false},
+    {'rollNo': 'S012', 'name': 'Mary White', 'attendance': false},
+    {'rollNo': 'S013', 'name': 'Joseph Harris', 'attendance': false},
+    {'rollNo': 'S014', 'name': 'Patricia Martin', 'attendance': false},
+    {'rollNo': 'S015', 'name': 'Charles Thompson', 'attendance': false},
   ];
 
   List<Map<String, dynamic>> get _filteredStudents {
+    if (_searchController.text.isEmpty) {
+      return _allStudents;
+    }
     return _allStudents.where((student) {
-      // Search filter
-      final searchMatch = _searchController.text.isEmpty ||
-          student['name'].toLowerCase().contains(_searchController.text.toLowerCase()) ||
+      return student['name'].toLowerCase().contains(_searchController.text.toLowerCase()) ||
           student['rollNo'].toLowerCase().contains(_searchController.text.toLowerCase());
-
-      // Payment status filter
-      bool paymentMatch = true;
-      if (_selectedFilter == 'Paid') {
-        paymentMatch = student['payment'] == true;
-      } else if (_selectedFilter == 'Unpaid') {
-        paymentMatch = student['payment'] == false;
-      }
-
-      return searchMatch && paymentMatch;
     }).toList();
   }
 
@@ -75,34 +65,23 @@ class _MarkPaymentPageState extends State<MarkPaymentPage> {
   }
 
   int get _totalPages => (_filteredStudents.length / _itemsPerPage).ceil();
-  int get _paidCount => _filteredStudents.where((s) => s['payment'] == true).length;
-  int get _unpaidCount => _filteredStudents.where((s) => s['payment'] == false).length;
-  int get _totalAmount => _filteredStudents.length * 2500;
-  int get _collectedAmount => _paidCount * 2500;
-  int get _pendingAmount => _unpaidCount * 2500;
+  int get _presentCount => _filteredStudents.where((s) => s['attendance'] == true).length;
+  int get _absentCount => _filteredStudents.where((s) => s['attendance'] == false).length;
 
-  void _toggleAllPayment() {
+  void _toggleAllAttendance() {
     setState(() {
       _selectAll = !_selectAll;
       for (var student in _paginatedStudents) {
-        student['payment'] = _selectAll;
+        student['attendance'] = _selectAll;
       }
     });
   }
 
-  void _toggleStudentPayment(int index) {
+  void _toggleStudentAttendance(int index) {
     setState(() {
-      _paginatedStudents[index]['payment'] = !_paginatedStudents[index]['payment'];
-      // Update payment date
-      if (_paginatedStudents[index]['payment']) {
-        _paginatedStudents[index]['paymentDate'] =
-        '${_selectedDate.year}-${_selectedDate.month.toString().padLeft(2, '0')}-${_selectedDate.day.toString().padLeft(2, '0')}';
-      } else {
-        _paginatedStudents[index]['paymentDate'] = null;
-      }
-
+      _paginatedStudents[index]['attendance'] = !_paginatedStudents[index]['attendance'];
       // Check if all are selected to update selectAll
-      _selectAll = _paginatedStudents.every((s) => s['payment'] == true);
+      _selectAll = _paginatedStudents.every((s) => s['attendance'] == true);
     });
   }
 
@@ -133,11 +112,11 @@ class _MarkPaymentPageState extends State<MarkPaymentPage> {
     }
   }
 
-  void _savePayments() {
-    final paidStudents = _allStudents.where((s) => s['payment'] == true).length;
+  void _saveAttendance() {
+    final presentStudents = _allStudents.where((s) => s['attendance'] == true).length;
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: Text('Payments saved!'),
+        content: Text('Attendance saved!'),
         backgroundColor: AppColors.success,
         behavior: SnackBarBehavior.floating,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
@@ -151,7 +130,7 @@ class _MarkPaymentPageState extends State<MarkPaymentPage> {
       backgroundColor: AppColors.background,
       appBar: AppBar(
         title: const Text(
-          'Mark Payments',
+          'Mark Attendance Institute',
           style: TextStyle(
             fontWeight: FontWeight.w600,
             color: AppColors.textPrimary,
@@ -195,7 +174,7 @@ class _MarkPaymentPageState extends State<MarkPaymentPage> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   const Text(
-                    'Select Class & Month',
+                    'Select Class & Date',
                     style: TextStyle(
                       color: Colors.white,
                       fontSize: 16,
@@ -244,7 +223,7 @@ class _MarkPaymentPageState extends State<MarkPaymentPage> {
 
                   const SizedBox(height: 12),
 
-                  // Month Selector
+                  // Date Selector
                   GestureDetector(
                     onTap: () => _selectDate(context),
                     child: Container(
@@ -258,10 +237,10 @@ class _MarkPaymentPageState extends State<MarkPaymentPage> {
                       ),
                       child: Row(
                         children: [
-                          const Icon(Icons.calendar_month, color: Colors.white, size: 18),
+                          const Icon(Icons.calendar_today, color: Colors.white, size: 18),
                           const SizedBox(width: 12),
                           Text(
-                            '${_selectedDate.year} - ${_selectedDate.month.toString().padLeft(2, '0')}',
+                            '${_selectedDate.day}/${_selectedDate.month}/${_selectedDate.year}',
                             style: const TextStyle(
                               color: Colors.white,
                               fontSize: 15,
@@ -280,88 +259,33 @@ class _MarkPaymentPageState extends State<MarkPaymentPage> {
 
             const SizedBox(height: 24),
 
-            // Financial Stats Cards
+            // Stats Cards
             Row(
               children: [
                 Expanded(
                   child: _buildStatCard(
-                    'Total Amount',
-                    'Rs $_totalAmount',
-                    Icons.account_balance_wallet_outlined,
+                    'Total Students',
+                    '${_filteredStudents.length}',
+                    Icons.people_alt,
                     AppColors.primary,
                   ),
                 ),
                 const SizedBox(width: 12),
                 Expanded(
                   child: _buildStatCard(
-                    'Collected',
-                    'Rs $_collectedAmount',
-                    Icons.payments_outlined,
+                    'Present',
+                    '$_presentCount',
+                    Icons.check_circle,
                     AppColors.success,
                   ),
                 ),
                 const SizedBox(width: 12),
                 Expanded(
                   child: _buildStatCard(
-                    'Pending',
-                    'Rs $_pendingAmount',
-                    Icons.pending,
-                    Colors.orange,
-                  ),
-                ),
-              ],
-            ),
-
-            const SizedBox(height: 12),
-
-            // Student Count Stats
-            Row(
-              children: [
-                Expanded(
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(vertical: 8),
-                    decoration: BoxDecoration(
-                      color: AppColors.success.withOpacity(0.1),
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        const Icon(Icons.check_circle, color: AppColors.success, size: 16),
-                        const SizedBox(width: 6),
-                        Text(
-                          '$_paidCount Paid',
-                          style: const TextStyle(
-                            color: AppColors.success,
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(vertical: 8),
-                    decoration: BoxDecoration(
-                      color: Colors.orange.withOpacity(0.1),
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        const Icon(Icons.pending, color: Colors.orange, size: 16),
-                        const SizedBox(width: 6),
-                        Text(
-                          '$_unpaidCount Not Paid',
-                          style: const TextStyle(
-                            color: Colors.orange,
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
-                      ],
-                    ),
+                    'Absent',
+                    '$_absentCount',
+                    Icons.cancel,
+                    Colors.red,
                   ),
                 ),
               ],
@@ -369,7 +293,7 @@ class _MarkPaymentPageState extends State<MarkPaymentPage> {
 
             const SizedBox(height: 20),
 
-            // Search Bar and Filters
+            // Search Bar
             Container(
               decoration: BoxDecoration(
                 color: Colors.white,
@@ -382,57 +306,35 @@ class _MarkPaymentPageState extends State<MarkPaymentPage> {
                   ),
                 ],
               ),
-              child: Column(
-                children: [
-                  // Search Bar
-                  TextField(
-                    controller: _searchController,
-                    decoration: InputDecoration(
-                      hintText: 'Search by name or roll number...',
-                      prefixIcon: const Icon(Icons.search, color: AppColors.textSecondary),
-                      suffixIcon: _searchController.text.isNotEmpty
-                          ? IconButton(
-                        icon: const Icon(Icons.clear, size: 20),
-                        onPressed: () {
-                          setState(() {
-                            _searchController.clear();
-                            _currentPage = 1;
-                          });
-                        },
-                      )
-                          : null,
-                      border: OutlineInputBorder(
-                        borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
-                        borderSide: BorderSide.none,
-                      ),
-                      filled: true,
-                      fillColor: Colors.white,
-                      contentPadding: const EdgeInsets.symmetric(vertical: 14),
-                    ),
-                    onChanged: (value) {
+              child: TextField(
+                controller: _searchController,
+                decoration: InputDecoration(
+                  hintText: 'Search by name or roll number...',
+                  prefixIcon: const Icon(Icons.search, color: AppColors.textSecondary),
+                  suffixIcon: _searchController.text.isNotEmpty
+                      ? IconButton(
+                    icon: const Icon(Icons.clear, size: 20),
+                    onPressed: () {
                       setState(() {
+                        _searchController.clear();
                         _currentPage = 1;
                       });
                     },
+                  )
+                      : null,
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(16),
+                    borderSide: BorderSide.none,
                   ),
-
-                  // Filter Chips
-                  Padding(
-                    padding: const EdgeInsets.all(12),
-                    child: SingleChildScrollView(
-                      scrollDirection: Axis.horizontal,
-                      child: Row(
-                        children: [
-                          _buildFilterChip('All'),
-                          const SizedBox(width: 8),
-                          _buildFilterChip('Paid'),
-                          const SizedBox(width: 8),
-                          _buildFilterChip('Unpaid'),
-                        ],
-                      ),
-                    ),
-                  ),
-                ],
+                  filled: true,
+                  fillColor: Colors.white,
+                  contentPadding: const EdgeInsets.symmetric(vertical: 14),
+                ),
+                onChanged: (value) {
+                  setState(() {
+                    _currentPage = 1;
+                  });
+                },
               ),
             ),
 
@@ -443,7 +345,7 @@ class _MarkPaymentPageState extends State<MarkPaymentPage> {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 const Text(
-                  'Student Payments',
+                  'Student List',
                   style: TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.w600,
@@ -460,7 +362,7 @@ class _MarkPaymentPageState extends State<MarkPaymentPage> {
                     ),
                     const SizedBox(width: 8),
                     GestureDetector(
-                      onTap: _toggleAllPayment,
+                      onTap: _toggleAllAttendance,
                       child: Container(
                         width: 22,
                         height: 22,
@@ -499,49 +401,30 @@ class _MarkPaymentPageState extends State<MarkPaymentPage> {
 
             const SizedBox(height: 20),
 
-            // Summary and Save Button
-            Container(
-              padding: const EdgeInsets.all(16),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(16),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withOpacity(0.03),
-                    blurRadius: 12,
-                    offset: const Offset(0, 4),
+            // Save Button
+            SizedBox(
+              width: double.infinity,
+              child: ElevatedButton(
+                onPressed: _selectedClass == null
+                    ? null
+                    : _saveAttendance,
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: AppColors.primary,
+                  foregroundColor: Colors.white,
+                  padding: const EdgeInsets.symmetric(vertical: 16),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(16),
                   ),
-                ],
-              ),
-              child: Column(
-                children: [
-
-                  SizedBox(
-                    width: double.infinity,
-                    child: ElevatedButton(
-                      onPressed: _selectedClass == null
-                          ? null
-                          : _savePayments,
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: AppColors.primary,
-                        foregroundColor: Colors.white,
-                        padding: const EdgeInsets.symmetric(vertical: 16),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(16),
-                        ),
-                        elevation: 0,
-                        disabledBackgroundColor: Colors.grey.shade300,
-                      ),
-                      child: const Text(
-                        'Save Payments',
-                        style: TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                    ),
+                  elevation: 0,
+                  disabledBackgroundColor: Colors.grey.shade300,
+                ),
+                child: const Text(
+                  'Save Attendance',
+                  style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w600,
                   ),
-                ],
+                ),
               ),
             ),
 
@@ -581,48 +464,17 @@ class _MarkPaymentPageState extends State<MarkPaymentPage> {
             value,
             style: const TextStyle(
               fontWeight: FontWeight.bold,
-              fontSize: 16,
+              fontSize: 18,
             ),
           ),
           Text(
             label,
             style: TextStyle(
               color: AppColors.textSecondary,
-              fontSize: 10,
+              fontSize: 11,
             ),
           ),
         ],
-      ),
-    );
-  }
-
-  Widget _buildFilterChip(String label) {
-    final isSelected = _selectedFilter == label;
-    return GestureDetector(
-      onTap: () {
-        setState(() {
-          _selectedFilter = label;
-          _currentPage = 1;
-          _selectAll = false; // Reset select all when filter changes
-        });
-      },
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-        decoration: BoxDecoration(
-          color: isSelected ? AppColors.primary : AppColors.background,
-          borderRadius: BorderRadius.circular(20),
-          border: Border.all(
-            color: isSelected ? AppColors.primary : Colors.grey.shade300,
-          ),
-        ),
-        child: Text(
-          label,
-          style: TextStyle(
-            color: isSelected ? Colors.white : AppColors.textSecondary,
-            fontWeight: isSelected ? FontWeight.w500 : FontWeight.normal,
-            fontSize: 13,
-          ),
-        ),
       ),
     );
   }
@@ -652,7 +504,6 @@ class _MarkPaymentPageState extends State<MarkPaymentPage> {
                 children: [
                   Expanded(flex: 2, child: Text('Roll No', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 13))),
                   Expanded(flex: 3, child: Text('Student Name', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 13))),
-                  Expanded(flex: 2, child: Text('Amount', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 13))),
                   Expanded(flex: 2, child: Text('Status', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 13))),
                   Expanded(flex: 1, child: Text('Mark', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 13))),
                 ],
@@ -692,36 +543,23 @@ class _MarkPaymentPageState extends State<MarkPaymentPage> {
                       ),
                       Expanded(
                         flex: 2,
-                        child: Text(
-                          'Rs ${student['amount']}',
-                          style: const TextStyle(
-                            fontSize: 13,
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
-                      ),
-                      Expanded(
-                        flex: 2,
                         child: Row(
                           children: [
                             Container(
                               width: 8,
                               height: 8,
                               decoration: BoxDecoration(
-                                color: student['payment'] ? AppColors.success : Colors.orange,
+                                color: student['attendance'] ? AppColors.success : Colors.red,
                                 shape: BoxShape.circle,
                               ),
                             ),
                             const SizedBox(width: 6),
-                            Expanded(
-                              child: Text(
-                                student['payment'] ? 'Paid' : 'Not Paid',
-                                style: TextStyle(
-                                  fontSize: 12,
-                                  color: student['payment'] ? AppColors.success : Colors.orange,
-                                  fontWeight: FontWeight.w500,
-                                ),
-                                overflow: TextOverflow.ellipsis,
+                            Text(
+                              student['attendance'] ? 'Present' : 'Absent',
+                              style: TextStyle(
+                                fontSize: 12,
+                                color: student['attendance'] ? AppColors.success : Colors.red,
+                                fontWeight: FontWeight.w500,
                               ),
                             ),
                           ],
@@ -730,23 +568,23 @@ class _MarkPaymentPageState extends State<MarkPaymentPage> {
                       Expanded(
                         flex: 1,
                         child: GestureDetector(
-                          onTap: () => _toggleStudentPayment(index),
+                          onTap: () => _toggleStudentAttendance(index),
                           child: Container(
                             width: 28,
                             height: 28,
                             decoration: BoxDecoration(
-                              color: student['payment']
+                              color: student['attendance']
                                   ? AppColors.success.withOpacity(0.1)
                                   : Colors.transparent,
                               borderRadius: BorderRadius.circular(8),
                               border: Border.all(
-                                color: student['payment']
+                                color: student['attendance']
                                     ? AppColors.success
                                     : AppColors.textDisabled,
                                 width: 1.5,
                               ),
                             ),
-                            child: student['payment']
+                            child: student['attendance']
                                 ? const Icon(
                               Icons.check,
                               color: AppColors.success,

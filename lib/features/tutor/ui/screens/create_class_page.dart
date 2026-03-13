@@ -223,9 +223,6 @@ class _CreateClassPageState extends State<CreateClassPage> {
       };
 
 
-      // TODO: Save to backend
-      // print(newClass);
-
 
       print("Sending data:");
 
