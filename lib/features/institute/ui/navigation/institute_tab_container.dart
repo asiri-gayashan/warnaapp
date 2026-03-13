@@ -62,7 +62,7 @@ class InstituteTabContainer extends StatelessWidget {
                 index: 4,
                 icon: Icons.analytics_outlined,
                 activeIcon: Icons.analytics,
-                label: 'Reports',
+                label: 'Finance',
               ),
             ],
           ),

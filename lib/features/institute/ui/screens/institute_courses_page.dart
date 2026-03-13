@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:warna_app/core/constants/app_colors.dart';
+import 'package:warna_app/features/institute/ui/screens/class_detail_page.dart';
 
 
 
@@ -332,6 +333,7 @@ class _CourseCard extends StatelessWidget {
                 _ViewButton(onTap: () {
 
 
+
                 }),
               ],
             ),
@@ -577,7 +579,14 @@ class _ViewButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: onTap,
+      onTap: (){
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => ClassDetailPage(),
+          ),
+        );
+      },
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 9),
         decoration: BoxDecoration(
