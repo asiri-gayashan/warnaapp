@@ -1,79 +1,13 @@
 import 'package:flutter/material.dart';
-import 'package:warna_app/features/auth/ui/screens/login/login_screen.dart';
-import 'package:warna_app/services/token_service.dart';
 import '../../../../../core/constants/app_colors.dart';
 
-class InstituteDashboardPage extends StatefulWidget {
+class InstituteDashboardPage extends StatelessWidget {
   const InstituteDashboardPage({Key? key}) : super(key: key);
 
   @override
-  State<InstituteDashboardPage> createState() => _InstituteDashboardPageState();
-}
-
-class _InstituteDashboardPageState extends State<InstituteDashboardPage> {
-
-  String fullName = "";
-  String email = "";
-  bool loading = true;
-
-  @override
-  void initState() {
-    super.initState();
-    loadUser();
-  }
-
-  Future<void> loadUser() async {
-    String? name = await TokenService.getFullName();
-    String? userEmail = await TokenService.getEmail();
-
-    setState(() {
-      fullName = name ?? "Institute";
-      email = userEmail ?? "";
-      loading = false;
-    });
-  }
-
-  Future<void> _logout() async {
-    final shouldLogout = await showDialog<bool>(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Logout'),
-        content: const Text('Are you sure you want to logout?'),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context, false),
-            child: const Text('Cancel'),
-          ),
-          TextButton(
-            onPressed: () => Navigator.pop(context, true),
-            child: const Text('Logout'),
-          ),
-        ],
-      ),
-    );
-
-    if (shouldLogout == true) {
-      await TokenService.clearToken();
-      if (context.mounted) {
-        Navigator.pushAndRemoveUntil(
-          context,
-          MaterialPageRoute(builder: (_) => const LoginScreen()),
-              (route) => false,
-        );
-      }
-    }
-  }
-
-  @override
   Widget build(BuildContext context) {
-
-    if (loading) {
-      return const Scaffold(
-        body: Center(child: CircularProgressIndicator()),
-      );
-    }
-
     return Scaffold(
+      backgroundColor: AppColors.background,
       appBar: AppBar(
         title: const Text(
           'Institute Dashboard',
@@ -85,97 +19,104 @@ class _InstituteDashboardPageState extends State<InstituteDashboardPage> {
         backgroundColor: Colors.white,
         elevation: 0,
         centerTitle: true,
-        actions: [
 
-          /// Logout Button
-          GestureDetector(
-            onTap: _logout,
-            child: Container(
-              margin: const EdgeInsets.only(right: 16),
-              child: CircleAvatar(
-                radius: 16,
-                backgroundColor: AppColors.primary.withOpacity(0.1),
-                child: const Icon(
-                  Icons.logout,
-                  size: 18,
-                  color: AppColors.primary,
-                ),
-              ),
-            ),
-          ),
-
-          Container(
-            margin: const EdgeInsets.only(right: 16),
-            child: CircleAvatar(
-              radius: 16,
-              backgroundColor: AppColors.primary.withOpacity(0.1),
-              child: const Icon(
-                Icons.business,
-                size: 18,
-                color: AppColors.primary,
-              ),
-            ),
-          ),
-        ],
       ),
-
       body: SingleChildScrollView(
-        padding: const EdgeInsets.all(20),
+        padding: const EdgeInsets.all(16),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-
-            // Welcome Card
+            // Institute Overview Section
             Container(
               padding: const EdgeInsets.all(20),
               decoration: BoxDecoration(
                 gradient: LinearGradient(
-                  colors: [AppColors.primary, AppColors.secondary],
+                  colors: [
+                    AppColors.primary,
+                    AppColors.primary.withOpacity(0.8),
+                  ],
                   begin: Alignment.topLeft,
                   end: Alignment.bottomRight,
                 ),
-                borderRadius: BorderRadius.circular(20),
+                borderRadius: BorderRadius.circular(24),
+                boxShadow: [
+                  BoxShadow(
+                    color: AppColors.primary.withOpacity(0.3),
+                    blurRadius: 20,
+                    offset: const Offset(0, 8),
+                  ),
+                ],
               ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-
                   const Text(
-                    'Welcome back,',
+                    'Institute Overview',
                     style: TextStyle(
                       color: Colors.white,
-                      fontSize: 16,
+                      fontSize: 18,
+                      fontWeight: FontWeight.w600,
                     ),
                   ),
-
-                  /// User Name
-                  Text(
-                    fullName,
-                    style: const TextStyle(
-                      color: Colors.white,
-                      fontSize: 24,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-
-                  /// Email
-                  Text(
-                    email,
-                    style: const TextStyle(
-                      color: Colors.tealAccent,
+                  const SizedBox(height: 8),
+                  const Text(
+                    'March 2024',
+                    style: TextStyle(
+                      color: Colors.white70,
                       fontSize: 14,
                     ),
+                  ),
+                  const SizedBox(height: 20),
+
+                  // Key Metrics Grid
+                  Row(
+                    children: [
+                      Expanded(
+                        child: _buildOverviewMetric(
+                          'Total Students',
+                          '245',
+                          Icons.people_outline,
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: _buildOverviewMetric(
+                          'Total Teachers',
+                          '18',
+                          Icons.person_outline,
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: _buildOverviewMetric(
+                          'Total Classes',
+                          '32',
+                          Icons.class_outlined,
+                        ),
+                      ),
+                    ],
                   ),
 
                   const SizedBox(height: 16),
 
+                  // Financial Metrics
                   Row(
                     children: [
-                      _buildStatChip('156', 'Total Students'),
+                      Expanded(
+                        child: _buildOverviewMetric(
+                          'Monthly Revenue',
+                          'Rs 285,000',
+                          Icons.trending_up,
+                        ),
+                      ),
                       const SizedBox(width: 12),
-                      _buildStatChip('24', 'Active Tutors'),
-                      const SizedBox(width: 12),
-                      _buildStatChip('12', 'Courses'),
+                      Expanded(
+                        child: _buildOverviewMetric(
+                          'Total Commission',
+                          'Rs 42,750',
+                          Icons.percent,
+                        ),
+                      ),
                     ],
                   ),
                 ],
@@ -184,104 +125,556 @@ class _InstituteDashboardPageState extends State<InstituteDashboardPage> {
 
             const SizedBox(height: 24),
 
-            // Quick Stats Grid
+            // Class Performance Section
             const Text(
-              'Overview',
+              'Class Performance',
               style: TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.w600,
               ),
             ),
+            const SizedBox(height: 16),
+
+            // Top Performing Classes
+            Container(
+              padding: const EdgeInsets.all(16),
+              margin: const EdgeInsets.only(bottom: 12),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(16),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.grey.withOpacity(0.1),
+                    blurRadius: 10,
+                    offset: const Offset(0, 2),
+                  ),
+                ],
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.all(8),
+                        decoration: BoxDecoration(
+                          color: AppColors.success.withOpacity(0.1),
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        child: const Icon(
+                          Icons.star,
+                          color: AppColors.success,
+                          size: 18,
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      const Text(
+                        'Top Performing Classes',
+                        style: TextStyle(
+                          fontWeight: FontWeight.w600,
+                          fontSize: 16,
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 16),
+                  _buildPerformanceItem(
+                    'Advanced Mathematics - Grade 10',
+                    '92%',
+                    'Attendance',
+                    AppColors.success,
+                  ),
+                  _buildPerformanceItem(
+                    'Physics Fundamentals - Grade 11',
+                    '88%',
+                    'Attendance',
+                    AppColors.success,
+                  ),
+                  _buildPerformanceItem(
+                    'English Literature - Grade 9',
+                    '85%',
+                    'Attendance',
+                    AppColors.success,
+                  ),
+                ],
+              ),
+            ),
+
+            // Least Performing Classes
+            Container(
+              padding: const EdgeInsets.all(16),
+              margin: const EdgeInsets.only(bottom: 12),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(16),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.grey.withOpacity(0.1),
+                    blurRadius: 10,
+                    offset: const Offset(0, 2),
+                  ),
+                ],
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.all(8),
+                        decoration: BoxDecoration(
+                          color: Colors.orange.withOpacity(0.1),
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        child: const Icon(
+                          Icons.trending_down,
+                          color: Colors.orange,
+                          size: 18,
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      const Text(
+                        'Needs Improvement',
+                        style: TextStyle(
+                          fontWeight: FontWeight.w600,
+                          fontSize: 16,
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 16),
+                  _buildPerformanceItem(
+                    'Chemistry Lab - Grade 10',
+                    '67%',
+                    'Attendance',
+                    Colors.orange,
+                  ),
+                  _buildPerformanceItem(
+                    'Computer Science - Grade 11',
+                    '71%',
+                    'Attendance',
+                    Colors.orange,
+                  ),
+                ],
+              ),
+            ),
 
             const SizedBox(height: 16),
 
+            // ── Upcoming Classes Section ──────────────────────────────────
+            Container(
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(16),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.grey.withOpacity(0.1),
+                    blurRadius: 10,
+                    offset: const Offset(0, 2),
+                  ),
+                ],
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Row(
+                        children: [
+                          Container(
+                            padding: const EdgeInsets.all(8),
+                            decoration: BoxDecoration(
+                              color: AppColors.primary.withOpacity(0.1),
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                            child: const Icon(
+                              Icons.calendar_month,
+                              color: AppColors.primary,
+                              size: 18,
+                            ),
+                          ),
+                          const SizedBox(width: 12),
+                          const Text(
+                            'Upcoming Classes',
+                            style: TextStyle(
+                              fontWeight: FontWeight.w600,
+                              fontSize: 16,
+                            ),
+                          ),
+                        ],
+                      ),
+                      TextButton(
+                        onPressed: () {},
+                        child: const Text(
+                          'View All',
+                          style: TextStyle(
+                            color: AppColors.primary,
+                            fontSize: 13,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 16),
+
+                  // 5 Upcoming Classes (Limited)
+                  _buildUpcomingClassItem(
+                    'Advanced Mathematics',
+                    'Grade 10',
+                    '9:00 AM - 10:30 AM',
+                    'Mr. Kumar',
+                    'Room 101',
+                  ),
+                  _buildUpcomingClassItem(
+                    'Physics Fundamentals',
+                    'Grade 11',
+                    '10:45 AM - 12:15 PM',
+                    'Ms. Sharma',
+                    'Lab 3',
+                  ),
+                  _buildUpcomingClassItem(
+                    'English Literature',
+                    'Grade 9',
+                    '1:00 PM - 2:30 PM',
+                    'Mrs. Singh',
+                    'Room 205',
+                  ),
+                  _buildUpcomingClassItem(
+                    'Chemistry Lab',
+                    'Grade 10',
+                    '2:45 PM - 4:15 PM',
+                    'Dr. Verma',
+                    'Lab 1',
+                  ),
+                  _buildUpcomingClassItem(
+                    'Computer Science',
+                    'Grade 11',
+                    '4:30 PM - 6:00 PM',
+                    'Mr. Patil',
+                    'Computer Lab',
+                  ),
+                ],
+              ),
+            ),
+
+            const SizedBox(height: 24),
+
+            // Report Categories Section
+            const Text(
+              'Generate Reports',
+              style: TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+            const SizedBox(height: 16),
+
+            // Report Categories Grid
             GridView.count(
               shrinkWrap: true,
               physics: const NeverScrollableScrollPhysics(),
               crossAxisCount: 2,
               mainAxisSpacing: 12,
               crossAxisSpacing: 12,
-              childAspectRatio: 1.5,
+              childAspectRatio: 1.1,
               children: [
-                _buildStatCard(
-                  'Today\'s Sessions',
-                  '28',
-                  Icons.video_call,
-                  AppColors.primary,
-                ),
-                _buildStatCard(
-                  'Pending Approvals',
-                  '7',
-                  Icons.pending_actions,
+
+                _buildReportCategoryCard(
+                  'Class Reports',
+                  'Class-wise performance',
+                  Icons.class_,
                   Colors.orange,
+                      () {},
                 ),
-                _buildStatCard(
-                  'Monthly Revenue',
-                  '\$12,450',
-                  Icons.account_balance_wallet,
-                  AppColors.success,
-                ),
-                _buildStatCard(
-                  'Attendance Rate',
-                  '87%',
-                  Icons.calendar_today,
+                _buildReportCategoryCard(
+                  'Student Reports',
+                  'Individual student data',
+                  Icons.people,
                   AppColors.info,
+                      () {},
+                ),
+                _buildReportCategoryCard(
+                  'Teacher Reports',
+                  'Teacher performance',
+                  Icons.person,
+                  Colors.purple,
+                      () {},
+                ),
+                _buildReportCategoryCard(
+                  'Teacher Payment Reports',
+                  'Salary & commission',
+                  Icons.account_balance_wallet,
+                  Colors.teal,
+                      () {},
                 ),
               ],
             ),
 
             const SizedBox(height: 24),
 
-            // Recent Activities
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            // Quick Stats Section
+            Container(
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(16),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.grey.withOpacity(0.1),
+                    blurRadius: 10,
+                    offset: const Offset(0, 2),
+                  ),
+                ],
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Text(
+                    'Quick Statistics',
+                    style: TextStyle(
+                      fontWeight: FontWeight.w600,
+                      fontSize: 16,
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+
+                  _buildStatRow('Total Students Enrolled', '245', '+12 this month'),
+                  _buildStatRow('Active Teachers', '18', '2 on leave'),
+                  _buildStatRow('Total Classes', '32', '24 active'),
+                  _buildStatRow('Monthly Revenue', 'Rs 285,000', '+15.3%'),
+                  _buildStatRow('Commission Paid', 'Rs 42,750', '15% of revenue'),
+                  _buildStatRow('Pending Payments', 'Rs 38,500', '8 teachers'),
+                ],
+              ),
+            ),
+
+            const SizedBox(height: 24),
+          ],
+        ),
+      ),
+    );
+  }
+
+  // ── New helper: Upcoming Class Item ──────────────────────────────────────
+  Widget _buildUpcomingClassItem(
+      String className,
+      String grade,
+      String time,
+      String teacher,
+      String room,
+      ) {
+    return Container(
+      padding: const EdgeInsets.symmetric(vertical: 12),
+      decoration: BoxDecoration(
+        border: Border(
+          bottom: BorderSide(
+            color: Colors.grey.shade100,
+          ),
+        ),
+      ),
+      child: Row(
+        children: [
+          Container(
+            width: 40,
+            height: 40,
+            decoration: BoxDecoration(
+              color: AppColors.primary.withOpacity(0.1),
+              borderRadius: BorderRadius.circular(10),
+            ),
+            child: const Icon(
+              Icons.sailing,
+              color: AppColors.primary,
+              size: 20,
+            ),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text(
-                  'Recent Activities',
-                  style: TextStyle(
-                    fontSize: 18,
+                Text(
+                  className,
+                  style: const TextStyle(
                     fontWeight: FontWeight.w600,
+                    fontSize: 14,
                   ),
                 ),
-                TextButton(
-                  onPressed: () {},
-                  child: const Text('View All'),
+                const SizedBox(height: 2),
+                Text(
+                  '$grade • $teacher',
+                  style: TextStyle(
+                    color: AppColors.textSecondary,
+                    fontSize: 12,
+                  ),
                 ),
               ],
             ),
+          ),
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.end,
+            children: [
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                decoration: BoxDecoration(
+                  color: AppColors.primary.withOpacity(0.1),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Text(
+                  time,
+                  style: const TextStyle(
+                    color: AppColors.primary,
+                    fontSize: 11,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+              ),
+              const SizedBox(height: 2),
+              Text(
+                room,
+                style: TextStyle(
+                  color: AppColors.textSecondary,
+                  fontSize: 10,
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
 
+  // ── Existing helpers (unchanged) ─────────────────────────────────────────
+
+  Widget _buildOverviewMetric(String label, String value, IconData icon) {
+    return Container(
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: Colors.white.withOpacity(0.15),
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Icon(icon, color: Colors.white, size: 20),
+          const SizedBox(height: 8),
+          Text(
+            value,
+            style: const TextStyle(
+              color: Colors.white,
+              fontSize: 18,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          Text(
+            label,
+            style: const TextStyle(
+              color: Colors.white70,
+              fontSize: 11,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildPerformanceItem(String className, String value, String metric, Color color) {
+    return Container(
+      padding: const EdgeInsets.symmetric(vertical: 8),
+      child: Row(
+        children: [
+          Expanded(
+            flex: 3,
+            child: Text(
+              className,
+              style: const TextStyle(
+                fontSize: 13,
+                fontWeight: FontWeight.w500,
+              ),
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
+            ),
+          ),
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+            decoration: BoxDecoration(
+              color: color.withOpacity(0.1),
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: Row(
+              children: [
+                Text(
+                  value,
+                  style: TextStyle(
+                    color: color,
+                    fontWeight: FontWeight.w600,
+                    fontSize: 12,
+                  ),
+                ),
+                const SizedBox(width: 4),
+                Text(
+                  metric,
+                  style: TextStyle(
+                    color: color.withOpacity(0.7),
+                    fontSize: 10,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildReportCategoryCard(String title, String subtitle, IconData icon, Color color, VoidCallback onTap) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(16),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.grey.withOpacity(0.1),
+              blurRadius: 8,
+              offset: const Offset(0, 2),
+            ),
+          ],
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Container(
+              padding: const EdgeInsets.all(10),
+              decoration: BoxDecoration(
+                color: color.withOpacity(0.1),
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Icon(icon, color: color, size: 22),
+            ),
             const SizedBox(height: 12),
-
-            _buildActivityItem(
-              'New tutor registration',
-              'Dr. Sarah Johnson applied for Mathematics',
-              '5 min ago',
-              Icons.person_add,
-              AppColors.primary,
+            Text(
+              title,
+              style: const TextStyle(
+                fontWeight: FontWeight.w600,
+                fontSize: 14,
+              ),
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
             ),
-
-            _buildActivityItem(
-              'Payment received',
-              '\$2,450 from 12 students',
-              '1 hour ago',
-              Icons.payment,
-              AppColors.success,
-            ),
-
-            _buildActivityItem(
-              'Course completed',
-              'Advanced Physics course ended',
-              '3 hours ago',
-              Icons.menu_book,
-              AppColors.info,
-            ),
-
-            _buildActivityItem(
-              'New review',
-              '4.8 ⭐ average rating this week',
-              'Yesterday',
-              Icons.star,
-              Colors.amber,
+            const SizedBox(height: 4),
+            Text(
+              subtitle,
+              style: TextStyle(
+                color: AppColors.textSecondary,
+                fontSize: 11,
+              ),
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
             ),
           ],
         ),
@@ -289,105 +682,75 @@ class _InstituteDashboardPageState extends State<InstituteDashboardPage> {
     );
   }
 
-  Widget _buildStatChip(String value, String label) {
+  Widget _buildStatRow(String label, String value, String change) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+      padding: const EdgeInsets.symmetric(vertical: 8),
       decoration: BoxDecoration(
-        color: Colors.white.withOpacity(0.2),
-        borderRadius: BorderRadius.circular(12),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            value,
-            style: const TextStyle(
-              color: Colors.white,
-              fontSize: 20,
-              fontWeight: FontWeight.bold,
-            ),
+        border: Border(
+          bottom: BorderSide(
+            color: Colors.grey.shade100,
           ),
-          Text(
-            label,
-            style: const TextStyle(
-              color: Colors.white,
-              fontSize: 12,
-            ),
-          ),
-        ],
+        ),
       ),
-    );
-  }
-
-  Widget _buildStatCard(String label, String value, IconData icon, Color color) {
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.grey.withOpacity(0.1),
-            blurRadius: 10,
-            offset: const Offset(0, 2),
-          ),
-        ],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+      child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Icon(icon, color: color, size: 24),
-          const SizedBox(height: 8),
-          Text(
-            value,
-            style: const TextStyle(
-              fontSize: 20,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
           Text(
             label,
             style: TextStyle(
               color: AppColors.textSecondary,
-              fontSize: 12,
+              fontSize: 13,
             ),
+          ),
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.end,
+            children: [
+              Text(
+                value,
+                style: const TextStyle(
+                  fontWeight: FontWeight.w600,
+                  fontSize: 14,
+                ),
+              ),
+              Text(
+                change,
+                style: TextStyle(
+                  color: AppColors.textSecondary,
+                  fontSize: 11,
+                ),
+              ),
+            ],
           ),
         ],
       ),
     );
   }
 
-  Widget _buildActivityItem(
-      String title,
-      String subtitle,
-      String time,
-      IconData icon,
-      Color color,
-      ) {
+  Widget _buildRecentReportItem(String title, String date, String type) {
+    Color typeColor = type == 'PDF' ? Colors.red : AppColors.success;
+
     return Container(
-      margin: const EdgeInsets.only(bottom: 12),
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.symmetric(vertical: 12),
       decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.grey.withOpacity(0.1),
-            blurRadius: 10,
-            offset: const Offset(0, 2),
+        border: Border(
+          bottom: BorderSide(
+            color: Colors.grey.shade100,
           ),
-        ],
+        ),
       ),
       child: Row(
         children: [
           Container(
-            padding: const EdgeInsets.all(10),
+            padding: const EdgeInsets.all(8),
             decoration: BoxDecoration(
-              color: color.withOpacity(0.1),
-              borderRadius: BorderRadius.circular(12),
+              color: typeColor.withOpacity(0.1),
+              borderRadius: BorderRadius.circular(8),
             ),
-            child: Icon(icon, color: color, size: 20),
+            child: Icon(
+              type == 'PDF' ? Icons.picture_as_pdf : Icons.table_chart,
+              color: typeColor,
+              size: 18,
+            ),
           ),
           const SizedBox(width: 12),
           Expanded(
@@ -397,26 +760,27 @@ class _InstituteDashboardPageState extends State<InstituteDashboardPage> {
                 Text(
                   title,
                   style: const TextStyle(
-                    fontWeight: FontWeight.w600,
+                    fontWeight: FontWeight.w500,
+                    fontSize: 14,
                   ),
                 ),
-                const SizedBox(height: 4),
+                const SizedBox(height: 2),
                 Text(
-                  subtitle,
+                  date,
                   style: TextStyle(
                     color: AppColors.textSecondary,
-                    fontSize: 12,
+                    fontSize: 11,
                   ),
                 ),
               ],
             ),
           ),
-          Text(
-            time,
-            style: const TextStyle(
-              color: AppColors.textDisabled,
-              fontSize: 10,
-            ),
+          IconButton(
+            onPressed: () {},
+            icon: const Icon(Icons.cloud_download_outlined, size: 20),
+            color: AppColors.primary,
+            constraints: const BoxConstraints(),
+            padding: const EdgeInsets.all(8),
           ),
         ],
       ),

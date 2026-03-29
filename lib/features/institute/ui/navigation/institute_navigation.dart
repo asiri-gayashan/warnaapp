@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:warna_app/features/institute/ui/navigation/institute_tab_container.dart';
+import 'package:warna_app/features/institute/ui/screens/institute_finance_page.dart';
 import '../screens/institute_dashboard_page.dart';
 import '../screens/institute_tutors_page.dart';
 import '../screens/institute_students_page.dart';
@@ -21,7 +22,8 @@ class _InstituteNavigationState extends State<InstituteNavigation> {
     InstituteTutorsPage(),
     InstituteStudentsPage(),
     InstituteCoursesPage(),
-    InstituteReportsPage(),
+    // InstituteReportsPage(),
+    InstituteFinancePage()
   ];
 
   void _onItemTapped(int index) {

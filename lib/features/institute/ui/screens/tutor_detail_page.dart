@@ -190,8 +190,67 @@ class _TutorDetailPageState extends State<TutorDetailPage> {
                 fontWeight: FontWeight.w600,
               ),
             ),
+
+
             const SizedBox(height: 12),
-            _buildClassesTable(),
+            // ── Upcoming Classes Section ──────────────────────────────────
+            Container(
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(16),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.grey.withOpacity(0.1),
+                    blurRadius: 10,
+                    offset: const Offset(0, 2),
+                  ),
+                ],
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+
+                  // 5 Upcoming Classes (Limited)
+                  _buildUpcomingClassItem(
+                    'Advanced Mathematics',
+                    'Grade 10',
+                    '9:00 AM - 10:30 AM',
+                    'Mr. Kumar',
+                    'Room 101',
+                  ),
+                  _buildUpcomingClassItem(
+                    'Physics Fundamentals',
+                    'Grade 11',
+                    '10:45 AM - 12:15 PM',
+                    'Ms. Sharma',
+                    'Lab 3',
+                  ),
+                  _buildUpcomingClassItem(
+                    'English Literature',
+                    'Grade 9',
+                    '1:00 PM - 2:30 PM',
+                    'Mrs. Singh',
+                    'Room 205',
+                  ),
+                  _buildUpcomingClassItem(
+                    'Chemistry Lab',
+                    'Grade 10',
+                    '2:45 PM - 4:15 PM',
+                    'Dr. Verma',
+                    'Lab 1',
+                  ),
+                  _buildUpcomingClassItem(
+                    'Computer Science',
+                    'Grade 11',
+                    '4:30 PM - 6:00 PM',
+                    'Mr. Patil',
+                    'Computer Lab',
+                  ),
+                ],
+              ),
+            ),
+
 
             const SizedBox(height: 24),
 
@@ -229,6 +288,94 @@ class _TutorDetailPageState extends State<TutorDetailPage> {
       ),
     );
   }
+
+  Widget _buildUpcomingClassItem(
+      String className,
+      String grade,
+      String time,
+      String teacher,
+      String room,
+      ) {
+    return Container(
+      padding: const EdgeInsets.symmetric(vertical: 12),
+      decoration: BoxDecoration(
+        border: Border(
+          bottom: BorderSide(
+            color: Colors.grey.shade100,
+          ),
+        ),
+      ),
+      child: Row(
+        children: [
+          Container(
+            width: 40,
+            height: 40,
+            decoration: BoxDecoration(
+              color: AppColors.secondary.withOpacity(0.1),
+              borderRadius: BorderRadius.circular(10),
+            ),
+            child: const Icon(
+              Icons.sailing,
+              color: AppColors.secondary,
+              size: 20,
+            ),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  className,
+                  style: const TextStyle(
+                    fontWeight: FontWeight.w600,
+                    fontSize: 14,
+                  ),
+                ),
+                const SizedBox(height: 2),
+                Text(
+                  '$grade • $teacher',
+                  style: TextStyle(
+                    color: AppColors.textSecondary,
+                    fontSize: 12,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.end,
+            children: [
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                decoration: BoxDecoration(
+                  color: AppColors.secondary.withOpacity(0.1),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Text(
+                  time,
+                  style: const TextStyle(
+                    color: AppColors.secondary,
+                    fontSize: 11,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+              ),
+              const SizedBox(height: 2),
+              Text(
+                room,
+                style: TextStyle(
+                  color: AppColors.textSecondary,
+                  fontSize: 10,
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
 
   Widget _buildStatColumn(String label, String value) {
     return Column(
@@ -297,137 +444,8 @@ class _TutorDetailPageState extends State<TutorDetailPage> {
     );
   }
 
-  Widget _buildClassesTable() {
-    return Container(
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.03),
-            blurRadius: 12,
-            offset: const Offset(0, 4),
-          ),
-        ],
-      ),
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(16),
-        child: Column(
-          children: [
-            // Table Header
-            Container(
-              padding: const EdgeInsets.all(14),
-              color: AppColors.primary.withOpacity(0.04),
-              child: const Row(
-                children: [
-                  Expanded(flex: 3, child: Text('Class Name', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 13))),
-                  Expanded(flex: 2, child: Center(child: Text('Student', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 13)))),
-                  Expanded(flex: 2, child: Text('This Month', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 13))),
-                  Expanded(flex: 1, child: Text('Mark', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 13))),
-                ],
-              ),
-            ),
 
-            // Table Body
-            ListView.builder(
-              shrinkWrap: true,
-              physics: const NeverScrollableScrollPhysics(),
-              itemCount: _tutorClasses.length,
-              itemBuilder: (context, index) {
-                final classItem = _tutorClasses[index];
-                final isEven = index % 2 == 0;
-                final isPaid = classItem['paidStatus'] == 'Paid';
-
-                return Container(
-                  padding: const EdgeInsets.all(14),
-                  color: isEven ? Colors.white : AppColors.background.withOpacity(0.3),
-                  child: Row(
-                    children: [
-                      Expanded(
-                        flex: 3,
-                        child: Text(
-                          classItem['className'],
-                          style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w500),
-                          maxLines: 2,
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                      ),
-                      Expanded(
-                        flex: 2,
-                        child: Center(
-                          child: Text(
-                            '${classItem['studentCount']}',
-                            style: const TextStyle(
-                              fontSize: 13,
-                              fontWeight: FontWeight.w500,
-                            ),
-                          ),
-                        ),
-                      ),
-                      Expanded(
-                        flex: 2,
-                        child: Row(
-                          children: [
-                            Container(
-                              width: 8,
-                              height: 8,
-                              decoration: BoxDecoration(
-                                color: isPaid ? AppColors.success : Colors.orange,
-                                shape: BoxShape.circle,
-                              ),
-                            ),
-                            const SizedBox(width: 6),
-                            Expanded(
-                              child: Text(
-                                classItem['paidStatus'],
-                                style: TextStyle(
-                                  fontSize: 12,
-                                  color: isPaid ? AppColors.success : Colors.orange,
-                                  fontWeight: FontWeight.w500,
-                                ),
-                                overflow: TextOverflow.ellipsis,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                      Expanded(
-                        flex: 1,
-                        child: GestureDetector(
-                          onTap: () => _toggleClassPayment(index),
-                          child: Container(
-                            width: 28,
-                            height: 28,
-                            decoration: BoxDecoration(
-                              color: isPaid
-                                  ? AppColors.success.withOpacity(0.1)
-                                  : Colors.transparent,
-                              borderRadius: BorderRadius.circular(8),
-                              border: Border.all(
-                                color: isPaid
-                                    ? AppColors.success
-                                    : AppColors.textDisabled,
-                                width: 1.5,
-                              ),
-                            ),
-                            child: isPaid
-                                ? const Icon(
-                              Icons.check,
-                              color: AppColors.success,
-                              size: 16,
-                            )
-                                : null,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                );
-              },
-            ),
-          ],
-        ),
-      ),
-    );
-  }
 }
+
+
+
