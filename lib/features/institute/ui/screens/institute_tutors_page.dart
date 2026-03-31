@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:warna_app/features/institute/ui/screens/tutor_detail_page.dart';
 import '../../../../../core/constants/app_colors.dart';
+import '../../../../shared/widgets/new/user_list_card.dart';
+import '../../../../shared/widgets/new/info_badge.dart';
+import '../../../../shared/widgets/new/empty_list_state.dart';
 
 class InstituteTutorsPage extends StatefulWidget {
   const InstituteTutorsPage({Key? key}) : super(key: key);
@@ -10,19 +13,6 @@ class InstituteTutorsPage extends StatefulWidget {
 }
 
 class _InstituteTutorsPageState extends State<InstituteTutorsPage> {
-  String? _selectedSubject;
-
-  // Sample subjects for filter
-  final List<String> _subjects = [
-    'All Subjects',
-    'Mathematics',
-    'Physics',
-    'Chemistry',
-    'English',
-    'Computer Science',
-    'Biology',
-  ];
-
   // Sample tutors data
   final List<Map<String, dynamic>> _allTutors = [
     {
@@ -171,21 +161,10 @@ class _InstituteTutorsPageState extends State<InstituteTutorsPage> {
     },
   ];
 
-  List<Map<String, dynamic>> get _filteredTutors {
-    if (_selectedSubject == null || _selectedSubject == 'All Subjects') {
-      return _allTutors;
-    }
-    return _allTutors.where((tutor) {
-      return tutor['subject'] == _selectedSubject;
-    }).toList();
-  }
-
   void _onTutorTap(Map<String, dynamic> tutor) {
     Navigator.push(
       context,
-      MaterialPageRoute(
-        builder: (context) => TutorDetailPage(tutor: tutor),
-      ),
+      MaterialPageRoute(builder: (context) => TutorDetailPage(tutor: tutor)),
     );
   }
 
@@ -204,340 +183,50 @@ class _InstituteTutorsPageState extends State<InstituteTutorsPage> {
         backgroundColor: Colors.white,
         elevation: 0,
         centerTitle: true,
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.filter_list, color: AppColors.primary),
-            onPressed: () => _showFilterDialog(),
-          ),
-        ],
       ),
       body: Column(
         children: [
-          // Filter Chip (if subject is selected)
-          if (_selectedSubject != null)
-            Padding(
-              padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
-              child: Row(
-                children: [
-                  Chip(
-                    label: Text(_selectedSubject!),
-                    onDeleted: () {
-                      setState(() {
-                        _selectedSubject = null;
-                      });
-                    },
-                    backgroundColor: AppColors.primary.withOpacity(0.1),
-                    deleteIconColor: AppColors.primary,
-                    labelStyle: const TextStyle(fontSize: 12),
-                  ),
-                ],
-              ),
-            ),
-
-          // Results Count
-          Padding(
-            padding: EdgeInsets.fromLTRB(16, _selectedSubject != null ? 0 : 16, 16, 8),
-            child: Row(
-              children: [
-                Text(
-                  '${_filteredTutors.length} tutors found',
-                  style: TextStyle(
-                    color: AppColors.textSecondary,
-                    fontSize: 14,
-                  ),
-                ),
-              ],
-            ),
-          ),
-
           // Tutors List
           Expanded(
-            child: _filteredTutors.isEmpty
-                ? _buildEmptyState()
+            child: _allTutors.isEmpty
+                ? const EmptyListState(
+                    icon: Icons.person_outline,
+                    title: 'No tutors found',
+                    subtitle: 'No tutors assigned yet',
+                  )
                 : ListView.builder(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-              itemCount: _filteredTutors.length,
-              itemBuilder: (context, index) {
-                final tutor = _filteredTutors[index];
-                return _buildTutorCard(tutor, index);
-              },
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildTutorCard(Map<String, dynamic> tutor, int index) {
-    // Status color
-
-    return GestureDetector(
-      onTap: () => _onTutorTap(tutor),
-      child: Container(
-        margin: const EdgeInsets.only(bottom: 12),
-        padding: const EdgeInsets.all(16),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(16),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withOpacity(0.03),
-              blurRadius: 10,
-              offset: const Offset(0, 4),
-            ),
-          ],
-        ),
-        child: Row(
-          children: [
-            // Avatar with tutor initial
-            CircleAvatar(
-              radius: 30,
-              backgroundColor: AppColors.primary.withOpacity(0.1),
-              child: Text(
-                tutor['name'][0],
-                style: const TextStyle(
-                  color: AppColors.primary,
-                  fontWeight: FontWeight.bold,
-                  fontSize: 18,
-                ),
-              ),
-            ),
-            const SizedBox(width: 16),
-
-            // Tutor Details
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    children: [
-                      Expanded(
-                        child: Text(
-                          tutor['name'],
-                          style: const TextStyle(
-                            fontWeight: FontWeight.w600,
-                            fontSize: 16,
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 16,
+                      vertical: 8,
+                    ),
+                    itemCount: _allTutors.length,
+                    itemBuilder: (context, index) {
+                      final tutor = _allTutors[index];
+                      return UserListCard(
+                        name: tutor['name'],
+                        title: tutor['subject'],
+                        titleColor: AppColors.primary,
+                        subtitle: "0768645011 • Kururnegala",
+                        trailingIcon: Icons.arrow_forward_ios,
+                        onTap: () => _onTutorTap(tutor),
+                        badges: [
+                          InfoBadge(
+                            icon: Icons.video_call,
+                            text: '3 Classes',
+                            color: AppColors.info,
                           ),
-                        ),
-                      ),
-
-                    ],
+                          InfoBadge(
+                            icon: Icons.people_outline,
+                            text: '${tutor['studentsCount']} students',
+                            color: AppColors.primary,
+                          ),
+                        ],
+                      );
+                    },
                   ),
-                  const SizedBox(height: 4),
-                  Text(
-                    tutor['subject'],
-                    style: TextStyle(
-                      color: AppColors.primary,
-                      fontSize: 13,
-                      fontWeight: FontWeight.w500,
-                    ),
-                  ),
-                  const SizedBox(height: 2),
-                  Text(
-                   "0768645011 • Kururnegala",
-                    style: TextStyle(
-                      color: AppColors.textSecondary,
-                      fontSize: 12,
-                    ),
-                  ),
-                  const SizedBox(height: 8),
-                  Row(
-                    children: [
-                      // Experience badge
-                      Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 8,
-                          vertical: 4,
-                        ),
-                        decoration: BoxDecoration(
-                          color: AppColors.info.withOpacity(0.1),
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Icon(
-                              Icons.video_call,
-                              size: 12,
-                              color: AppColors.info,
-                            ),
-                            const SizedBox(width: 4),
-                            Text(
-                              "3 Classes",
-                              style: TextStyle(
-                                color: AppColors.info,
-                                fontSize: 11,
-                                fontWeight: FontWeight.w500,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                      const SizedBox(width: 8),
-
-                      // Students count badge
-                      Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 8,
-                          vertical: 4,
-                        ),
-                        decoration: BoxDecoration(
-                          color: AppColors.primary.withOpacity(0.1),
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Icon(
-                              Icons.people_outline,
-                              size: 12,
-                              color: AppColors.primary,
-                            ),
-                            const SizedBox(width: 4),
-                            Text(
-                              '${tutor['studentsCount']} students',
-                              style: TextStyle(
-                                color: AppColors.primary,
-                                fontSize: 11,
-                                fontWeight: FontWeight.w500,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-
-
-                    ],
-                  ),
-                ],
-              ),
-            ),
-
-            // View Details Button
-            Container(
-              decoration: BoxDecoration(
-                color: AppColors.primary.withOpacity(0.1),
-                borderRadius: BorderRadius.circular(10),
-              ),
-              child: IconButton(
-                onPressed: () => _onTutorTap(tutor),
-                icon: const Icon(Icons.arrow_forward_ios),
-                color: AppColors.primary,
-                iconSize: 16,
-                constraints: const BoxConstraints(
-                  minWidth: 36,
-                  minHeight: 36,
-                ),
-                padding: EdgeInsets.zero,
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildEmptyState() {
-    return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Container(
-            padding: const EdgeInsets.all(20),
-            decoration: BoxDecoration(
-              color: AppColors.primary.withOpacity(0.1),
-              shape: BoxShape.circle,
-            ),
-            child: Icon(
-              Icons.person_outline,
-              size: 50,
-              color: AppColors.primary.withOpacity(0.5),
-            ),
           ),
-          const SizedBox(height: 16),
-          const Text(
-            'No tutors found',
-            style: TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.w600,
-              color: AppColors.textPrimary,
-            ),
-          ),
-          const SizedBox(height: 8),
-          Text(
-            _selectedSubject != null
-                ? 'Try adjusting your filter'
-                : 'No tutors assigned yet',
-            style: TextStyle(
-              color: AppColors.textSecondary,
-              fontSize: 14,
-            ),
-          ),
-          if (_selectedSubject != null) ...[
-            const SizedBox(height: 20),
-            ElevatedButton(
-              onPressed: () {
-                setState(() {
-                  _selectedSubject = null;
-                });
-              },
-              style: ElevatedButton.styleFrom(
-                backgroundColor: AppColors.primary,
-                foregroundColor: Colors.white,
-                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
-                ),
-              ),
-              child: const Text('Clear Filter'),
-            ),
-          ],
         ],
       ),
-    );
-  }
-
-  void _showFilterDialog() {
-    showModalBottomSheet(
-      context: context,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-      ),
-      builder: (context) {
-        return Container(
-          padding: const EdgeInsets.all(20),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const Text(
-                'Filter by Subject',
-                style: TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-              const SizedBox(height: 16),
-              ..._subjects.map((subject) {
-                return ListTile(
-                  title: Text(subject),
-                  leading: Radio<String>(
-                    value: subject,
-                    groupValue: _selectedSubject,
-                    onChanged: (value) {
-                      setState(() {
-                        _selectedSubject = value == 'All Subjects' ? null : value;
-                      });
-                      Navigator.pop(context);
-                    },
-                    activeColor: AppColors.primary,
-                  ),
-                );
-              }),
-            ],
-          ),
-        );
-      },
     );
   }
 }
