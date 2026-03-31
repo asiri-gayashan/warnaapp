@@ -1,5 +1,10 @@
 import 'package:flutter/material.dart';
 import '../../../../../core/constants/app_colors.dart';
+import '../../../../shared/widgets/new/metric_overview_card.dart';
+import '../../../../shared/widgets/new/performance_row_item.dart';
+import '../../../../shared/widgets/new/upcoming_class_list_tile.dart';
+import '../../../../shared/widgets/new/category_grid_card.dart';
+import '../../../../shared/widgets/new/quick_stat_row_item.dart';
 
 class InstituteDashboardPage extends StatelessWidget {
   const InstituteDashboardPage({Key? key}) : super(key: key);
@@ -19,7 +24,6 @@ class InstituteDashboardPage extends StatelessWidget {
         backgroundColor: Colors.white,
         elevation: 0,
         centerTitle: true,
-
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16),
@@ -61,10 +65,7 @@ class InstituteDashboardPage extends StatelessWidget {
                   const SizedBox(height: 8),
                   const Text(
                     'March 2024',
-                    style: TextStyle(
-                      color: Colors.white70,
-                      fontSize: 14,
-                    ),
+                    style: TextStyle(color: Colors.white70, fontSize: 14),
                   ),
                   const SizedBox(height: 20),
 
@@ -72,26 +73,26 @@ class InstituteDashboardPage extends StatelessWidget {
                   Row(
                     children: [
                       Expanded(
-                        child: _buildOverviewMetric(
-                          'Total Students',
-                          '245',
-                          Icons.people_outline,
+                        child: MetricOverviewCard(
+                          label: 'Total Students',
+                          value: '245',
+                          icon: Icons.people_outline,
                         ),
                       ),
                       const SizedBox(width: 12),
                       Expanded(
-                        child: _buildOverviewMetric(
-                          'Total Teachers',
-                          '18',
-                          Icons.person_outline,
+                        child: MetricOverviewCard(
+                          label: 'Total Teachers',
+                          value: '18',
+                          icon: Icons.person_outline,
                         ),
                       ),
                       const SizedBox(width: 12),
                       Expanded(
-                        child: _buildOverviewMetric(
-                          'Total Classes',
-                          '32',
-                          Icons.class_outlined,
+                        child: MetricOverviewCard(
+                          label: 'Total Classes',
+                          value: '32',
+                          icon: Icons.class_outlined,
                         ),
                       ),
                     ],
@@ -103,18 +104,18 @@ class InstituteDashboardPage extends StatelessWidget {
                   Row(
                     children: [
                       Expanded(
-                        child: _buildOverviewMetric(
-                          'Monthly Revenue',
-                          'Rs 285,000',
-                          Icons.trending_up,
+                        child: MetricOverviewCard(
+                          label: 'Monthly Revenue',
+                          value: 'Rs 285,000',
+                          icon: Icons.trending_up,
                         ),
                       ),
                       const SizedBox(width: 12),
                       Expanded(
-                        child: _buildOverviewMetric(
-                          'Total Commission',
-                          'Rs 42,750',
-                          Icons.percent,
+                        child: MetricOverviewCard(
+                          label: 'Total Commission',
+                          value: 'Rs 42,750',
+                          icon: Icons.percent,
                         ),
                       ),
                     ],
@@ -128,10 +129,7 @@ class InstituteDashboardPage extends StatelessWidget {
             // Class Performance Section
             const Text(
               'Class Performance',
-              style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.w600,
-              ),
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
             ),
             const SizedBox(height: 16),
 
@@ -178,23 +176,23 @@ class InstituteDashboardPage extends StatelessWidget {
                     ],
                   ),
                   const SizedBox(height: 16),
-                  _buildPerformanceItem(
-                    'Advanced Mathematics - Grade 10',
-                    '92%',
-                    'Attendance',
-                    AppColors.success,
+                  PerformanceRowItem(
+                    className: 'Advanced Mathematics - Grade 10',
+                    value: '92%',
+                    metric: 'Attendance',
+                    color: AppColors.success,
                   ),
-                  _buildPerformanceItem(
-                    'Physics Fundamentals - Grade 11',
-                    '88%',
-                    'Attendance',
-                    AppColors.success,
+                  PerformanceRowItem(
+                    className: 'Physics Fundamentals - Grade 11',
+                    value: '88%',
+                    metric: 'Attendance',
+                    color: AppColors.success,
                   ),
-                  _buildPerformanceItem(
-                    'English Literature - Grade 9',
-                    '85%',
-                    'Attendance',
-                    AppColors.success,
+                  PerformanceRowItem(
+                    className: 'English Literature - Grade 9',
+                    value: '85%',
+                    metric: 'Attendance',
+                    color: AppColors.success,
                   ),
                 ],
               ),
@@ -243,17 +241,17 @@ class InstituteDashboardPage extends StatelessWidget {
                     ],
                   ),
                   const SizedBox(height: 16),
-                  _buildPerformanceItem(
-                    'Chemistry Lab - Grade 10',
-                    '67%',
-                    'Attendance',
-                    Colors.orange,
+                  PerformanceRowItem(
+                    className: 'Chemistry Lab - Grade 10',
+                    value: '67%',
+                    metric: 'Attendance',
+                    color: Colors.orange,
                   ),
-                  _buildPerformanceItem(
-                    'Computer Science - Grade 11',
-                    '71%',
-                    'Attendance',
-                    Colors.orange,
+                  PerformanceRowItem(
+                    className: 'Computer Science - Grade 11',
+                    value: '71%',
+                    metric: 'Attendance',
+                    color: Colors.orange,
                   ),
                 ],
               ),
@@ -320,40 +318,40 @@ class InstituteDashboardPage extends StatelessWidget {
                   const SizedBox(height: 16),
 
                   // 5 Upcoming Classes (Limited)
-                  _buildUpcomingClassItem(
-                    'Advanced Mathematics',
-                    'Grade 10',
-                    '9:00 AM - 10:30 AM',
-                    'Mr. Kumar',
-                    'Room 101',
+                  UpcomingClassListTile(
+                    className: 'Advanced Mathematics',
+                    grade: 'Grade 10',
+                    time: '9:00 AM - 10:30 AM',
+                    teacher: 'Mr. Kumar',
+                    room: 'Room 101',
                   ),
-                  _buildUpcomingClassItem(
-                    'Physics Fundamentals',
-                    'Grade 11',
-                    '10:45 AM - 12:15 PM',
-                    'Ms. Sharma',
-                    'Lab 3',
+                  UpcomingClassListTile(
+                    className: 'Physics Fundamentals',
+                    grade: 'Grade 11',
+                    time: '10:45 AM - 12:15 PM',
+                    teacher: 'Ms. Sharma',
+                    room: 'Lab 3',
                   ),
-                  _buildUpcomingClassItem(
-                    'English Literature',
-                    'Grade 9',
-                    '1:00 PM - 2:30 PM',
-                    'Mrs. Singh',
-                    'Room 205',
+                  UpcomingClassListTile(
+                    className: 'English Literature',
+                    grade: 'Grade 9',
+                    time: '1:00 PM - 2:30 PM',
+                    teacher: 'Mrs. Singh',
+                    room: 'Room 205',
                   ),
-                  _buildUpcomingClassItem(
-                    'Chemistry Lab',
-                    'Grade 10',
-                    '2:45 PM - 4:15 PM',
-                    'Dr. Verma',
-                    'Lab 1',
+                  UpcomingClassListTile(
+                    className: 'Chemistry Lab',
+                    grade: 'Grade 10',
+                    time: '2:45 PM - 4:15 PM',
+                    teacher: 'Dr. Verma',
+                    room: 'Lab 1',
                   ),
-                  _buildUpcomingClassItem(
-                    'Computer Science',
-                    'Grade 11',
-                    '4:30 PM - 6:00 PM',
-                    'Mr. Patil',
-                    'Computer Lab',
+                  UpcomingClassListTile(
+                    className: 'Computer Science',
+                    grade: 'Grade 11',
+                    time: '4:30 PM - 6:00 PM',
+                    teacher: 'Mr. Patil',
+                    room: 'Computer Lab',
                   ),
                 ],
               ),
@@ -364,10 +362,7 @@ class InstituteDashboardPage extends StatelessWidget {
             // Report Categories Section
             const Text(
               'Generate Reports',
-              style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.w600,
-              ),
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
             ),
             const SizedBox(height: 16),
 
@@ -380,34 +375,33 @@ class InstituteDashboardPage extends StatelessWidget {
               crossAxisSpacing: 12,
               childAspectRatio: 1.1,
               children: [
-
-                _buildReportCategoryCard(
-                  'Class Reports',
-                  'Class-wise performance',
-                  Icons.class_,
-                  Colors.orange,
-                      () {},
+                CategoryGridCard(
+                  title: 'Class Reports',
+                  subtitle: 'Class-wise performance',
+                  icon: Icons.class_,
+                  color: Colors.orange,
+                  onTap: () {},
                 ),
-                _buildReportCategoryCard(
-                  'Student Reports',
-                  'Individual student data',
-                  Icons.people,
-                  AppColors.info,
-                      () {},
+                CategoryGridCard(
+                  title: 'Student Reports',
+                  subtitle: 'Individual student data',
+                  icon: Icons.people,
+                  color: AppColors.info,
+                  onTap: () {},
                 ),
-                _buildReportCategoryCard(
-                  'Teacher Reports',
-                  'Teacher performance',
-                  Icons.person,
-                  Colors.purple,
-                      () {},
+                CategoryGridCard(
+                  title: 'Teacher Reports',
+                  subtitle: 'Teacher performance',
+                  icon: Icons.person,
+                  color: Colors.purple,
+                  onTap: () {},
                 ),
-                _buildReportCategoryCard(
-                  'Teacher Payment Reports',
-                  'Salary & commission',
-                  Icons.account_balance_wallet,
-                  Colors.teal,
-                      () {},
+                CategoryGridCard(
+                  title: 'Teacher Payment Reports',
+                  subtitle: 'Salary & commission',
+                  icon: Icons.account_balance_wallet,
+                  color: Colors.teal,
+                  onTap: () {},
                 ),
               ],
             ),
@@ -433,19 +427,40 @@ class InstituteDashboardPage extends StatelessWidget {
                 children: [
                   const Text(
                     'Quick Statistics',
-                    style: TextStyle(
-                      fontWeight: FontWeight.w600,
-                      fontSize: 16,
-                    ),
+                    style: TextStyle(fontWeight: FontWeight.w600, fontSize: 16),
                   ),
                   const SizedBox(height: 16),
 
-                  _buildStatRow('Total Students Enrolled', '245', '+12 this month'),
-                  _buildStatRow('Active Teachers', '18', '2 on leave'),
-                  _buildStatRow('Total Classes', '32', '24 active'),
-                  _buildStatRow('Monthly Revenue', 'Rs 285,000', '+15.3%'),
-                  _buildStatRow('Commission Paid', 'Rs 42,750', '15% of revenue'),
-                  _buildStatRow('Pending Payments', 'Rs 38,500', '8 teachers'),
+                  QuickStatRowItem(
+                    label: 'Total Students Enrolled',
+                    value: '245',
+                    change: '+12 this month',
+                  ),
+                  QuickStatRowItem(
+                    label: 'Active Teachers',
+                    value: '18',
+                    change: '2 on leave',
+                  ),
+                  QuickStatRowItem(
+                    label: 'Total Classes',
+                    value: '32',
+                    change: '24 active',
+                  ),
+                  QuickStatRowItem(
+                    label: 'Monthly Revenue',
+                    value: 'Rs 285,000',
+                    change: '+15.3%',
+                  ),
+                  QuickStatRowItem(
+                    label: 'Commission Paid',
+                    value: 'Rs 42,750',
+                    change: '15% of revenue',
+                  ),
+                  QuickStatRowItem(
+                    label: 'Pending Payments',
+                    value: 'Rs 38,500',
+                    change: '8 teachers',
+                  ),
                 ],
               ),
             ),
@@ -453,336 +468,6 @@ class InstituteDashboardPage extends StatelessWidget {
             const SizedBox(height: 24),
           ],
         ),
-      ),
-    );
-  }
-
-  // ── New helper: Upcoming Class Item ──────────────────────────────────────
-  Widget _buildUpcomingClassItem(
-      String className,
-      String grade,
-      String time,
-      String teacher,
-      String room,
-      ) {
-    return Container(
-      padding: const EdgeInsets.symmetric(vertical: 12),
-      decoration: BoxDecoration(
-        border: Border(
-          bottom: BorderSide(
-            color: Colors.grey.shade100,
-          ),
-        ),
-      ),
-      child: Row(
-        children: [
-          Container(
-            width: 40,
-            height: 40,
-            decoration: BoxDecoration(
-              color: AppColors.primary.withOpacity(0.1),
-              borderRadius: BorderRadius.circular(10),
-            ),
-            child: const Icon(
-              Icons.sailing,
-              color: AppColors.primary,
-              size: 20,
-            ),
-          ),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  className,
-                  style: const TextStyle(
-                    fontWeight: FontWeight.w600,
-                    fontSize: 14,
-                  ),
-                ),
-                const SizedBox(height: 2),
-                Text(
-                  '$grade • $teacher',
-                  style: TextStyle(
-                    color: AppColors.textSecondary,
-                    fontSize: 12,
-                  ),
-                ),
-              ],
-            ),
-          ),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.end,
-            children: [
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                decoration: BoxDecoration(
-                  color: AppColors.primary.withOpacity(0.1),
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: Text(
-                  time,
-                  style: const TextStyle(
-                    color: AppColors.primary,
-                    fontSize: 11,
-                    fontWeight: FontWeight.w500,
-                  ),
-                ),
-              ),
-              const SizedBox(height: 2),
-              Text(
-                room,
-                style: TextStyle(
-                  color: AppColors.textSecondary,
-                  fontSize: 10,
-                ),
-              ),
-            ],
-          ),
-        ],
-      ),
-    );
-  }
-
-  // ── Existing helpers (unchanged) ─────────────────────────────────────────
-
-  Widget _buildOverviewMetric(String label, String value, IconData icon) {
-    return Container(
-      padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(
-        color: Colors.white.withOpacity(0.15),
-        borderRadius: BorderRadius.circular(12),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Icon(icon, color: Colors.white, size: 20),
-          const SizedBox(height: 8),
-          Text(
-            value,
-            style: const TextStyle(
-              color: Colors.white,
-              fontSize: 18,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-          Text(
-            label,
-            style: const TextStyle(
-              color: Colors.white70,
-              fontSize: 11,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildPerformanceItem(String className, String value, String metric, Color color) {
-    return Container(
-      padding: const EdgeInsets.symmetric(vertical: 8),
-      child: Row(
-        children: [
-          Expanded(
-            flex: 3,
-            child: Text(
-              className,
-              style: const TextStyle(
-                fontSize: 13,
-                fontWeight: FontWeight.w500,
-              ),
-              maxLines: 2,
-              overflow: TextOverflow.ellipsis,
-            ),
-          ),
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-            decoration: BoxDecoration(
-              color: color.withOpacity(0.1),
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: Row(
-              children: [
-                Text(
-                  value,
-                  style: TextStyle(
-                    color: color,
-                    fontWeight: FontWeight.w600,
-                    fontSize: 12,
-                  ),
-                ),
-                const SizedBox(width: 4),
-                Text(
-                  metric,
-                  style: TextStyle(
-                    color: color.withOpacity(0.7),
-                    fontSize: 10,
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildReportCategoryCard(String title, String subtitle, IconData icon, Color color, VoidCallback onTap) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        padding: const EdgeInsets.all(16),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(16),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.grey.withOpacity(0.1),
-              blurRadius: 8,
-              offset: const Offset(0, 2),
-            ),
-          ],
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Container(
-              padding: const EdgeInsets.all(10),
-              decoration: BoxDecoration(
-                color: color.withOpacity(0.1),
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: Icon(icon, color: color, size: 22),
-            ),
-            const SizedBox(height: 12),
-            Text(
-              title,
-              style: const TextStyle(
-                fontWeight: FontWeight.w600,
-                fontSize: 14,
-              ),
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-            ),
-            const SizedBox(height: 4),
-            Text(
-              subtitle,
-              style: TextStyle(
-                color: AppColors.textSecondary,
-                fontSize: 11,
-              ),
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildStatRow(String label, String value, String change) {
-    return Container(
-      padding: const EdgeInsets.symmetric(vertical: 8),
-      decoration: BoxDecoration(
-        border: Border(
-          bottom: BorderSide(
-            color: Colors.grey.shade100,
-          ),
-        ),
-      ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Text(
-            label,
-            style: TextStyle(
-              color: AppColors.textSecondary,
-              fontSize: 13,
-            ),
-          ),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.end,
-            children: [
-              Text(
-                value,
-                style: const TextStyle(
-                  fontWeight: FontWeight.w600,
-                  fontSize: 14,
-                ),
-              ),
-              Text(
-                change,
-                style: TextStyle(
-                  color: AppColors.textSecondary,
-                  fontSize: 11,
-                ),
-              ),
-            ],
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildRecentReportItem(String title, String date, String type) {
-    Color typeColor = type == 'PDF' ? Colors.red : AppColors.success;
-
-    return Container(
-      padding: const EdgeInsets.symmetric(vertical: 12),
-      decoration: BoxDecoration(
-        border: Border(
-          bottom: BorderSide(
-            color: Colors.grey.shade100,
-          ),
-        ),
-      ),
-      child: Row(
-        children: [
-          Container(
-            padding: const EdgeInsets.all(8),
-            decoration: BoxDecoration(
-              color: typeColor.withOpacity(0.1),
-              borderRadius: BorderRadius.circular(8),
-            ),
-            child: Icon(
-              type == 'PDF' ? Icons.picture_as_pdf : Icons.table_chart,
-              color: typeColor,
-              size: 18,
-            ),
-          ),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  title,
-                  style: const TextStyle(
-                    fontWeight: FontWeight.w500,
-                    fontSize: 14,
-                  ),
-                ),
-                const SizedBox(height: 2),
-                Text(
-                  date,
-                  style: TextStyle(
-                    color: AppColors.textSecondary,
-                    fontSize: 11,
-                  ),
-                ),
-              ],
-            ),
-          ),
-          IconButton(
-            onPressed: () {},
-            icon: const Icon(Icons.cloud_download_outlined, size: 20),
-            color: AppColors.primary,
-            constraints: const BoxConstraints(),
-            padding: const EdgeInsets.all(8),
-          ),
-        ],
       ),
     );
   }
