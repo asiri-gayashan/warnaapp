@@ -7,6 +7,7 @@ class UpcomingClassListTile extends StatelessWidget {
   final String time;
   final String teacher;
   final String room;
+  final Color? iconColor;
 
   const UpcomingClassListTile({
     Key? key,
@@ -15,18 +16,17 @@ class UpcomingClassListTile extends StatelessWidget {
     required this.time,
     required this.teacher,
     required this.room,
+    this.iconColor,
   }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
+    final effectiveColor = iconColor ?? AppColors.primary;
+
     return Container(
       padding: const EdgeInsets.symmetric(vertical: 12),
       decoration: BoxDecoration(
-        border: Border(
-          bottom: BorderSide(
-            color: Colors.grey.shade100,
-          ),
-        ),
+        border: Border(bottom: BorderSide(color: Colors.grey.shade100)),
       ),
       child: Row(
         children: [
@@ -34,14 +34,10 @@ class UpcomingClassListTile extends StatelessWidget {
             width: 40,
             height: 40,
             decoration: BoxDecoration(
-              color: AppColors.primary.withOpacity(0.1),
+              color: effectiveColor.withOpacity(0.1),
               borderRadius: BorderRadius.circular(10),
             ),
-            child: const Icon(
-              Icons.sailing,
-              color: AppColors.primary,
-              size: 20,
-            ),
+            child: Icon(Icons.sailing, color: effectiveColor, size: 20),
           ),
           const SizedBox(width: 12),
           Expanded(
@@ -72,13 +68,13 @@ class UpcomingClassListTile extends StatelessWidget {
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                 decoration: BoxDecoration(
-                  color: AppColors.primary.withOpacity(0.1),
+                  color: effectiveColor.withOpacity(0.1),
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: Text(
                   time,
-                  style: const TextStyle(
-                    color: AppColors.primary,
+                  style: TextStyle(
+                    color: effectiveColor,
                     fontSize: 11,
                     fontWeight: FontWeight.w500,
                   ),
@@ -87,10 +83,7 @@ class UpcomingClassListTile extends StatelessWidget {
               const SizedBox(height: 2),
               Text(
                 room,
-                style: TextStyle(
-                  color: AppColors.textSecondary,
-                  fontSize: 10,
-                ),
+                style: TextStyle(color: AppColors.textSecondary, fontSize: 10),
               ),
             ],
           ),

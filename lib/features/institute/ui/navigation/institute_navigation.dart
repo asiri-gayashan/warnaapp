@@ -5,7 +5,7 @@ import '../screens/institute_dashboard_page.dart';
 import '../screens/institute_tutors_page.dart';
 import '../screens/institute_students_page.dart';
 import '../screens/institute_courses_page.dart';
-import '../screens/institute_reports_page.dart';
+// import '../screens/institute_reports_page.dart';
 
 class InstituteNavigation extends StatefulWidget {
   const InstituteNavigation({Key? key}) : super(key: key);

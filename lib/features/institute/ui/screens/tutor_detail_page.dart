@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:warna_app/core/constants/app_colors.dart';
 import 'package:warna_app/features/institute/ui/screens/mark_payement_teachers_page.dart';
+import '../../../../shared/widgets/new/stat_column.dart';
+import '../../../../shared/widgets/new/info_tile.dart';
+import '../../../../shared/widgets/new/upcoming_class_list_tile.dart';
 
 class TutorDetailPage extends StatefulWidget {
   final Map<String, dynamic> tutor;
@@ -12,48 +15,16 @@ class TutorDetailPage extends StatefulWidget {
 }
 
 class _TutorDetailPageState extends State<TutorDetailPage> {
-  // Sample classes data for the tutor
-  final List<Map<String, dynamic>> _tutorClasses = [
-    {
-      'id': 'C001',
-      'className': 'Advanced Mathematics - Grade 10',
-      'studentCount': 15,
-      'paidStatus': 'Paid',
-    },
-    {
-      'id': 'C002',
-      'className': 'Physics Fundamentals - Grade 11',
-      'studentCount': 12,
-      'paidStatus': 'Not Paid',
-    },
-    {
-      'id': 'C003',
-      'className': 'Chemistry Lab - Grade 10',
-      'studentCount': 10,
-      'paidStatus': 'Paid',
-    },
-    {
-      'id': 'C004',
-      'className': 'English Literature - Grade 9',
-      'studentCount': 18,
-      'paidStatus': 'Not Paid',
-    },
-  ];
-
-  void _toggleClassPayment(int index) {
-    setState(() {
-      _tutorClasses[index]['paidStatus'] =
-      _tutorClasses[index]['paidStatus'] == 'Paid' ? 'Not Paid' : 'Paid';
-    });
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios_new, color: AppColors.textPrimary),
+          icon: const Icon(
+            Icons.arrow_back_ios_new,
+            color: AppColors.textPrimary,
+          ),
           onPressed: () => Navigator.pop(context),
         ),
         title: const Text(
@@ -104,7 +75,7 @@ class _TutorDetailPageState extends State<TutorDetailPage> {
                   ),
                   const SizedBox(height: 4),
                   Text(
-                    widget.tutor['id'],
+                    "example@gmail.com",
                     style: TextStyle(
                       color: AppColors.textSecondary,
                       fontSize: 14,
@@ -121,7 +92,10 @@ class _TutorDetailPageState extends State<TutorDetailPage> {
               padding: const EdgeInsets.all(20),
               decoration: BoxDecoration(
                 gradient: LinearGradient(
-                  colors: [AppColors.primary, AppColors.primary.withOpacity(0.8)],
+                  colors: [
+                    AppColors.primary,
+                    AppColors.primary.withOpacity(0.8),
+                  ],
                   begin: Alignment.topLeft,
                   end: Alignment.bottomRight,
                 ),
@@ -130,9 +104,15 @@ class _TutorDetailPageState extends State<TutorDetailPage> {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceAround,
                 children: [
-                  _buildStatColumn('Experience', widget.tutor['experience']),
-                  _buildStatColumn('Rating', '${widget.tutor['rating']} ⭐'),
-                  _buildStatColumn('Students', '${widget.tutor['studentsCount']}'),
+                  StatColumn(
+                    label: 'Experience',
+                    value: widget.tutor['experience'],
+                  ),
+                  StatColumn(label: 'Classes', value: '10'),
+                  StatColumn(
+                    label: 'Students',
+                    value: '${widget.tutor['studentsCount']}',
+                  ),
                 ],
               ),
             ),
@@ -142,55 +122,66 @@ class _TutorDetailPageState extends State<TutorDetailPage> {
             // Contact Information
             const Text(
               'Contact Information',
-              style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.w600,
-              ),
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
             ),
             const SizedBox(height: 12),
-            _buildInfoTile(Icons.email_outlined, 'Email', widget.tutor['email']),
-            _buildInfoTile(Icons.phone_outlined, 'Mobile', widget.tutor['phone']),
+            InfoTile(
+              icon: Icons.email_outlined,
+              label: 'Email',
+              value: widget.tutor['email'],
+            ),
+            InfoTile(
+              icon: Icons.phone_outlined,
+              label: 'Mobile',
+              value: widget.tutor['phone'],
+            ),
 
             const SizedBox(height: 24),
 
             // Personal Information
             const Text(
               'Personal Information',
-              style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.w600,
-              ),
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
             ),
             const SizedBox(height: 12),
-            _buildInfoTile(Icons.lock_outlined, 'Password', '••••••••'),
-            _buildInfoTile(Icons.location_on_outlined, 'Province', widget.tutor['province'] ?? 'Western'),
-            _buildInfoTile(Icons.home_outlined, 'Address', widget.tutor['address'] ?? 'Colombo, Sri Lanka'),
+            InfoTile(
+              icon: Icons.location_on_outlined,
+              label: 'District',
+              value: widget.tutor['district'] ?? 'Colombo',
+            ),
+            InfoTile(
+              icon: Icons.route,
+              label: 'Postal Code',
+              value: widget.tutor['postCode'] ?? '00000',
+            ),
+            InfoTile(
+              icon: Icons.home_outlined,
+              label: 'Address',
+              value: widget.tutor['address'] ?? 'Colombo, Sri Lanka',
+            ),
 
             const SizedBox(height: 24),
 
             // Professional Information
             const Text(
               'Professional Information',
-              style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.w600,
-              ),
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
             ),
             const SizedBox(height: 12),
-            _buildInfoTile(Icons.menu_book_outlined, 'Subject', widget.tutor['subject']),
-            _buildInfoTile(Icons.work_outline, 'Qualification', widget.tutor['qualification']),
+            InfoTile(
+              icon: Icons.menu_book_outlined,
+              label: 'Subject',
+              value: widget.tutor['subject'],
+            ),
+            InfoTile(icon: Icons.work_outline, label: 'Grade', value: '10'),
 
             const SizedBox(height: 24),
 
             // Classes Section
             const Text(
               'Assigned Classes',
-              style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.w600,
-              ),
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
             ),
-
 
             const SizedBox(height: 12),
             // ── Upcoming Classes Section ──────────────────────────────────
@@ -210,47 +201,50 @@ class _TutorDetailPageState extends State<TutorDetailPage> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-
                   // 5 Upcoming Classes (Limited)
-                  _buildUpcomingClassItem(
-                    'Advanced Mathematics',
-                    'Grade 10',
-                    '9:00 AM - 10:30 AM',
-                    'Mr. Kumar',
-                    'Room 101',
+                  UpcomingClassListTile(
+                    className: 'Advanced Mathematics',
+                    grade: 'Grade 10',
+                    time: '9:00 AM - 10:30 AM',
+                    teacher: 'Mr. Kumar',
+                    room: 'Room 101',
+                    iconColor: AppColors.secondary,
                   ),
-                  _buildUpcomingClassItem(
-                    'Physics Fundamentals',
-                    'Grade 11',
-                    '10:45 AM - 12:15 PM',
-                    'Ms. Sharma',
-                    'Lab 3',
+                  UpcomingClassListTile(
+                    className: 'Physics Fundamentals',
+                    grade: 'Grade 11',
+                    time: '10:45 AM - 12:15 PM',
+                    teacher: 'Ms. Sharma',
+                    room: 'Lab 3',
+                    iconColor: AppColors.secondary,
                   ),
-                  _buildUpcomingClassItem(
-                    'English Literature',
-                    'Grade 9',
-                    '1:00 PM - 2:30 PM',
-                    'Mrs. Singh',
-                    'Room 205',
+                  UpcomingClassListTile(
+                    className: 'English Literature',
+                    grade: 'Grade 9',
+                    time: '1:00 PM - 2:30 PM',
+                    teacher: 'Mrs. Singh',
+                    room: 'Room 205',
+                    iconColor: AppColors.secondary,
                   ),
-                  _buildUpcomingClassItem(
-                    'Chemistry Lab',
-                    'Grade 10',
-                    '2:45 PM - 4:15 PM',
-                    'Dr. Verma',
-                    'Lab 1',
+                  UpcomingClassListTile(
+                    className: 'Chemistry Lab',
+                    grade: 'Grade 10',
+                    time: '2:45 PM - 4:15 PM',
+                    teacher: 'Dr. Verma',
+                    room: 'Lab 1',
+                    iconColor: AppColors.secondary,
                   ),
-                  _buildUpcomingClassItem(
-                    'Computer Science',
-                    'Grade 11',
-                    '4:30 PM - 6:00 PM',
-                    'Mr. Patil',
-                    'Computer Lab',
+                  UpcomingClassListTile(
+                    className: 'Computer Science',
+                    grade: 'Grade 11',
+                    time: '4:30 PM - 6:00 PM',
+                    teacher: 'Mr. Patil',
+                    room: 'Computer Lab',
+                    iconColor: AppColors.secondary,
                   ),
                 ],
               ),
             ),
-
 
             const SizedBox(height: 24),
 
@@ -280,172 +274,10 @@ class _TutorDetailPageState extends State<TutorDetailPage> {
               ),
             ),
 
-            SizedBox(
-              height: 30,
-            ),
+            SizedBox(height: 30),
           ],
         ),
       ),
     );
   }
-
-  Widget _buildUpcomingClassItem(
-      String className,
-      String grade,
-      String time,
-      String teacher,
-      String room,
-      ) {
-    return Container(
-      padding: const EdgeInsets.symmetric(vertical: 12),
-      decoration: BoxDecoration(
-        border: Border(
-          bottom: BorderSide(
-            color: Colors.grey.shade100,
-          ),
-        ),
-      ),
-      child: Row(
-        children: [
-          Container(
-            width: 40,
-            height: 40,
-            decoration: BoxDecoration(
-              color: AppColors.secondary.withOpacity(0.1),
-              borderRadius: BorderRadius.circular(10),
-            ),
-            child: const Icon(
-              Icons.sailing,
-              color: AppColors.secondary,
-              size: 20,
-            ),
-          ),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  className,
-                  style: const TextStyle(
-                    fontWeight: FontWeight.w600,
-                    fontSize: 14,
-                  ),
-                ),
-                const SizedBox(height: 2),
-                Text(
-                  '$grade • $teacher',
-                  style: TextStyle(
-                    color: AppColors.textSecondary,
-                    fontSize: 12,
-                  ),
-                ),
-              ],
-            ),
-          ),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.end,
-            children: [
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                decoration: BoxDecoration(
-                  color: AppColors.secondary.withOpacity(0.1),
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: Text(
-                  time,
-                  style: const TextStyle(
-                    color: AppColors.secondary,
-                    fontSize: 11,
-                    fontWeight: FontWeight.w500,
-                  ),
-                ),
-              ),
-              const SizedBox(height: 2),
-              Text(
-                room,
-                style: TextStyle(
-                  color: AppColors.textSecondary,
-                  fontSize: 10,
-                ),
-              ),
-            ],
-          ),
-        ],
-      ),
-    );
-  }
-
-
-  Widget _buildStatColumn(String label, String value) {
-    return Column(
-      children: [
-        Text(
-          value,
-          style: const TextStyle(
-            color: Colors.white,
-            fontSize: 20,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-        const SizedBox(height: 4),
-        Text(
-          label,
-          style: const TextStyle(
-            color: Colors.white70,
-            fontSize: 12,
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildInfoTile(IconData icon, String label, String value) {
-    return Container(
-      padding: const EdgeInsets.all(16),
-      margin: const EdgeInsets.only(bottom: 8),
-      decoration: BoxDecoration(
-        color: AppColors.background,
-        borderRadius: BorderRadius.circular(12),
-      ),
-      child: Row(
-        children: [
-          Container(
-            padding: const EdgeInsets.all(8),
-            decoration: BoxDecoration(
-              color: AppColors.primary.withOpacity(0.1),
-              borderRadius: BorderRadius.circular(8),
-            ),
-            child: Icon(icon, color: AppColors.primary, size: 20),
-          ),
-          const SizedBox(width: 12),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                label,
-                style: TextStyle(
-                  color: AppColors.textSecondary,
-                  fontSize: 12,
-                ),
-              ),
-              const SizedBox(height: 2),
-              Text(
-                value,
-                style: const TextStyle(
-                  fontWeight: FontWeight.w500,
-                  fontSize: 15,
-                ),
-              ),
-            ],
-          ),
-        ],
-      ),
-    );
-  }
-
-
 }
-
-
-
