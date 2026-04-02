@@ -2,6 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:warna_app/features/institute/ui/screens/mark_attendance_page.dart';
 import 'package:warna_app/features/institute/ui/screens/mark_payment_page.dart';
 import '../../../../core/constants/app_colors.dart';
+import '../../../../shared/widgets/new/stat_column.dart';
+import '../../../../shared/widgets/new/info_tile.dart';
+import '../../../../shared/widgets/new/upcoming_class_list_tile.dart';
 
 class StudentDetailPage extends StatelessWidget {
   final Map<String, dynamic> student;
@@ -14,7 +17,10 @@ class StudentDetailPage extends StatelessWidget {
       backgroundColor: Colors.white,
       appBar: AppBar(
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios_new, color: AppColors.textPrimary),
+          icon: const Icon(
+            Icons.arrow_back_ios_new,
+            color: AppColors.textPrimary,
+          ),
           onPressed: () => Navigator.pop(context),
         ),
         title: const Text(
@@ -65,7 +71,7 @@ class StudentDetailPage extends StatelessWidget {
                   ),
                   const SizedBox(height: 4),
                   Text(
-                    student['id'],
+                    'example@gmail.com',
                     style: TextStyle(
                       color: AppColors.textSecondary,
                       fontSize: 14,
@@ -82,7 +88,10 @@ class StudentDetailPage extends StatelessWidget {
               padding: const EdgeInsets.all(20),
               decoration: BoxDecoration(
                 gradient: LinearGradient(
-                  colors: [AppColors.primary, AppColors.primary.withOpacity(0.8)],
+                  colors: [
+                    AppColors.primary,
+                    AppColors.primary.withOpacity(0.8),
+                  ],
                   begin: Alignment.topLeft,
                   end: Alignment.bottomRight,
                 ),
@@ -91,9 +100,9 @@ class StudentDetailPage extends StatelessWidget {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceAround,
                 children: [
-                  _buildStatColumn('Grade', student['grade']),
-                  _buildStatColumn('Attendance', '${student['attendance']}%'),
-                  _buildStatColumn('Classes', '${student['sessions']}'),
+                  StatColumn(label: 'Grade', value: student['grade']),
+                  StatColumn(label: 'Age', value: '15'),
+                  StatColumn(label: 'Classes', value: '${student['sessions']}'),
                 ],
               ),
             ),
@@ -103,36 +112,45 @@ class StudentDetailPage extends StatelessWidget {
             // Contact Information
             const Text(
               'Contact Information',
-              style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.w600,
-              ),
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
             ),
             const SizedBox(height: 12),
-            _buildInfoTile(Icons.email_outlined, 'Email', student['email']),
-            _buildInfoTile(Icons.phone_outlined, 'Phone', student['phone']),
+            InfoTile(
+              icon: Icons.email_outlined,
+              label: 'Email',
+              value: student['email'],
+            ),
+            InfoTile(
+              icon: Icons.phone_outlined,
+              label: 'Phone',
+              value: student['phone'],
+            ),
 
             const SizedBox(height: 24),
 
-            // Academic Information
+            // Personal Information
             const Text(
-              'Academic Information',
-              style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.w600,
-              ),
+              'Personal Information',
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
             ),
             const SizedBox(height: 12),
-            _buildInfoTile(Icons.menu_book_outlined, 'Subject', student['subject']),
+            InfoTile(
+              icon: Icons.location_on_outlined,
+              label: 'District',
+              value: 'Colombo',
+            ),
+            InfoTile(icon: Icons.route, label: 'Postal Code', value: '00000'),
+            InfoTile(
+              icon: Icons.home_outlined,
+              label: 'Address',
+              value: 'Colombo, Sri Lanka',
+            ),
 
             const SizedBox(height: 24),
 
             const Text(
               'Enrolled Classes',
-              style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.w600,
-              ),
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
             ),
 
             const SizedBox(height: 24),
@@ -153,47 +171,50 @@ class StudentDetailPage extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-
                   // 5 Upcoming Classes (Limited)
-                  _buildUpcomingClassItem(
-                    'Advanced Mathematics',
-                    'Grade 10',
-                    '9:00 AM - 10:30 AM',
-                    'Mr. Kumar',
-                    'Room 101',
+                  UpcomingClassListTile(
+                    className: 'Advanced Mathematics',
+                    grade: 'Grade 10',
+                    time: '9:00 AM - 10:30 AM',
+                    teacher: 'Mr. Kumar',
+                    room: 'Room 101',
+                    iconColor: AppColors.secondary,
                   ),
-                  _buildUpcomingClassItem(
-                    'Physics Fundamentals',
-                    'Grade 11',
-                    '10:45 AM - 12:15 PM',
-                    'Ms. Sharma',
-                    'Lab 3',
+                  UpcomingClassListTile(
+                    className: 'Physics Fundamentals',
+                    grade: 'Grade 11',
+                    time: '10:45 AM - 12:15 PM',
+                    teacher: 'Ms. Sharma',
+                    room: 'Lab 3',
+                    iconColor: AppColors.secondary,
                   ),
-                  _buildUpcomingClassItem(
-                    'English Literature',
-                    'Grade 9',
-                    '1:00 PM - 2:30 PM',
-                    'Mrs. Singh',
-                    'Room 205',
+                  UpcomingClassListTile(
+                    className: 'English Literature',
+                    grade: 'Grade 9',
+                    time: '1:00 PM - 2:30 PM',
+                    teacher: 'Mrs. Singh',
+                    room: 'Room 205',
+                    iconColor: AppColors.secondary,
                   ),
-                  _buildUpcomingClassItem(
-                    'Chemistry Lab',
-                    'Grade 10',
-                    '2:45 PM - 4:15 PM',
-                    'Dr. Verma',
-                    'Lab 1',
+                  UpcomingClassListTile(
+                    className: 'Chemistry Lab',
+                    grade: 'Grade 10',
+                    time: '2:45 PM - 4:15 PM',
+                    teacher: 'Dr. Verma',
+                    room: 'Lab 1',
+                    iconColor: AppColors.secondary,
                   ),
-                  _buildUpcomingClassItem(
-                    'Computer Science',
-                    'Grade 11',
-                    '4:30 PM - 6:00 PM',
-                    'Mr. Patil',
-                    'Computer Lab',
+                  UpcomingClassListTile(
+                    className: 'Computer Science',
+                    grade: 'Grade 11',
+                    time: '4:30 PM - 6:00 PM',
+                    teacher: 'Mr. Patil',
+                    room: 'Computer Lab',
+                    iconColor: AppColors.secondary,
                   ),
                 ],
               ),
             ),
-
 
             const SizedBox(height: 24),
 
@@ -227,16 +248,13 @@ class StudentDetailPage extends StatelessWidget {
                 Expanded(
                   child: OutlinedButton.icon(
                     onPressed: () {
-
                       Navigator.push(
                         context,
                         MaterialPageRoute(
                           builder: (context) => const MarkPaymentPage(),
                         ),
                       );
-
                     },
-
 
                     icon: const Icon(Icons.payment),
                     label: const Text('Mark Payments'),
@@ -250,172 +268,12 @@ class StudentDetailPage extends StatelessWidget {
                     ),
                   ),
                 ),
-
-
-
               ],
             ),
 
             const SizedBox(height: 30),
-
           ],
         ),
-      ),
-    );
-  }
-
-  Widget _buildStatColumn(String label, String value) {
-    return Column(
-      children: [
-        Text(
-          value,
-          style: const TextStyle(
-            color: Colors.white,
-            fontSize: 20,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-        const SizedBox(height: 4),
-        Text(
-          label,
-          style: const TextStyle(
-            color: Colors.white70,
-            fontSize: 12,
-          ),
-        ),
-      ],
-    );
-  }
-
-
-  Widget _buildUpcomingClassItem(
-      String className,
-      String grade,
-      String time,
-      String teacher,
-      String room,
-      ) {
-    return Container(
-      padding: const EdgeInsets.symmetric(vertical: 12),
-      decoration: BoxDecoration(
-        border: Border(
-          bottom: BorderSide(
-            color: Colors.grey.shade100,
-          ),
-        ),
-      ),
-      child: Row(
-        children: [
-          Container(
-            width: 40,
-            height: 40,
-            decoration: BoxDecoration(
-              color: AppColors.secondary.withOpacity(0.1),
-              borderRadius: BorderRadius.circular(10),
-            ),
-            child: const Icon(
-              Icons.sailing,
-              color: AppColors.secondary,
-              size: 20,
-            ),
-          ),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  className,
-                  style: const TextStyle(
-                    fontWeight: FontWeight.w600,
-                    fontSize: 14,
-                  ),
-                ),
-                const SizedBox(height: 2),
-                Text(
-                  '$grade • $teacher',
-                  style: TextStyle(
-                    color: AppColors.textSecondary,
-                    fontSize: 12,
-                  ),
-                ),
-              ],
-            ),
-          ),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.end,
-            children: [
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                decoration: BoxDecoration(
-                  color: AppColors.secondary.withOpacity(0.1),
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: Text(
-                  time,
-                  style: const TextStyle(
-                    color: AppColors.secondary,
-                    fontSize: 11,
-                    fontWeight: FontWeight.w500,
-                  ),
-                ),
-              ),
-              const SizedBox(height: 2),
-              Text(
-                room,
-                style: TextStyle(
-                  color: AppColors.textSecondary,
-                  fontSize: 10,
-                ),
-              ),
-            ],
-          ),
-        ],
-      ),
-    );
-  }
-
-
-  Widget _buildInfoTile(IconData icon, String label, String value) {
-    return Container(
-      padding: const EdgeInsets.all(16),
-      margin: const EdgeInsets.only(bottom: 8),
-      decoration: BoxDecoration(
-        color: AppColors.background,
-        borderRadius: BorderRadius.circular(12),
-      ),
-      child: Row(
-        children: [
-          Container(
-            padding: const EdgeInsets.all(8),
-            decoration: BoxDecoration(
-              color: AppColors.primary.withOpacity(0.1),
-              borderRadius: BorderRadius.circular(8),
-            ),
-            child: Icon(icon, color: AppColors.primary, size: 20),
-          ),
-          const SizedBox(width: 12),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                label,
-                style: TextStyle(
-                  color: AppColors.textSecondary,
-                  fontSize: 12,
-                ),
-              ),
-              const SizedBox(height: 2),
-              Text(
-                value,
-                style: const TextStyle(
-                  fontWeight: FontWeight.w500,
-                  fontSize: 15,
-                ),
-              ),
-            ],
-          ),
-        ],
       ),
     );
   }
