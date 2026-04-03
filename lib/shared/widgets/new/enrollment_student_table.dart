@@ -3,12 +3,12 @@ import '../../../../core/constants/app_colors.dart';
 
 class EnrollmentStudentTable extends StatelessWidget {
   final List<Map<String, dynamic>> paginatedStudents;
-  final ValueChanged<int> onToggleEnrollment;
+  final void Function(int) onToggleStudent;
 
   const EnrollmentStudentTable({
     Key? key,
     required this.paginatedStudents,
-    required this.onToggleEnrollment,
+    required this.onToggleStudent,
   }) : super(key: key);
 
   @override
@@ -63,7 +63,6 @@ class EnrollmentStudentTable extends StatelessWidget {
         borderRadius: BorderRadius.circular(16),
         child: Column(
           children: [
-            // Table Header
             Container(
               padding: const EdgeInsets.all(14),
               color: AppColors.primary.withOpacity(0.04),
@@ -76,8 +75,6 @@ class EnrollmentStudentTable extends StatelessWidget {
                 ],
               ),
             ),
-
-            // Table Body
             ListView.builder(
               shrinkWrap: true,
               physics: const NeverScrollableScrollPhysics(),
@@ -120,23 +117,23 @@ class EnrollmentStudentTable extends StatelessWidget {
                       Expanded(
                         flex: 1,
                         child: GestureDetector(
-                          onTap: () => onToggleEnrollment(index),
+                          onTap: () => onToggleStudent(index),
                           child: Container(
                             width: 28,
                             height: 28,
                             decoration: BoxDecoration(
-                              color: student['enrolled'] == true
+                              color: student['enrolled']
                                   ? AppColors.success.withOpacity(0.1)
                                   : Colors.transparent,
                               borderRadius: BorderRadius.circular(8),
                               border: Border.all(
-                                color: student['enrolled'] == true
+                                color: student['enrolled']
                                     ? AppColors.success
                                     : AppColors.textDisabled,
                                 width: 1.5,
                               ),
                             ),
-                            child: student['enrolled'] == true
+                            child: student['enrolled']
                                 ? const Icon(
                                     Icons.check,
                                     color: AppColors.success,

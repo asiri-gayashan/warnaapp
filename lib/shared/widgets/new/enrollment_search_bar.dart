@@ -41,7 +41,7 @@ class EnrollmentSearchBar extends StatelessWidget {
                     )
                   : null,
               border: const OutlineInputBorder(
-                borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+                borderRadius: BorderRadius.all(Radius.circular(16)),
                 borderSide: BorderSide.none,
               ),
               filled: true,

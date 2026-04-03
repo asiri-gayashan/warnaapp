@@ -4,13 +4,13 @@ import '../../../../core/constants/app_colors.dart';
 class ClassSelectionCard extends StatelessWidget {
   final String? selectedClass;
   final List<String> classes;
-  final ValueChanged<String?> onClassChanged;
+  final ValueChanged<String?> onChanged;
 
   const ClassSelectionCard({
     Key? key,
     required this.selectedClass,
     required this.classes,
-    required this.onClassChanged,
+    required this.onChanged,
   }) : super(key: key);
 
   @override
@@ -81,7 +81,7 @@ class ClassSelectionCard extends StatelessWidget {
                     );
                   }),
                 ],
-                onChanged: onClassChanged,
+                onChanged: onChanged,
               ),
             ),
           ),
