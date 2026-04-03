@@ -560,64 +560,70 @@ class InstituteReportsPage extends StatelessWidget {
     );
   }
 
-  Widget _buildRecentReportItem(String title, String date, String type) {
-    Color typeColor = type == 'PDF' ? Colors.red : AppColors.success;
+  // Widget _buildRecentReportItem(String title, String date, String type) {
+  //   Color typeColor = type == 'PDF' ? Colors.red : AppColors.success;
 
-    return Container(
-      padding: const EdgeInsets.symmetric(vertical: 12),
-      decoration: BoxDecoration(
-        border: Border(
-          bottom: BorderSide(
-            color: Colors.grey.shade100,
-          ),
-        ),
-      ),
-      child: Row(
-        children: [
-          Container(
-            padding: const EdgeInsets.all(8),
-            decoration: BoxDecoration(
-              color: typeColor.withOpacity(0.1),
-              borderRadius: BorderRadius.circular(8),
-            ),
-            child: Icon(
-              type == 'PDF' ? Icons.picture_as_pdf : Icons.table_chart,
-              color: typeColor,
-              size: 18,
-            ),
-          ),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  title,
-                  style: const TextStyle(
-                    fontWeight: FontWeight.w500,
-                    fontSize: 14,
-                  ),
-                ),
-                const SizedBox(height: 2),
-                Text(
-                  date,
-                  style: TextStyle(
-                    color: AppColors.textSecondary,
-                    fontSize: 11,
-                  ),
-                ),
-              ],
-            ),
-          ),
-          IconButton(
-            onPressed: () {},
-            icon: const Icon(Icons.cloud_download_outlined, size: 20),
-            color: AppColors.primary,
-            constraints: const BoxConstraints(),
-            padding: const EdgeInsets.all(8),
-          ),
-        ],
-      ),
-    );
-  }
+  //   return Container(
+  //     padding: const EdgeInsets.symmetric(vertical: 12),
+  //     decoration: BoxDecoration(
+  //       border: Border(
+  //         bottom: BorderSide(
+  //           color: Colors.grey.shade100,
+  //         ),
+  //       ),
+  //     ),
+  //     child: Row(
+  //       children: [
+  //         Container(
+  //           padding: const EdgeInsets.all(8),
+  //           decoration: BoxDecoration(
+  //             color: typeColor.withOpacity(0.1),
+  //             borderRadius: BorderRadius.circular(8),
+  //           ),
+  //           child: Icon(
+  //             type == 'PDF' ? Icons.picture_as_pdf : Icons.table_chart,
+  //             color: typeColor,
+  //             size: 18,
+  //           ),
+  //         ),
+  //         const SizedBox(width: 12),
+  //         Expanded(
+  //           child: Column(
+  //             crossAxisAlignment: CrossAxisAlignment.start,
+  //             children: [
+  //               Text(
+  //                 title,
+  //                 style: const TextStyle(
+  //                   fontWeight: FontWeight.w500,
+  //                   fontSize: 14,
+  //                 ),
+  //               ),
+  //               const SizedBox(height: 2),
+  //               Text(
+  //                 date,
+  //                 style: TextStyle(
+  //                   color: AppColors.textSecondary,
+  //                   fontSize: 11,
+  //                 ),
+  //               ),
+  //             ],
+  //           ),
+  //         ),
+  //         IconButton(
+  //           onPressed: () {},
+  //           icon: const Icon(Icons.cloud_download_outlined, size: 20),
+  //           color: AppColors.primary,
+  //           constraints: const BoxConstraints(),
+  //           padding: const EdgeInsets.all(8),
+  //         ),
+  //       ],
+  //     ),
+  //   );
+
+
+
+
+  // }
+
+  
 }

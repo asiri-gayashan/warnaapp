@@ -1,5 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:warna_app/core/constants/app_colors.dart';
+import 'package:warna_app/shared/widgets/new/month_year_picker.dart';
+import 'package:warna_app/shared/widgets/new/stat_card.dart';
+import 'package:warna_app/shared/widgets/new/selection_header_card.dart';
+import 'package:warna_app/shared/widgets/new/custom_pagination.dart';
 
 class MarkPaymentPage extends StatefulWidget {
   const MarkPaymentPage({Key? key}) : super(key: key);
@@ -13,7 +17,7 @@ class _MarkPaymentPageState extends State<MarkPaymentPage> {
   String? _selectedClass;
   DateTime _selectedDate = DateTime.now();
   String _selectedFilter = 'All'; // All, Paid, Unpaid
-  bool _selectAll = false;
+  bool _selectAll = false;  
   int _currentPage = 1;
   final int _itemsPerPage = 10;
 
@@ -28,29 +32,139 @@ class _MarkPaymentPageState extends State<MarkPaymentPage> {
 
   // Sample students with payment data
   final List<Map<String, dynamic>> _allStudents = [
-    {'rollNo': 'S001', 'name': 'Emma Watson', 'payment': true, 'amount': 2500, 'dueDate': '2024-03-15', 'paymentDate': '2024-03-01'},
-    {'rollNo': 'S002', 'name': 'James Smith', 'payment': false, 'amount': 2500, 'dueDate': '2024-03-15', 'paymentDate': null},
-    {'rollNo': 'S003', 'name': 'Michael Brown', 'payment': true, 'amount': 2500, 'dueDate': '2024-03-15', 'paymentDate': '2024-03-02'},
-    {'rollNo': 'S004', 'name': 'Sarah Johnson', 'payment': true, 'amount': 2500, 'dueDate': '2024-03-15', 'paymentDate': '2024-03-01'},
-    {'rollNo': 'S005', 'name': 'David Wilson', 'payment': false, 'amount': 2500, 'dueDate': '2024-03-15', 'paymentDate': null},
-    {'rollNo': 'S006', 'name': 'Emily Davis', 'payment': true, 'amount': 2500, 'dueDate': '2024-03-15', 'paymentDate': '2024-03-03'},
-    {'rollNo': 'S007', 'name': 'Daniel Martinez', 'payment': true, 'amount': 2500, 'dueDate': '2024-03-15', 'paymentDate': '2024-03-01'},
-    {'rollNo': 'S008', 'name': 'Lisa Anderson', 'payment': false, 'amount': 2500, 'dueDate': '2024-03-15', 'paymentDate': null},
-    {'rollNo': 'S009', 'name': 'Robert Taylor', 'payment': true, 'amount': 2500, 'dueDate': '2024-03-15', 'paymentDate': '2024-03-02'},
-    {'rollNo': 'S010', 'name': 'Jennifer Thomas', 'payment': true, 'amount': 2500, 'dueDate': '2024-03-15', 'paymentDate': '2024-03-01'},
-    {'rollNo': 'S011', 'name': 'William Jackson', 'payment': false, 'amount': 2500, 'dueDate': '2024-03-15', 'paymentDate': null},
-    {'rollNo': 'S012', 'name': 'Mary White', 'payment': true, 'amount': 2500, 'dueDate': '2024-03-15', 'paymentDate': '2024-03-03'},
-    {'rollNo': 'S013', 'name': 'Joseph Harris', 'payment': true, 'amount': 2500, 'dueDate': '2024-03-15', 'paymentDate': '2024-03-01'},
-    {'rollNo': 'S014', 'name': 'Patricia Martin', 'payment': false, 'amount': 2500, 'dueDate': '2024-03-15', 'paymentDate': null},
-    {'rollNo': 'S015', 'name': 'Charles Thompson', 'payment': true, 'amount': 2500, 'dueDate': '2024-03-15', 'paymentDate': '2024-03-02'},
+    {
+      'rollNo': 'S001',
+      'name': 'Emma Watson',
+      'payment': true,
+      'amount': 2500,
+      'dueDate': '2024-03-15',
+      'paymentDate': '2024-03-01',
+    },
+    {
+      'rollNo': 'S002',
+      'name': 'James Smith',
+      'payment': false,
+      'amount': 2500,
+      'dueDate': '2024-03-15',
+      'paymentDate': null,
+    },
+    {
+      'rollNo': 'S003',
+      'name': 'Michael Brown',
+      'payment': true,
+      'amount': 2500,
+      'dueDate': '2024-03-15',
+      'paymentDate': '2024-03-02',
+    },
+    {
+      'rollNo': 'S004',
+      'name': 'Sarah Johnson',
+      'payment': true,
+      'amount': 2500,
+      'dueDate': '2024-03-15',
+      'paymentDate': '2024-03-01',
+    },
+    {
+      'rollNo': 'S005',
+      'name': 'David Wilson',
+      'payment': false,
+      'amount': 2500,
+      'dueDate': '2024-03-15',
+      'paymentDate': null,
+    },
+    {
+      'rollNo': 'S006',
+      'name': 'Emily Davis',
+      'payment': true,
+      'amount': 2500,
+      'dueDate': '2024-03-15',
+      'paymentDate': '2024-03-03',
+    },
+    {
+      'rollNo': 'S007',
+      'name': 'Daniel Martinez',
+      'payment': true,
+      'amount': 2500,
+      'dueDate': '2024-03-15',
+      'paymentDate': '2024-03-01',
+    },
+    {
+      'rollNo': 'S008',
+      'name': 'Lisa Anderson',
+      'payment': false,
+      'amount': 2500,
+      'dueDate': '2024-03-15',
+      'paymentDate': null,
+    },
+    {
+      'rollNo': 'S009',
+      'name': 'Robert Taylor',
+      'payment': true,
+      'amount': 2500,
+      'dueDate': '2024-03-15',
+      'paymentDate': '2024-03-02',
+    },
+    {
+      'rollNo': 'S010',
+      'name': 'Jennifer Thomas',
+      'payment': true,
+      'amount': 2500,
+      'dueDate': '2024-03-15',
+      'paymentDate': '2024-03-01',
+    },
+    {
+      'rollNo': 'S011',
+      'name': 'William Jackson',
+      'payment': false,
+      'amount': 2500,
+      'dueDate': '2024-03-15',
+      'paymentDate': null,
+    },
+    {
+      'rollNo': 'S012',
+      'name': 'Mary White',
+      'payment': true,
+      'amount': 2500,
+      'dueDate': '2024-03-15',
+      'paymentDate': '2024-03-03',
+    },
+    {
+      'rollNo': 'S013',
+      'name': 'Joseph Harris',
+      'payment': true,
+      'amount': 2500,
+      'dueDate': '2024-03-15',
+      'paymentDate': '2024-03-01',
+    },
+    {
+      'rollNo': 'S014',
+      'name': 'Patricia Martin',
+      'payment': false,
+      'amount': 2500,
+      'dueDate': '2024-03-15',
+      'paymentDate': null,
+    },
+    {
+      'rollNo': 'S015',
+      'name': 'Charles Thompson',
+      'payment': true,
+      'amount': 2500,
+      'dueDate': '2024-03-15',
+      'paymentDate': '2024-03-02',
+    },
   ];
 
   List<Map<String, dynamic>> get _filteredStudents {
     return _allStudents.where((student) {
       // Search filter
-      final searchMatch = _searchController.text.isEmpty ||
-          student['name'].toLowerCase().contains(_searchController.text.toLowerCase()) ||
-          student['rollNo'].toLowerCase().contains(_searchController.text.toLowerCase());
+      final searchMatch =
+          _searchController.text.isEmpty ||
+          student['name'].toLowerCase().contains(
+            _searchController.text.toLowerCase(),
+          ) ||
+          student['rollNo'].toLowerCase().contains(
+            _searchController.text.toLowerCase(),
+          );
 
       // Payment status filter
       bool paymentMatch = true;
@@ -75,8 +189,10 @@ class _MarkPaymentPageState extends State<MarkPaymentPage> {
   }
 
   int get _totalPages => (_filteredStudents.length / _itemsPerPage).ceil();
-  int get _paidCount => _filteredStudents.where((s) => s['payment'] == true).length;
-  int get _unpaidCount => _filteredStudents.where((s) => s['payment'] == false).length;
+  int get _paidCount =>
+      _filteredStudents.where((s) => s['payment'] == true).length;
+  int get _unpaidCount =>
+      _filteredStudents.where((s) => s['payment'] == false).length;
   int get _totalAmount => _filteredStudents.length * 2500;
   int get _collectedAmount => _paidCount * 2500;
   int get _pendingAmount => _unpaidCount * 2500;
@@ -92,11 +208,12 @@ class _MarkPaymentPageState extends State<MarkPaymentPage> {
 
   void _toggleStudentPayment(int index) {
     setState(() {
-      _paginatedStudents[index]['payment'] = !_paginatedStudents[index]['payment'];
+      _paginatedStudents[index]['payment'] =
+          !_paginatedStudents[index]['payment'];
       // Update payment date
       if (_paginatedStudents[index]['payment']) {
         _paginatedStudents[index]['paymentDate'] =
-        '${_selectedDate.year}-${_selectedDate.month.toString().padLeft(2, '0')}-${_selectedDate.day.toString().padLeft(2, '0')}';
+            '${_selectedDate.year}-${_selectedDate.month.toString().padLeft(2, '0')}-${_selectedDate.day.toString().padLeft(2, '0')}';
       } else {
         _paginatedStudents[index]['paymentDate'] = null;
       }
@@ -107,24 +224,11 @@ class _MarkPaymentPageState extends State<MarkPaymentPage> {
   }
 
   Future<void> _selectDate(BuildContext context) async {
-    final DateTime? picked = await showDatePicker(
+    final DateTime? picked = await showMonthYearPicker(
       context: context,
       initialDate: _selectedDate,
       firstDate: DateTime(2020),
       lastDate: DateTime(2025),
-      builder: (context, child) {
-        return Theme(
-          data: Theme.of(context).copyWith(
-            colorScheme: ColorScheme.light(
-              primary: AppColors.primary,
-              onPrimary: Colors.white,
-              surface: Colors.white,
-              onSurface: AppColors.textPrimary,
-            ),
-          ),
-          child: child!,
-        );
-      },
     );
     if (picked != null && picked != _selectedDate) {
       setState(() {
@@ -134,7 +238,6 @@ class _MarkPaymentPageState extends State<MarkPaymentPage> {
   }
 
   void _savePayments() {
-    final paidStudents = _allStudents.where((s) => s['payment'] == true).length;
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text('Payments saved!'),
@@ -161,7 +264,10 @@ class _MarkPaymentPageState extends State<MarkPaymentPage> {
         elevation: 0,
         centerTitle: true,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios_new, color: AppColors.textPrimary),
+          icon: const Icon(
+            Icons.arrow_back_ios_new,
+            color: AppColors.textPrimary,
+          ),
           onPressed: () => Navigator.pop(context),
         ),
       ),
@@ -171,142 +277,47 @@ class _MarkPaymentPageState extends State<MarkPaymentPage> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             // Header Card with Filters
-            Container(
-              padding: const EdgeInsets.all(20),
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  colors: [
-                    AppColors.primary,
-                    AppColors.primary.withOpacity(0.8),
-                  ],
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                ),
-                borderRadius: BorderRadius.circular(24),
-                boxShadow: [
-                  BoxShadow(
-                    color: AppColors.primary.withOpacity(0.3),
-                    blurRadius: 20,
-                    offset: const Offset(0, 8),
-                  ),
-                ],
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const Text(
-                    'Select Class & Month',
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 16,
-                      fontWeight: FontWeight.w500,
-                    ),
-                  ),
-                  const SizedBox(height: 16),
-
-                  // Class Selector
-                  Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 16),
-                    decoration: BoxDecoration(
-                      color: Colors.white.withOpacity(0.15),
-                      borderRadius: BorderRadius.circular(12),
-                      border: Border.all(
-                        color: Colors.white.withOpacity(0.3),
-                      ),
-                    ),
-                    child: DropdownButtonHideUnderline(
-                      child: DropdownButton<String>(
-                        isExpanded: true,
-                        hint: const Text(
-                          'Select Class',
-                          style: TextStyle(color: Colors.white70),
-                        ),
-                        value: _selectedClass,
-                        dropdownColor: AppColors.primary,
-                        icon: const Icon(Icons.arrow_drop_down, color: Colors.white),
-                        items: _classes.map((String className) {
-                          return DropdownMenuItem<String>(
-                            value: className,
-                            child: Text(
-                              className,
-                              style: const TextStyle(color: Colors.white),
-                            ),
-                          );
-                        }).toList(),
-                        onChanged: (String? newValue) {
-                          setState(() {
-                            _selectedClass = newValue;
-                          });
-                        },
-                      ),
-                    ),
-                  ),
-
-                  const SizedBox(height: 12),
-
-                  // Month Selector
-                  GestureDetector(
-                    onTap: () => _selectDate(context),
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-                      decoration: BoxDecoration(
-                        color: Colors.white.withOpacity(0.15),
-                        borderRadius: BorderRadius.circular(12),
-                        border: Border.all(
-                          color: Colors.white.withOpacity(0.3),
-                        ),
-                      ),
-                      child: Row(
-                        children: [
-                          const Icon(Icons.calendar_month, color: Colors.white, size: 18),
-                          const SizedBox(width: 12),
-                          Text(
-                            '${_selectedDate.year} - ${_selectedDate.month.toString().padLeft(2, '0')}',
-                            style: const TextStyle(
-                              color: Colors.white,
-                              fontSize: 15,
-                              fontWeight: FontWeight.w500,
-                            ),
-                          ),
-                          const Spacer(),
-                          const Icon(Icons.arrow_drop_down, color: Colors.white),
-                        ],
-                      ),
-                    ),
-                  ),
-                ],
-              ),
+            SelectionHeaderCard(
+              title: 'Select Class & Month',
+              classHint: 'Select Class',
+              classes: _classes,
+              selectedClass: _selectedClass,
+              onClassChanged: (newValue) =>
+                  setState(() => _selectedClass = newValue),
+              dateText:
+                  '${_selectedDate.year} - ${_selectedDate.month.toString().padLeft(2, '0')}',
+              dateIcon: Icons.calendar_month,
+              onDateTap: () => _selectDate(context),
             ),
 
             const SizedBox(height: 24),
-
             // Financial Stats Cards
             Row(
               children: [
                 Expanded(
-                  child: _buildStatCard(
-                    'Total Amount',
-                    'Rs $_totalAmount',
-                    Icons.account_balance_wallet_outlined,
-                    AppColors.primary,
+                  child: StatCard(
+                    label: 'Total Amount',
+                    value: 'Rs $_totalAmount',
+                    icon: Icons.account_balance_wallet_outlined,
+                    color: AppColors.primary,
                   ),
                 ),
                 const SizedBox(width: 12),
                 Expanded(
-                  child: _buildStatCard(
-                    'Collected',
-                    'Rs $_collectedAmount',
-                    Icons.payments_outlined,
-                    AppColors.success,
+                  child: StatCard(
+                    label: 'Collected',
+                    value: 'Rs $_collectedAmount',
+                    icon: Icons.payments_outlined,
+                    color: AppColors.success,
                   ),
                 ),
                 const SizedBox(width: 12),
                 Expanded(
-                  child: _buildStatCard(
-                    'Pending',
-                    'Rs $_pendingAmount',
-                    Icons.pending,
-                    Colors.orange,
+                  child: StatCard(
+                    label: 'Pending',
+                    value: 'Rs $_pendingAmount',
+                    icon: Icons.pending,
+                    color: Colors.orange,
                   ),
                 ),
               ],
@@ -327,7 +338,11 @@ class _MarkPaymentPageState extends State<MarkPaymentPage> {
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        const Icon(Icons.check_circle, color: AppColors.success, size: 16),
+                        const Icon(
+                          Icons.check_circle,
+                          color: AppColors.success,
+                          size: 16,
+                        ),
                         const SizedBox(width: 6),
                         Text(
                           '$_paidCount Paid',
@@ -351,7 +366,11 @@ class _MarkPaymentPageState extends State<MarkPaymentPage> {
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        const Icon(Icons.pending, color: Colors.orange, size: 16),
+                        const Icon(
+                          Icons.pending,
+                          color: Colors.orange,
+                          size: 16,
+                        ),
                         const SizedBox(width: 6),
                         Text(
                           '$_unpaidCount Not Paid',
@@ -389,20 +408,25 @@ class _MarkPaymentPageState extends State<MarkPaymentPage> {
                     controller: _searchController,
                     decoration: InputDecoration(
                       hintText: 'Search by name or roll number...',
-                      prefixIcon: const Icon(Icons.search, color: AppColors.textSecondary),
+                      prefixIcon: const Icon(
+                        Icons.search,
+                        color: AppColors.textSecondary,
+                      ),
                       suffixIcon: _searchController.text.isNotEmpty
                           ? IconButton(
-                        icon: const Icon(Icons.clear, size: 20),
-                        onPressed: () {
-                          setState(() {
-                            _searchController.clear();
-                            _currentPage = 1;
-                          });
-                        },
-                      )
+                              icon: const Icon(Icons.clear, size: 20),
+                              onPressed: () {
+                                setState(() {
+                                  _searchController.clear();
+                                  _currentPage = 1;
+                                });
+                              },
+                            )
                           : null,
                       border: OutlineInputBorder(
-                        borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
+                        borderRadius: const BorderRadius.vertical(
+                          top: Radius.circular(16),
+                        ),
                         borderSide: BorderSide.none,
                       ),
                       filled: true,
@@ -444,10 +468,7 @@ class _MarkPaymentPageState extends State<MarkPaymentPage> {
               children: [
                 const Text(
                   'Student Payments',
-                  style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w600,
-                  ),
+                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
                 ),
                 Row(
                   children: [
@@ -468,16 +489,18 @@ class _MarkPaymentPageState extends State<MarkPaymentPage> {
                           color: _selectAll ? AppColors.primary : Colors.white,
                           borderRadius: BorderRadius.circular(6),
                           border: Border.all(
-                            color: _selectAll ? AppColors.primary : AppColors.textDisabled,
+                            color: _selectAll
+                                ? AppColors.primary
+                                : AppColors.textDisabled,
                             width: 1.5,
                           ),
                         ),
                         child: _selectAll
                             ? const Icon(
-                          Icons.check,
-                          color: Colors.white,
-                          size: 16,
-                        )
+                                Icons.check,
+                                color: Colors.white,
+                                size: 16,
+                              )
                             : null,
                       ),
                     ),
@@ -495,7 +518,11 @@ class _MarkPaymentPageState extends State<MarkPaymentPage> {
 
             // Pagination
             if (_filteredStudents.isNotEmpty && _totalPages > 1)
-              _buildPagination(),
+              CustomPagination(
+                currentPage: _currentPage,
+                totalPages: _totalPages,
+                onPageChanged: (page) => setState(() => _currentPage = page),
+              ),
 
             const SizedBox(height: 20),
 
@@ -515,13 +542,10 @@ class _MarkPaymentPageState extends State<MarkPaymentPage> {
               ),
               child: Column(
                 children: [
-
                   SizedBox(
                     width: double.infinity,
                     child: ElevatedButton(
-                      onPressed: _selectedClass == null
-                          ? null
-                          : _savePayments,
+                      onPressed: _selectedClass == null ? null : _savePayments,
                       style: ElevatedButton.styleFrom(
                         backgroundColor: AppColors.primary,
                         foregroundColor: Colors.white,
@@ -548,50 +572,6 @@ class _MarkPaymentPageState extends State<MarkPaymentPage> {
             const SizedBox(height: 20),
           ],
         ),
-      ),
-    );
-  }
-
-  Widget _buildStatCard(String label, String value, IconData icon, Color color) {
-    return Container(
-      padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.03),
-            blurRadius: 12,
-            offset: const Offset(0, 4),
-          ),
-        ],
-      ),
-      child: Column(
-        children: [
-          Container(
-            padding: const EdgeInsets.all(8),
-            decoration: BoxDecoration(
-              color: color.withOpacity(0.1),
-              borderRadius: BorderRadius.circular(10),
-            ),
-            child: Icon(icon, color: color, size: 18),
-          ),
-          const SizedBox(height: 8),
-          Text(
-            value,
-            style: const TextStyle(
-              fontWeight: FontWeight.bold,
-              fontSize: 16,
-            ),
-          ),
-          Text(
-            label,
-            style: TextStyle(
-              color: AppColors.textSecondary,
-              fontSize: 10,
-            ),
-          ),
-        ],
       ),
     );
   }
@@ -650,11 +630,56 @@ class _MarkPaymentPageState extends State<MarkPaymentPage> {
               color: AppColors.primary.withOpacity(0.04),
               child: const Row(
                 children: [
-                  Expanded(flex: 2, child: Text('Roll No', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 13))),
-                  Expanded(flex: 3, child: Text('Student Name', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 13))),
-                  Expanded(flex: 2, child: Text('Amount', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 13))),
-                  Expanded(flex: 2, child: Text('Status', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 13))),
-                  Expanded(flex: 1, child: Text('Mark', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 13))),
+                  Expanded(
+                    flex: 2,
+                    child: Text(
+                      'Roll No',
+                      style: TextStyle(
+                        fontWeight: FontWeight.w600,
+                        fontSize: 13,
+                      ),
+                    ),
+                  ),
+                  Expanded(
+                    flex: 3,
+                    child: Text(
+                      'Student Name',
+                      style: TextStyle(
+                        fontWeight: FontWeight.w600,
+                        fontSize: 13,
+                      ),
+                    ),
+                  ),
+                  Expanded(
+                    flex: 2,
+                    child: Text(
+                      'Amount',
+                      style: TextStyle(
+                        fontWeight: FontWeight.w600,
+                        fontSize: 13,
+                      ),
+                    ),
+                  ),
+                  Expanded(
+                    flex: 2,
+                    child: Text(
+                      'Status',
+                      style: TextStyle(
+                        fontWeight: FontWeight.w600,
+                        fontSize: 13,
+                      ),
+                    ),
+                  ),
+                  Expanded(
+                    flex: 1,
+                    child: Text(
+                      'Mark',
+                      style: TextStyle(
+                        fontWeight: FontWeight.w600,
+                        fontSize: 13,
+                      ),
+                    ),
+                  ),
                 ],
               ),
             ),
@@ -670,14 +695,19 @@ class _MarkPaymentPageState extends State<MarkPaymentPage> {
 
                 return Container(
                   padding: const EdgeInsets.all(14),
-                  color: isEven ? Colors.white : AppColors.background.withOpacity(0.3),
+                  color: isEven
+                      ? Colors.white
+                      : AppColors.background.withOpacity(0.3),
                   child: Row(
                     children: [
                       Expanded(
                         flex: 2,
                         child: Text(
                           student['rollNo'],
-                          style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w500),
+                          style: const TextStyle(
+                            fontSize: 13,
+                            fontWeight: FontWeight.w500,
+                          ),
                         ),
                       ),
                       Expanded(
@@ -708,7 +738,9 @@ class _MarkPaymentPageState extends State<MarkPaymentPage> {
                               width: 8,
                               height: 8,
                               decoration: BoxDecoration(
-                                color: student['payment'] ? AppColors.success : Colors.orange,
+                                color: student['payment']
+                                    ? AppColors.success
+                                    : Colors.orange,
                                 shape: BoxShape.circle,
                               ),
                             ),
@@ -718,7 +750,9 @@ class _MarkPaymentPageState extends State<MarkPaymentPage> {
                                 student['payment'] ? 'Paid' : 'Not Paid',
                                 style: TextStyle(
                                   fontSize: 12,
-                                  color: student['payment'] ? AppColors.success : Colors.orange,
+                                  color: student['payment']
+                                      ? AppColors.success
+                                      : Colors.orange,
                                   fontWeight: FontWeight.w500,
                                 ),
                                 overflow: TextOverflow.ellipsis,
@@ -748,10 +782,10 @@ class _MarkPaymentPageState extends State<MarkPaymentPage> {
                             ),
                             child: student['payment']
                                 ? const Icon(
-                              Icons.check,
-                              color: AppColors.success,
-                              size: 16,
-                            )
+                                    Icons.check,
+                                    color: AppColors.success,
+                                    size: 16,
+                                  )
                                 : null,
                           ),
                         ),
@@ -765,86 +799,5 @@ class _MarkPaymentPageState extends State<MarkPaymentPage> {
         ),
       ),
     );
-  }
-
-  Widget _buildPagination() {
-    return Container(
-      padding: const EdgeInsets.symmetric(vertical: 8),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          IconButton(
-            onPressed: _currentPage > 1
-                ? () {
-              setState(() {
-                _currentPage--;
-              });
-            }
-                : null,
-            icon: const Icon(Icons.chevron_left),
-            color: _currentPage > 1 ? AppColors.primary : AppColors.textDisabled,
-            iconSize: 20,
-          ),
-          const SizedBox(width: 4),
-          ...List.generate(
-            _totalPages > 3 ? 3 : _totalPages,
-                (index) {
-              int pageNum = index + 1;
-              return GestureDetector(
-                onTap: () {
-                  setState(() {
-                    _currentPage = pageNum;
-                  });
-                },
-                child: Container(
-                  margin: const EdgeInsets.symmetric(horizontal: 4),
-                  width: 32,
-                  height: 32,
-                  decoration: BoxDecoration(
-                    color: _currentPage == pageNum
-                        ? AppColors.primary
-                        : Colors.transparent,
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  child: Center(
-                    child: Text(
-                      pageNum.toString(),
-                      style: TextStyle(
-                        color: _currentPage == pageNum
-                            ? Colors.white
-                            : AppColors.textPrimary,
-                        fontWeight: _currentPage == pageNum
-                            ? FontWeight.w600
-                            : FontWeight.normal,
-                        fontSize: 13,
-                      ),
-                    ),
-                  ),
-                ),
-              );
-            },
-          ),
-          const SizedBox(width: 4),
-          IconButton(
-            onPressed: _currentPage < _totalPages
-                ? () {
-              setState(() {
-                _currentPage++;
-              });
-            }
-                : null,
-            icon: const Icon(Icons.chevron_right),
-            color: _currentPage < _totalPages ? AppColors.primary : AppColors.textDisabled,
-            iconSize: 20,
-          ),
-        ],
-      ),
-    );
-  }
-
-  @override
-  void dispose() {
-    _searchController.dispose();
-    super.dispose();
   }
 }

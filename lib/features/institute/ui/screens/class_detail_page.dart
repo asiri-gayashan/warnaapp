@@ -1,14 +1,17 @@
 import 'package:flutter/material.dart';
-import 'package:warna_app/features/institute/ui/screens/enroll_student_page.dart';
-import 'package:warna_app/features/institute/ui/screens/fees_attendance_page.dart';
 import '../../../../core/constants/app_colors.dart';
+import '../../../../shared/widgets/new/class_header_card.dart';
+import '../../../../shared/widgets/new/schedule_info_card.dart';
+import '../../../../shared/widgets/new/student_payment_overview_card.dart';
+import '../../../../shared/widgets/new/institute_payment_status_card.dart';
+import '../../../../shared/widgets/new/class_action_buttons.dart';
 
 class ClassDetailPage extends StatelessWidget {
   // Using dummy data instead of required parameter
   ClassDetailPage({Key? key}) : super(key: key);
 
   // Dummy class data
-  final  classItem  = (
+  final classItem = (
     id: '1',
     name: 'Mathematics Advanced',
     subject: 'Mathematics',
@@ -18,7 +21,8 @@ class ClassDetailPage extends StatelessWidget {
     time: '09:00 AM',
     duration: '2 hours',
     totalStudents: 30,
-    description: 'Advanced mathematics class focusing on algebra and geometry. Students will learn fundamental concepts and problem-solving techniques.',
+    description:
+        'Advanced mathematics class focusing on algebra and geometry. Students will learn fundamental concepts and problem-solving techniques.',
   );
 
   @override
@@ -27,7 +31,10 @@ class ClassDetailPage extends StatelessWidget {
       backgroundColor: Colors.white,
       appBar: AppBar(
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios_new, color: AppColors.textPrimary),
+          icon: const Icon(
+            Icons.arrow_back_ios_new,
+            color: AppColors.textPrimary,
+          ),
           onPressed: () => Navigator.pop(context),
         ),
         title: const Text(
@@ -47,80 +54,12 @@ class ClassDetailPage extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             // Class Header Card
-            Container(
-              padding: const EdgeInsets.all(20),
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  colors: [AppColors.primary, AppColors.primary.withOpacity(0.7)],
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                ),
-                borderRadius: BorderRadius.circular(20),
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    children: [
-                      Container(
-                        padding: const EdgeInsets.all(12),
-                        decoration: BoxDecoration(
-                          color: Colors.white.withOpacity(0.2),
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        child: const Icon(
-                          Icons.menu_book,
-                          color: Colors.white,
-                          size: 28,
-                        ),
-                      ),
-                      const SizedBox(width: 16),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              classItem.name,
-                              style: const TextStyle(
-                                color: Colors.white,
-                                fontSize: 22,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                            const SizedBox(height: 4),
-                            Text(
-                              '${classItem.subject} • ${classItem.teacher}',
-                              style: const TextStyle(
-                                color: Colors.white70,
-                                fontSize: 14,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 20),
-                  Row(
-                    children: [
-                      _buildInfoChip(
-                        icon: Icons.sailing,
-                        label: classItem.grade,
-                      ),
-                      const SizedBox(width: 12),
-                      _buildInfoChip(
-                        icon: Icons.people,
-                        label: '${classItem.totalStudents} Students',
-                      ),
-                      const SizedBox(width: 12),
-                      _buildInfoChip(
-                        icon: Icons.edit,
-                        label: 'Edit',
-                      ),
-                    ],
-                  ),
-                ],
-              ),
+            ClassHeaderCard(
+              name: classItem.name,
+              subject: classItem.subject,
+              teacher: classItem.teacher,
+              grade: classItem.grade,
+              totalStudents: classItem.totalStudents,
             ),
 
             const SizedBox(height: 24),
@@ -128,191 +67,29 @@ class ClassDetailPage extends StatelessWidget {
             // Schedule Information
             const Text(
               'Schedule',
-              style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.w600,
-              ),
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
             ),
             const SizedBox(height: 12),
-            Container(
-              padding: const EdgeInsets.all(16),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(16),
-                border: Border.all(color: Colors.grey.shade200),
-              ),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceAround,
-                children: [
-                  _buildScheduleItem(
-                    icon: Icons.calendar_today,
-                    label: 'Day',
-                    value: classItem.day,
-                  ),
-                  Container(
-                    height: 30,
-                    width: 1,
-                    color: Colors.grey.shade300,
-                  ),
-                  _buildScheduleItem(
-                    icon: Icons.access_time,
-                    label: 'Time',
-                    value: classItem.time,
-                  ),
-                  Container(
-                    height: 30,
-                    width: 1,
-                    color: Colors.grey.shade300,
-                  ),
-                  _buildScheduleItem(
-                    icon: Icons.timer,
-                    label: 'Duration',
-                    value: classItem.duration,
-                  ),
-                ],
-              ),
+            ScheduleInfoCard(
+              day: classItem.day,
+              time: classItem.time,
+              duration: classItem.duration,
             ),
 
             const SizedBox(height: 24),
 
             // Student Payment Status Card
-            Container(
-              padding: const EdgeInsets.all(16),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(16),
-                border: Border.all(color: Colors.grey.shade200),
-              ),
-              child: Column(
-                children: [
-                  Row(
-                    children: [
-                      Container(
-                        padding: const EdgeInsets.all(10),
-                        decoration: BoxDecoration(
-                          color: AppColors.primary.withOpacity(0.1),
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        child: const Icon(
-                          Icons.payments,
-                          color: AppColors.primary,
-                          size: 24,
-                        ),
-                      ),
-                      const SizedBox(width: 12),
-                      const Text(
-                        'Payment Overview',
-                        style: TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 16),
-                  Row(
-                    children: [
-                      Expanded(
-                        child: _buildPaymentStat(
-                          label: 'Paid Students',
-                          value: '10',
-                          color: Colors.green,
-                          icon: Icons.check_circle,
-                        ),
-                      ),
-                      Container(
-                        height: 40,
-                        width: 1,
-                        color: Colors.grey.shade300,
-                      ),
-                      Expanded(
-                        child: _buildPaymentStat(
-                          label: 'Non-paid Students',
-                          value: '20',
-                          color: Colors.red,
-                          icon: Icons.cancel,
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
+            const StudentPaymentOverviewCard(
+              paidStudents: 10,
+              nonPaidStudents: 20,
             ),
 
             const SizedBox(height: 16),
 
             // Institute Payment Status
-            Container(
-              padding: const EdgeInsets.all(16),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(16),
-                border: Border.all(color: Colors.grey.shade200),
-              ),
-              child: Row(
-                children: [
-                  Container(
-                    padding: const EdgeInsets.all(10),
-                    decoration: BoxDecoration(
-                      color: AppColors.primary.withOpacity(0.1),
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    child: const Icon(
-                      Icons.account_balance,
-                      color: AppColors.primary,
-                      size: 24,
-                    ),
-                  ),
-                  const SizedBox(width: 12),
-                  const Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          'Susipwin Kurunegala',
-                          style: TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
-                        SizedBox(height: 4),
-                        Text(
-                          'Institute Payment Received',
-                          style: TextStyle(
-                            fontSize: 13,
-                            color: AppColors.textSecondary,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                    decoration: BoxDecoration(
-                      color: Colors.green.withOpacity(0.1),
-                      borderRadius: BorderRadius.circular(20),
-                    ),
-                    child: const Row(
-                      children: [
-                        Icon(
-                          Icons.check_circle,
-                          color: Colors.green,
-                          size: 16,
-                        ),
-                        SizedBox(width: 4),
-                        Text(
-                          'Received',
-                          style: TextStyle(
-                            color: Colors.green,
-                            fontSize: 12,
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
+            const InstitutePaymentStatusCard(
+              instituteName: 'Susipwin Kurunegala',
+              isReceived: true,
             ),
 
             const SizedBox(height: 24),
@@ -320,10 +97,7 @@ class ClassDetailPage extends StatelessWidget {
             // Description
             const Text(
               'Description',
-              style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.w600,
-              ),
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
             ),
             const SizedBox(height: 12),
             Text(
@@ -340,203 +114,65 @@ class ClassDetailPage extends StatelessWidget {
             // Action Buttons Section
             const Text(
               'Actions',
-              style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.w600,
-              ),
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
             ),
             const SizedBox(height: 12),
 
             // Fees & Attendance and Enroll Student Row
-            Row(
-              children: [
-                Expanded(
-                  child: ElevatedButton(
-                    onPressed: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => const FeesAttendancePage(),
-                        ),
-                      );
-                    },
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: AppColors.primary,
-                      foregroundColor: Colors.white,
-                      padding: const EdgeInsets.symmetric(vertical: 16),
-                      shape: RoundedRectangleBorder(
-
-
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                    ),
-                    child: const Text('Fees & Attendance'),
-                  ),
-                ),
-                const SizedBox(width: 12),
-                Container(
-                  decoration: BoxDecoration(
-                    border: Border.all(color: Colors.grey.shade300),
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: IconButton(
-                    onPressed: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => const EnrollStudentPage(),
-                        ),
-                      );
-                    },
-                    icon: const Icon(Icons.person_add_alt_1),
-                    color: AppColors.textPrimary,
-                    iconSize: 24,
-                  ),
-                ),
-              ],
-            ),
-
-
+            const ClassActionButtons(),
 
             const SizedBox(height: 30),
 
             // Remove Class Button
-
           ],
         ),
       ),
     );
   }
 
-  Widget _buildInfoChip({
-    required IconData icon,
-    required String label,
-  }) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-      decoration: BoxDecoration(
-        color: Colors.white.withOpacity(0.2),
-        borderRadius: BorderRadius.circular(20),
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Icon(icon, color: Colors.white, size: 16),
-          const SizedBox(width: 4),
-          Text(
-            label,
-            style: const TextStyle(
-              color: Colors.white,
-              fontSize: 12,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
+  // void _showRemoveClassDialog(BuildContext context) {
+  //   showDialog(
+  //     context: context,
+  //     builder: (BuildContext context) {
+  //       return AlertDialog(
+  //         title: const Text('Remove Class'),
+  //         content: const Text(
+  //           'Are you sure you want to remove this class? This action cannot be undone.',
+  //         ),
+  //         shape: RoundedRectangleBorder(
+  //           borderRadius: BorderRadius.circular(16),
+  //         ),
+  //         actions: [
+  //           TextButton(
+  //             onPressed: () => Navigator.pop(context),
+  //             child: const Text('Cancel'),
+  //           ),
+  //           ElevatedButton(
+  //             onPressed: () {
+  //               Navigator.pop(context);
+  //               ScaffoldMessenger.of(context).showSnackBar(
+  //                 const SnackBar(
+  //                   content: Text('Class removed successfully'),
+  //                   backgroundColor: Colors.red,
+  //                 ),
+  //               );
+  //             },
+  //             style: ElevatedButton.styleFrom(
+  //               backgroundColor: Colors.red,
+  //               foregroundColor: Colors.white,
+  //               shape: RoundedRectangleBorder(
+  //                 borderRadius: BorderRadius.circular(8),
+  //               ),
+  //             ),
+  //             child: const Text('Remove'),
+  //           ),
+  //         ],
+  //       );
+  //     },
+  //   );
+  // }
 
-  Widget _buildScheduleItem({
-    required IconData icon,
-    required String label,
-    required String value,
-  }) {
-    return Column(
-      children: [
-        Icon(icon, color: AppColors.primary, size: 20),
-        const SizedBox(height: 4),
-        Text(
-          label,
-          style: TextStyle(
-            color: AppColors.textSecondary,
-            fontSize: 11,
-          ),
-        ),
-        const SizedBox(height: 2),
-        Text(
-          value,
-          style: const TextStyle(
-            fontWeight: FontWeight.w600,
-            fontSize: 14,
-          ),
-        ),
-      ],
-    );
-  }
 
-  Widget _buildPaymentStat({
-    required String label,
-    required String value,
-    required Color color,
-    required IconData icon,
-  }) {
-    return Column(
-      children: [
-        Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(icon, color: color, size: 16),
-            const SizedBox(width: 4),
-            Text(
-              value,
-              style: TextStyle(
-                fontSize: 20,
-                fontWeight: FontWeight.bold,
-                color: color,
-              ),
-            ),
-          ],
-        ),
-        const SizedBox(height: 4),
-        Text(
-          label,
-          style: TextStyle(
-            fontSize: 12,
-            color: AppColors.textSecondary,
-          ),
-        ),
-      ],
-    );
-  }
 
-  void _showRemoveClassDialog(BuildContext context) {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: const Text('Remove Class'),
-          content: const Text(
-              'Are you sure you want to remove this class? This action cannot be undone.'
-          ),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(16),
-          ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(context),
-              child: const Text('Cancel'),
-            ),
-            ElevatedButton(
-              onPressed: () {
-                Navigator.pop(context);
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(
-                    content: Text('Class removed successfully'),
-                    backgroundColor: Colors.red,
-                  ),
-                );
-              },
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.red,
-                foregroundColor: Colors.white,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(8),
-                ),
-              ),
-              child: const Text('Remove'),
-            ),
-          ],
-        );
-      },
-    );
-  }
+
 }
