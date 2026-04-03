@@ -18,7 +18,6 @@ class EnrollStudentPage extends StatefulWidget {
 class _EnrollStudentPageState extends State<EnrollStudentPage> {
   final TextEditingController _searchController = TextEditingController();
   String? _selectedClass;
-  String _selectedFilter = 'All'; // All, Enrolled, Unenrolled
   bool _selectAll = false;
   int _currentPage = 1;
   final int _itemsPerPage = 10;
@@ -158,11 +157,6 @@ class _EnrollStudentPageState extends State<EnrollStudentPage> {
 
       // Enrollment status filter
       bool statusMatch = true;
-      if (_selectedFilter == 'Enrolled') {
-        statusMatch = student['enrolled'] == true;
-      } else if (_selectedFilter == 'Unenrolled') {
-        statusMatch = student['enrolled'] == false;
-      }
 
       // Class filter (simplified - in real app would match class ID)
       bool classMatch =
@@ -187,8 +181,6 @@ class _EnrollStudentPageState extends State<EnrollStudentPage> {
   int get _totalPages => (_filteredStudents.length / _itemsPerPage).ceil();
   int get _enrolledCount =>
       _filteredStudents.where((s) => s['enrolled'] == true).length;
-  int get _unenrolledCount =>
-      _filteredStudents.where((s) => s['enrolled'] == false).length;
   int get _totalStudents => _filteredStudents.length;
 
   void _toggleAllEnrollment() {
