@@ -11,31 +11,6 @@ class EnrollmentStatsRow extends StatelessWidget {
     required this.enrolledCount,
   }) : super(key: key);
 
-  @override
-  Widget build(BuildContext context) {
-    return Row(
-      children: [
-        Expanded(
-          child: _buildStatCard(
-            'Total Students',
-            '$totalStudents',
-            Icons.people_alt,
-            AppColors.primary,
-          ),
-        ),
-        const SizedBox(width: 12),
-        Expanded(
-          child: _buildStatCard(
-            'Enrolled',
-            '$enrolledCount',
-            Icons.check_circle,
-            AppColors.success,
-          ),
-        ),
-      ],
-    );
-  }
-
   Widget _buildStatCard(String label, String value, IconData icon, Color color) {
     return Container(
       padding: const EdgeInsets.all(12),
@@ -77,6 +52,31 @@ class EnrollmentStatsRow extends StatelessWidget {
           ),
         ],
       ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      children: [
+        Expanded(
+          child: _buildStatCard(
+            'Total Students',
+            '$totalStudents',
+            Icons.people_alt,
+            AppColors.primary,
+          ),
+        ),
+        const SizedBox(width: 12),
+        Expanded(
+          child: _buildStatCard(
+            'Enrolled',
+            '$enrolledCount',
+            Icons.check_circle,
+            AppColors.success,
+          ),
+        ),
+      ],
     );
   }
 }

@@ -2,13 +2,13 @@ import 'package:flutter/material.dart';
 import '../../../../core/constants/app_colors.dart';
 
 class EnrollmentListHeader extends StatelessWidget {
-  final bool showSelectAll;
+  final bool hasStudents;
   final bool selectAll;
   final VoidCallback onToggleAll;
 
   const EnrollmentListHeader({
     Key? key,
-    required this.showSelectAll,
+    required this.hasStudents,
     required this.selectAll,
     required this.onToggleAll,
   }) : super(key: key);
@@ -25,7 +25,7 @@ class EnrollmentListHeader extends StatelessWidget {
             fontWeight: FontWeight.w600,
           ),
         ),
-        if (showSelectAll)
+        if (hasStudents)
           Row(
             children: [
               const Text(
