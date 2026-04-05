@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:warna_app/features/institute/ui/screens/institute_edit_class.dart';
 import '../../../../core/constants/app_colors.dart';
 
 class ClassHeaderCard extends StatelessWidget {
@@ -82,7 +83,13 @@ class ClassHeaderCard extends StatelessWidget {
                 label: '$totalStudents Students',
               ),
               const SizedBox(width: 12),
-              _buildInfoChip(icon: Icons.edit, label: 'Edit'),
+              GestureDetector(onTap: () =>{
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => const InstituteEditClassPage()),
+                )
+              },
+              child: _buildInfoChip(icon: Icons.edit, label: 'Edit' ),),
             ],
           ),
         ],
