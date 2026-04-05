@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:warna_app/core/constants/app_colors.dart';
 import 'package:warna_app/features/institute/ui/screens/class_detail_page.dart';
+import 'package:warna_app/features/institute/ui/screens/institute_create_class.dart';
 import '../../../../shared/widgets/new/course_card.dart';
 
 // --- Data model ---
@@ -119,39 +120,15 @@ class InstituteCoursesPage extends StatelessWidget {
       backgroundColor: const Color(0xffF5F7FB),
       appBar: AppBar(
         title: const Text(
-          'Course management',
+          'My Classes',
           style: TextStyle(
-            fontWeight: FontWeight.w500,
-            fontSize: 18,
+            fontWeight: FontWeight.w600,
             color: AppColors.textPrimary,
           ),
         ),
         backgroundColor: Colors.white,
         elevation: 0,
-        surfaceTintColor: Colors.transparent,
-        bottom: PreferredSize(
-          preferredSize: const Size.fromHeight(0.5),
-          child: Container(height: 0.5, color: const Color(0xffE5E7EB)),
-        ),
-        actions: [
-          Container(
-            margin: const EdgeInsets.only(right: 16),
-            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
-            decoration: BoxDecoration(
-              color: const Color(0xffF3F4F6),
-              borderRadius: BorderRadius.circular(20),
-              border: Border.all(color: const Color(0xffE5E7EB), width: 0.5),
-            ),
-            child: Text(
-              '${sampleCourses.length} active',
-              style: const TextStyle(
-                fontSize: 12,
-                color: AppColors.textSecondary,
-                fontWeight: FontWeight.w500,
-              ),
-            ),
-          ),
-        ],
+        centerTitle: true,
       ),
       body: ListView.builder(
         padding: const EdgeInsets.all(16),
@@ -172,19 +149,26 @@ class InstituteCoursesPage extends StatelessWidget {
             onViewDetails: () {
               Navigator.push(
                 context,
-                MaterialPageRoute(
-                  builder: (context) => ClassDetailPage(),
-                ),
+                MaterialPageRoute(builder: (context) => ClassDetailPage()),
               );
             },
           );
         },
       ),
+
+      //Floating action  button to add new course
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => const InstituteCreateClassPage()),
+          );
+        },
+        backgroundColor: AppColors.primary,
+        elevation: 10,
+        child: const Icon(Icons.add),
+      ),
     );
   }
 }
-
-// ============================================================
-// COURSE CARD
-// ============================================================
 

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../../../../shared/widgets/custom_button.dart';
-import '../../../../../shared/widgets/custom_textfield.dart';
+import '../../../../../shared/widgets/new/custom_textfield.dart';
 import '../../../../../shared/widgets/password_rule_check.dart';
 import '../../../../../core/constants/app_colors.dart';
 import '../../../../../core/constants/registration_strings.dart';

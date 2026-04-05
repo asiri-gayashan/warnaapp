@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:warna_app/core/constants/select_options.dart';
-import 'package:warna_app/shared/widgets/custom_select.dart';
+import 'package:warna_app/shared/widgets/new/custom_select.dart';
 import 'package:warna_app/shared/widgets/field_error_text.dart';
 import '../../../../../shared/widgets/custom_button.dart';
-import '../../../../../shared/widgets/custom_textfield.dart';
+import '../../../../../shared/widgets/new/custom_textfield.dart';
 import '../../../../../shared/widgets/customselect.dart';
 import '../../../../../core/constants/app_colors.dart';
 import '../../../../../core/constants/registration_strings.dart';
