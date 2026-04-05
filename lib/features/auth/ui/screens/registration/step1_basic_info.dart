@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../../../../shared/widgets/field_error_text.dart';
 import '../../../../../shared/widgets/custom_button.dart';
-import '../../../../../shared/widgets/custom_textfield.dart';
+import '../../../../../shared/widgets/new/custom_textfield.dart';
 import '../../../../../shared/widgets/role_selection_card.dart';
 import '../../../../../core/constants/app_colors.dart';
 import '../../../../../core/constants/registration_strings.dart';

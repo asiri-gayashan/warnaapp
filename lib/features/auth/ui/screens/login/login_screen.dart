@@ -4,7 +4,7 @@ import 'package:warna_app/features/student/ui/navigation/student_navigation.dart
 import 'package:warna_app/features/test_student_page.dart';
 import 'package:warna_app/features/tutor/ui/navigation/tutor_navigation.dart';
 import '../../../../../shared/widgets/custom_button.dart';
-import '../../../../../shared/widgets/custom_textfield.dart';
+import '../../../../../shared/widgets/new/custom_textfield.dart';
 import '../../../../../shared/widgets/field_error_text.dart';
 import '../../../../../core/constants/app_colors.dart';
 import '../../../../../core/constants/app_strings.dart';

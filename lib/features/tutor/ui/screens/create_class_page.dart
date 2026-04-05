@@ -6,7 +6,7 @@ import 'package:warna_app/core/constants/select_options.dart';
 import 'package:warna_app/features/tutor/models/class_model.dart';
 import 'package:warna_app/services/token_service.dart';
 import 'package:warna_app/shared/widgets/custom_button.dart';
-import 'package:warna_app/shared/widgets/custom_textfield.dart';
+import 'package:warna_app/shared/widgets/new/custom_textfield.dart';
 import 'package:warna_app/shared/widgets/customselect.dart';
 import 'package:warna_app/shared/widgets/field_error_text.dart';
 
