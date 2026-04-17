@@ -1,11 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:go_router/go_router.dart';
+import 'package:warna_app/core/utils/token_service.dart';
+import 'package:warna_app/core/utils/user_service.dart';
+import 'package:warna_app/router/router_names.dart';
 import '../../../../core/constants/app_colors.dart';
 import '../../../../shared/widgets/class_card.dart';
 import '../../../../shared/widgets/status_card.dart';
 import '../../../../shared/widgets/home_header.dart';
 import '../../../../shared/widgets/home_top_section.dart';
-import '../../../../services/token_service.dart';
 import '../../../auth/ui/screens/login/login_screen.dart';
 
 class HomePage extends StatefulWidget {
@@ -37,14 +40,10 @@ class _HomePageState extends State<HomePage> {
     );
 
     if (shouldLogout == true) {
-      await TokenService.clearToken();
-      if (context.mounted) {
-        Navigator.pushAndRemoveUntil(
-          context,
-          MaterialPageRoute(builder: (_) => const LoginScreen()),
-              (route) => false,
-        );
-      }
+      await TokenService.clearTokens();
+      await UserService.clearUser();
+      // ignore: use_build_context_synchronously
+      GoRouter.of(context).goNamed(RouterNames.loginScreen);
     }
   }
 

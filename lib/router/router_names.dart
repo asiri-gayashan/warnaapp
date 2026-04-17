@@ -1,7 +1,9 @@
 class RouterNames {
-  static const String loginScreen = '/login';
-  static const String testPage = '/testpage';
-  static const String testWithData = '/testwithdata';
+  static const String loginScreen = 'login';
+  static const String testPage = 'testpage';
+  static const String testWithData = 'testwithdata';
+  static const String splashscreen = 'splashscreen';
+
 }
 
 
@@ -31,6 +33,31 @@ class InstituteRouteNames {
   static const String markPaymentTeachers = 'institute.markPaymentTeachers';
 
   // static const String reports = 'institute.reports';
+}
+
+
+class studentRouteNames {
+  static const String dashboard = 'student.dashboard';
+  static const String courses = 'student.courses';
+  static const String courseDetail = 'student.courseDetail';
+  static const String tutors = 'student.tutors';
+  static const String tutorDetail = 'student.tutorDetail';
+  static const String schedule = 'student.schedule';
+  static const String attendance = 'student.attendance';
+  static const String payments = 'student.payments';
+}
+
+
+
+class tutorRouteNames{
+  static const String dashboard = 'tutor.dashboard';
+  static const String courses = 'tutor.courses';
+  static const String courseDetail = 'tutor.courseDetail';
+  static const String students = 'tutor.students';
+  static const String studentDetail = 'tutor.studentDetail';
+  static const String schedule = 'tutor.schedule';
+  static const String attendance = 'tutor.attendance';
+  static const String payments = 'tutor.payments';
 }
 
 

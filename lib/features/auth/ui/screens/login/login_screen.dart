@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:warna_app/features/institute/ui/navigation/institute_navigation.dart';
+import 'package:go_router/go_router.dart';
+import 'package:warna_app/presentation/institute/navigation/institute_navigation.dart';
 import 'package:warna_app/features/student/ui/navigation/student_navigation.dart';
 import 'package:warna_app/features/test_student_page.dart';
 import 'package:warna_app/features/tutor/ui/navigation/tutor_navigation.dart';
+import 'package:warna_app/router/router_names.dart';
 import '../../../../../shared/widgets/custom_button.dart';
 import '../../../../../shared/widgets/new/custom_textfield.dart';
 import '../../../../../shared/widgets/field_error_text.dart';
@@ -11,7 +13,6 @@ import '../../../../../core/constants/app_strings.dart';
 import '../../../../../config/theme/text_styles.dart';
 import '../../../logic/login_controller.dart';
 import '../registration/registration_screen.dart';
-import '../../../../../services/token_service.dart'; // Add this import
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({Key? key}) : super(key: key);
@@ -33,8 +34,8 @@ class _LoginScreenState extends State<LoginScreen> {
     _controller.emailController.addListener(_onEmailChanged);
     _controller.passwordController.addListener(_onPasswordChanged);
 
-    // Check for existing token
-    _checkExistingToken();
+    // Stop early loading indicator
+    _isCheckingToken = false;
   }
 
   void _onEmailChanged() {
@@ -45,68 +46,7 @@ class _LoginScreenState extends State<LoginScreen> {
     _controller.validatePassword(_controller.passwordController.text);
   }
 
-  Future<void> _checkExistingToken() async {
-    // Get decoded token from TokenService
-    final decodedToken = await TokenService.getDecodedToken();
-
-    if (decodedToken != null) {
-      // Token exists and is not expired
-      String role = decodedToken['role'] ?? '';
-      String? token = await TokenService.getToken();
-
-      if (mounted) {
-        setState(() {
-          _isCheckingToken = false;
-        });
-
-        // Redirect based on role
-        _redirectToDashboard(role, token);
-      }
-    } else {
-      // No valid token
-      if (mounted) {
-        setState(() {
-          _isCheckingToken = false;
-        });
-      }
-    }
-  }
-
-  void _redirectToDashboard(String role, String? token) {
-    if (!mounted) return;
-
-    switch (role) {
-      case "STUDENT":
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(
-            builder: (_) => StudentNavigation(token: token ?? ''),
-          ),
-        );
-        break;
-      case "TUTOR":
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(
-            builder: (_) => TutorNavigation(),
-          ),
-        );
-        break;
-      case "INSTITUTE":
-      // Add institute dashboard navigation here
-        print("Redirecting to INSTITUTE dashboard");
-        // Navigator.pushReplacement(
-        //   context,
-        //   MaterialPageRoute(
-        //     builder: (_) => InstituteNavigation(),
-        //   ),
-        // );
-        break;
-      default:
-        print("Unknown role: $role");
-        break;
-    }
-  }
+  
 
   @override
   void dispose() {
@@ -120,11 +60,7 @@ class _LoginScreenState extends State<LoginScreen> {
   Widget build(BuildContext context) {
     // Show loading indicator while checking token
     if (_isCheckingToken) {
-      return const Scaffold(
-        body: Center(
-          child: CircularProgressIndicator(),
-        ),
-      );
+      return const Scaffold(body: Center(child: CircularProgressIndicator()));
     }
 
     return Scaffold(
@@ -150,46 +86,34 @@ class _LoginScreenState extends State<LoginScreen> {
                 onPressed: () async {
                   var result = await _controller.loginUser();
 
-                  if (result != null) {
-                    String role = result['role'];
-                    String token = result['token'];
-
-                    print("$role Logged In Successfully");
-                    print(token);
-
-                    if (role == "STUDENT") {
-                      Navigator.pushReplacement(
-                        context,
-                        MaterialPageRoute(
-                          builder: (_) => StudentNavigation(token: token),
-                        ),
-                      );
-                    } else if (role == "TUTOR") {
-                      print("Redirecting to the TUTOR dashboard");
-                      Navigator.pushReplacement(
-                        context,
-                        MaterialPageRoute(
-                          builder: (_) => TutorNavigation(),
-                        ),
-                      );
-                    } else if (role == "INSTITUTE") {
-                      print("Redirecting to the INSTITUTE dashboard");
-                      // Add institute navigation here
-                      Navigator.pushReplacement(
-                        context,
-                        MaterialPageRoute(
-                          builder: (_) => InstituteNavigation(),
-                        ),
-                      );
-                    } else {
-                      print("Something went wrong");
-
-
-                    }
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      behavior: SnackBarBehavior.floating,
+                      margin: EdgeInsets.all(16),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      backgroundColor: result?["success"] == true
+                          ? AppColors.success
+                          : AppColors.error,
+                      content: Row(
+                        children: [
+                          Icon(
+                            result?["success"] == true
+                                ? Icons.check_circle
+                                : Icons.error,
+                            color: Colors.white,
+                          ),
+                          SizedBox(width: 10),
+                          Expanded(child: Text(result?["message"])),
+                        ],
+                      ),
+                    ),
+                  );
+                  if (result?["success"] == true) {
+                    GoRouter.of(context).goNamed(RouterNames.splashscreen);
                   }
                 },
-                isLoading: _controller.isLoading,
-                // isDisabled: !_controller.isFormValid() && !_controller.isLoading,
               ),
               const SizedBox(height: 32),
 
@@ -210,15 +134,9 @@ class _LoginScreenState extends State<LoginScreen> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          AppStrings.welcomeBack,
-          style: TextStyles.heading1,
-        ),
+        Text(AppStrings.welcomeBack, style: TextStyles.heading1),
         const SizedBox(height: 8),
-        Text(
-          AppStrings.loginSubtitle,
-          style: TextStyles.bodyLarge,
-        ),
+        Text(AppStrings.loginSubtitle, style: TextStyles.bodyLarge),
       ],
     );
   }
@@ -241,24 +159,22 @@ class _LoginScreenState extends State<LoginScreen> {
               },
               suffixIcon: _controller.emailController.text.isNotEmpty
                   ? _controller.emailValidated
-                  ? const Icon(
-                Icons.check_circle,
-                color: AppColors.success,
-                size: 20,
-              )
-                  : const Icon(
-                Icons.error,
-                color: AppColors.error,
-                size: 20,
-              )
+                        ? const Icon(
+                            Icons.check_circle,
+                            color: AppColors.success,
+                            size: 20,
+                          )
+                        : const Icon(
+                            Icons.error,
+                            color: AppColors.error,
+                            size: 20,
+                          )
                   : null,
             ),
 
             // Email Error
             if (_controller.emailError != null)
-              FieldErrorText(
-                message: _controller.emailError,
-              ),
+              FieldErrorText(message: _controller.emailError),
 
             const SizedBox(height: 20),
 
@@ -279,15 +195,15 @@ class _LoginScreenState extends State<LoginScreen> {
                   if (_controller.passwordController.text.isNotEmpty)
                     _controller.passwordValidated
                         ? const Icon(
-                      Icons.check_circle,
-                      color: AppColors.success,
-                      size: 20,
-                    )
+                            Icons.check_circle,
+                            color: AppColors.success,
+                            size: 20,
+                          )
                         : const Icon(
-                      Icons.error,
-                      color: AppColors.error,
-                      size: 20,
-                    ),
+                            Icons.error,
+                            color: AppColors.error,
+                            size: 20,
+                          ),
 
                   // Visibility toggle
                   IconButton(
@@ -305,9 +221,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
             // Password Error
             if (_controller.passwordError != null)
-              FieldErrorText(
-                message: _controller.passwordError,
-              ),
+              FieldErrorText(message: _controller.passwordError),
 
             const SizedBox(height: 16),
 
@@ -325,10 +239,7 @@ class _LoginScreenState extends State<LoginScreen> {
                         borderRadius: BorderRadius.circular(4),
                       ),
                     ),
-                    Text(
-                      AppStrings.rememberMe,
-                      style: TextStyles.bodyMedium,
-                    ),
+                    Text(AppStrings.rememberMe, style: TextStyles.bodyMedium),
                   ],
                 ),
 
@@ -344,25 +255,12 @@ class _LoginScreenState extends State<LoginScreen> {
   Widget _buildDivider() {
     return Row(
       children: [
-        Expanded(
-          child: Divider(
-            color: AppColors.border,
-            thickness: 1,
-          ),
-        ),
+        Expanded(child: Divider(color: AppColors.border, thickness: 1)),
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 16),
-          child: Text(
-            AppStrings.orContinueWith,
-            style: TextStyles.caption,
-          ),
+          child: Text(AppStrings.orContinueWith, style: TextStyles.caption),
         ),
-        Expanded(
-          child: Divider(
-            color: AppColors.border,
-            thickness: 1,
-          ),
-        ),
+        Expanded(child: Divider(color: AppColors.border, thickness: 1)),
       ],
     );
   }
@@ -372,10 +270,7 @@ class _LoginScreenState extends State<LoginScreen> {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Text(
-            AppStrings.dontHaveAccount,
-            style: TextStyles.bodyMedium,
-          ),
+          Text(AppStrings.dontHaveAccount, style: TextStyles.bodyMedium),
           const SizedBox(width: 4),
           TextButton(
             onPressed: () {
@@ -385,10 +280,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 ),
               );
             },
-            child: Text(
-              AppStrings.signUp,
-              style: TextStyles.link,
-            ),
+            child: Text(AppStrings.signUp, style: TextStyles.link),
           ),
         ],
       ),

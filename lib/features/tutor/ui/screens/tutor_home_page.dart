@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:http/http.dart' as http;
+import 'package:warna_app/core/utils/token_service.dart';
+import 'package:warna_app/core/utils/user_service.dart';
 import 'package:warna_app/features/auth/ui/screens/login/login_screen.dart';
 import 'dart:convert';
 import 'package:warna_app/features/tutor/models/class_model.dart';
@@ -7,7 +10,7 @@ import 'package:warna_app/features/tutor/ui/screens/create_class_page.dart';
 import 'package:warna_app/features/tutor/ui/screens/class_detail_page.dart'; // Add this import
 import 'package:warna_app/features/tutor/ui/screens/mark_attendance_page.dart';
 import 'package:warna_app/features/tutor/ui/screens/mark_payment_page.dart';
-import 'package:warna_app/services/token_service.dart';
+import 'package:warna_app/router/router_names.dart';
 import '../../../../core/constants/app_colors.dart';
 
 class TutorHomePage extends StatefulWidget {
@@ -35,9 +38,9 @@ class _TutorHomePageState extends State<TutorHomePage> {
   }
 
   Future<void> loadUser() async {
-    String? name = await TokenService.getFullName();
-    String? userEmail = await TokenService.getEmail();
-    String? userRole = await TokenService.getRole();
+    String? name = "Tutor Name"; // Replace with actual name fetching logic
+    String? userEmail = "Tutor Email"; // Replace with actual email fetching logic
+    String? userRole = "Tutor"; // Replace with actual role fetching logic
 
     setState(() {
       fullName = name ?? "Tutor";
@@ -68,14 +71,10 @@ class _TutorHomePageState extends State<TutorHomePage> {
     );
 
     if (shouldLogout == true) {
-      await TokenService.clearToken();
-      if (context.mounted) {
-        Navigator.pushAndRemoveUntil(
-          context,
-          MaterialPageRoute(builder: (_) => const LoginScreen()),
-              (route) => false,
-        );
-      }
+      await TokenService.clearTokens();
+      await UserService.clearUser();
+      // ignore: use_build_context_synchronously
+      GoRouter.of(context).goNamed(RouterNames.loginScreen);
     }
   }
 

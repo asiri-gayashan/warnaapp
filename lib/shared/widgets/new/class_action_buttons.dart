@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../../../core/constants/app_colors.dart';
-import 'package:warna_app/features/institute/ui/screens/enroll_student_page.dart';
-import 'package:warna_app/features/institute/ui/screens/fees_attendance_page.dart';
+import 'package:warna_app/presentation/institute/screens/classes/enroll_student_page.dart';
+import 'package:warna_app/presentation/institute/screens/classes/fees_attendance_page.dart';
 
 class ClassActionButtons extends StatelessWidget {
   const ClassActionButtons({Key? key}) : super(key: key);
