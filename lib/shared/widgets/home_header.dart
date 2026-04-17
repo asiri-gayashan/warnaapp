@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:warna_app/core/constants/app_colors.dart';
-import 'package:warna_app/services/token_service.dart';
+import 'package:warna_app/core/utils/user_service.dart';
 import 'home_top_section.dart';
 
 class HomeHeader extends StatelessWidget {
@@ -9,14 +9,12 @@ class HomeHeader extends StatelessWidget {
 
   const HomeHeader({super.key, this.onLogout}); // Update constructor
 
-  Future<String?> _loadName() async {
-    return await TokenService.getFullName();
-  }
+  
 
   @override
   Widget build(BuildContext context) {
     return FutureBuilder<String?>(
-      future: _loadName(),
+      future: UserService.getUser().then((user) => user?['fullName'] as String?),
       builder: (context, snapshot) {
         String fullName = snapshot.data ?? "User";
 

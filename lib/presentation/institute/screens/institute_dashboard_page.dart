@@ -1,19 +1,48 @@
 import 'package:flutter/material.dart';
-import '../../../../../core/constants/app_colors.dart';
-import '../../../../shared/widgets/new/metric_overview_card.dart';
-import '../../../../shared/widgets/new/performance_row_item.dart';
-import '../../../../shared/widgets/new/upcoming_class_list_tile.dart';
-import '../../../../shared/widgets/new/category_grid_card.dart';
-import '../../../../shared/widgets/new/quick_stat_row_item.dart';
+import 'package:warna_app/core/constants/app_colors.dart';
+import 'package:warna_app/features/auth/logic/auth_service.dart';
+import 'package:warna_app/shared/widgets/new/metric_overview_card.dart';
+import 'package:warna_app/shared/widgets/new/performance_row_item.dart';
+import 'package:warna_app/shared/widgets/new/upcoming_class_list_tile.dart';
+import 'package:warna_app/shared/widgets/new/category_grid_card.dart';
+import 'package:warna_app/shared/widgets/new/quick_stat_row_item.dart';
 
 class InstituteDashboardPage extends StatelessWidget {
   const InstituteDashboardPage({Key? key}) : super(key: key);
+
+
+  
+
+  // todo: add below logout for the code with remove token from the backend also.
+
+//   Future<void> logout() async {
+//   try {
+//     final refreshToken = await TokenService.getRefreshToken();
+//     await Dio().post('https://yourapi.com/auth/logout', data: {
+//       'refreshToken': refreshToken,
+//     });
+//   } catch (_) {
+//     // continue even if server call fails
+//   } finally {
+//     await TokenService.clearTokens(); // clears secure storage
+//     await UserService.clearUser();    // clears shared preferences
+
+//     Navigator.of(context).pushNamedAndRemoveUntil('/login', (route) => false);
+//   }
+// }
+
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: AppBar(
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.logout, color: AppColors.textPrimary),
+            onPressed: () => AuthService.logoutUser(context: context),
+          ),
+        ],
         title: const Text(
           'Institute Dashboard',
           style: TextStyle(

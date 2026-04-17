@@ -43,6 +43,7 @@ dev_dependencies:
   flutter_test:
     sdk: flutter
   http:
+  dio: ^5.0.0
   jwt_decoder:
 
 #  api_cache_manager: ^1.0.2

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../../../../core/constants/app_colors.dart';
+import 'package:warna_app/core/constants/app_colors.dart';
 
 class InstituteTabContainer extends StatelessWidget {
   final int currentIndex;

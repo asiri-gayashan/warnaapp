@@ -3,8 +3,6 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:warna_app/core/constants/app_colors.dart';
 import 'package:warna_app/core/constants/select_options.dart';
-import 'package:warna_app/features/tutor/models/class_model.dart';
-import 'package:warna_app/services/token_service.dart';
 import 'package:warna_app/shared/widgets/custom_button.dart';
 import 'package:warna_app/shared/widgets/new/custom_textfield.dart';
 import 'package:warna_app/shared/widgets/customselect.dart';
@@ -31,7 +29,6 @@ class _CreateClassPageState extends State<CreateClassPage> {
   String? _selectedDay;
   String? _selectedSubject;
   String? _selectedGrade;
-  String? _selectedDuration;
 
   // Error states
   String? _subjectError;
@@ -181,8 +178,6 @@ class _CreateClassPageState extends State<CreateClassPage> {
     _validateDescription();
 
 
-    String? userId = await TokenService.getUserId();
-
 
     setState(() {
       if (_selectedDay == null) _dayError = 'Please select a day';
@@ -213,7 +208,7 @@ class _CreateClassPageState extends State<CreateClassPage> {
         "subject": _selectedSubject ?? _subjectController.text,
         "grade": _selectedGrade!,
         "day": _selectedDay!,
-        "teacherId": userId,
+        "teacherId": 123,
         "time": _timeController.text,
         "duration": _durationController.text,
         "description": _descriptionController.text,
@@ -376,7 +371,7 @@ class _CreateClassPageState extends State<CreateClassPage> {
               onChanged: (value) {
                 setState(() {
                   _selectedSubject = value;
-                  _subjectController.text = value ?? '';
+                  _subjectController.text = value;
                 });
                 _validateSubject();
               },
@@ -398,7 +393,7 @@ class _CreateClassPageState extends State<CreateClassPage> {
               onChanged: (value) {
                 setState(() {
                   _selectedGrade = value;
-                  _gradeController.text = value ?? '';
+                  _gradeController.text = value;
                 });
                 _validateGrade();
               },
@@ -429,7 +424,7 @@ class _CreateClassPageState extends State<CreateClassPage> {
               onChanged: (value) {
                 setState(() {
                   _selectedDay = value;
-                  _dayError = value == null ? 'Day is required' : null;
+                  _dayError = null;
                 });
               },
             ),

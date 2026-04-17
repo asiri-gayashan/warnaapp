@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:warna_app/core/constants/app_colors.dart';
-import '../../../../shared/widgets/new/class_selection_card.dart';
-import '../../../../shared/widgets/new/enrollment_stats_row.dart';
-import '../../../../shared/widgets/new/enrollment_search_bar.dart';
-import '../../../../shared/widgets/new/enrollment_list_header.dart';
-import '../../../../shared/widgets/new/enrollment_student_table.dart';
-import '../../../../shared/widgets/new/numbered_pagination.dart';
-import '../../../../shared/widgets/new/save_enrollments_button.dart';
+import 'package:warna_app/shared/widgets/new/class_selection_card.dart';
+import 'package:warna_app/shared/widgets/new/enrollment_stats_row.dart';
+import 'package:warna_app/shared/widgets/new/enrollment_search_bar.dart';
+import 'package:warna_app/shared/widgets/new/enrollment_list_header.dart';
+import 'package:warna_app/shared/widgets/new/enrollment_student_table.dart';
+import 'package:warna_app/shared/widgets/new/numbered_pagination.dart';
+import 'package:warna_app/shared/widgets/new/save_enrollments_button.dart';
 
 class EnrollStudentPage extends StatefulWidget {
   const EnrollStudentPage({Key? key}) : super(key: key);

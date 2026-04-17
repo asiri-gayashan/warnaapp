@@ -1,11 +1,12 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:http/http.dart' as http;
-import 'package:warna_app/services/token_service.dart';
+import 'package:warna_app/core/utils/token_service.dart';
+import 'package:warna_app/core/utils/user_service.dart';
+import 'package:warna_app/router/router_names.dart';
 import '../../../../config/config.dart';
-
-
-
+import 'package:dio/dio.dart';
 
 class LoginController extends ChangeNotifier {
   // Form Fields
@@ -40,11 +41,10 @@ class LoginController extends ChangeNotifier {
 
   bool _isNotValidated = false;
 
-
   // Email Validation
   void validateEmail(String value) {
     final emailRegex = RegExp(
-        r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
+      r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$',
     );
 
     if (value.isEmpty) {
@@ -94,35 +94,60 @@ class LoginController extends ChangeNotifier {
     return _emailValidated && _passwordValidated;
   }
 
-  // Login Method
-  Future<Map<String, dynamic>?> loginUser() async {
-    if (_emailValidated && _passwordValidated) {
+  // Logout Method
 
-      final user = {
-        "email": emailController.text,
-        "password": passwordController.text
-      };
+  Future<void> logoutUser(BuildContext context) async {
+    await TokenService.clearTokens(); // clears secure storage
+    await UserService.clearUser(); // clears shared preferences
 
-      var response = await http.post(
-        Uri.parse("http://10.0.2.2:5001/api/auth/login"),
-        headers: {"Content-Type": "application/json"},
-        body: jsonEncode(user),
-      );
-
-      var jsonResponse = jsonDecode(response.body);
-
-      if (jsonResponse['status'] == true) {
-        await TokenService.saveToken(jsonResponse['token']);
-        return {
-          "role": jsonResponse['data']['role'],
-          "token": jsonResponse['token']
-        };
-      }
-    }
-    return null;
+    // ignore: use_build_context_synchronously
+    GoRouter.of(context).goNamed(RouterNames.loginScreen);
   }
 
+  // Login Method
+  Future<Map<String, dynamic>?> loginUser() async {
+    if (!_emailValidated || !_passwordValidated) {
+      return {"success": false, "message": "Invalid email or password!"};
+    }
 
+    final user = {
+      "email": emailController.text,
+      "password": passwordController.text,
+    };
+
+    try {
+      final response = await Dio().post(
+        "http://10.0.2.2:5001/api/auth/login",
+        data: user,
+      );
+
+      // print("SUCCESS: ${response.data}");
+
+      final loggedInUser = response.data['user'];
+      final accessToken = response.data['accessToken'];
+      final refreshToken = response.data['refreshToken'];
+
+      if (accessToken != null && refreshToken != null) {
+        await TokenService.saveTokens(
+          accessToken: accessToken,
+          refreshToken: refreshToken,
+        );
+      }
+
+      if (loggedInUser != null) {
+        await UserService.saveUser(loggedInUser);
+      }
+
+      return {"success": true, "message": "Logged in successfully!"};
+    } on DioException catch (e) {
+      print("ERROR: ${e.response?.data}");
+
+      return {
+        "success": false,
+        "message": e.response?.data["message"] ?? "Login failed",
+      };
+    }
+  }
 
   // Private Methods
   void _setLoading(bool loading) {

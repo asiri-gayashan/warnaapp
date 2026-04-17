@@ -1,16 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:warna_app/core/constants/app_colors.dart';
-import '../../../../shared/widgets/new/custom_select.dart';
-import '../../../../shared/widgets/new/custom_textfield.dart';
+import 'package:warna_app/shared/widgets/new/custom_select.dart';
+import 'package:warna_app/shared/widgets/new/custom_textfield.dart';
 
-class InstituteEditClassPage extends StatefulWidget {
-  const InstituteEditClassPage({Key? key}) : super(key: key);
+class InstituteCreateClassPage extends StatefulWidget {
+  const InstituteCreateClassPage({Key? key}) : super(key: key);
 
   @override
-  State<InstituteEditClassPage> createState() => _InstituteEditClassPageState();
+  State<InstituteCreateClassPage> createState() =>
+      _InstituteCreateClassPageState();
 }
 
-class _InstituteEditClassPageState extends State<InstituteEditClassPage> {
+class _InstituteCreateClassPageState extends State<InstituteCreateClassPage> {
   final _formKey = GlobalKey<FormState>();
 
   // Controllers for text fields
@@ -60,24 +61,6 @@ class _InstituteEditClassPageState extends State<InstituteEditClassPage> {
   final List<String> _halls = ['Hall A', 'Hall B', 'Hall C', 'Main Lab'];
 
   @override
-  void initState() {
-    super.initState();
-    // Simulating existing data for edit
-    _classNameController.text = 'Advanced Mathematics 2024';
-    _classFeesController.text = '2500';
-    _commissionController.text = '20';
-    _descriptionController.text = 'Preparation for final exams.';
-
-    _selectedTeacher = 'Dr. Sarah Johnson';
-    _selectedGrade = 'Grade 10';
-    _selectedSubject = 'Mathematics';
-    _selectedDay = 'Monday';
-    _selectedHall = 'Hall A';
-    _startTime = const TimeOfDay(hour: 14, minute: 30);
-    _endTime = const TimeOfDay(hour: 16, minute: 30);
-  }
-
-  @override
   void dispose() {
     _classNameController.dispose();
     _classFeesController.dispose();
@@ -89,7 +72,7 @@ class _InstituteEditClassPageState extends State<InstituteEditClassPage> {
   Future<void> _selectTime(BuildContext context, bool isStart) async {
     final TimeOfDay? picked = await showTimePicker(
       context: context,
-      initialTime: (isStart ? _startTime : _endTime) ?? TimeOfDay.now(),
+      initialTime: TimeOfDay.now(),
       builder: (context, child) {
         return Theme(
           data: Theme.of(context).copyWith(
@@ -135,7 +118,7 @@ class _InstituteEditClassPageState extends State<InstituteEditClassPage> {
       backgroundColor: AppColors.background,
       appBar: AppBar(
         title: const Text(
-          'Edit Class',
+          'Create Class',
           style: TextStyle(
             fontWeight: FontWeight.w600,
             color: AppColors.textPrimary,
@@ -159,9 +142,9 @@ class _InstituteEditClassPageState extends State<InstituteEditClassPage> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              // Class Name
               const SizedBox(height: 20),
 
-              // Class Name
               CustomTextField(
                 label: 'Class Name',
                 hintText: 'E.g. Advanced Mathematics 2024',
@@ -186,6 +169,7 @@ class _InstituteEditClassPageState extends State<InstituteEditClassPage> {
               ),
               const SizedBox(height: 20),
 
+
               CustomSelect(
                 label: 'Subject',
                 hintText: 'Select Subject',
@@ -198,6 +182,8 @@ class _InstituteEditClassPageState extends State<InstituteEditClassPage> {
                     value == null || value.isEmpty ? 'Required' : null,
                 isRequired: true,
               ),
+
+              // Teacher and Subject
               const SizedBox(height: 20),
 
               // Grade and Hall
@@ -346,6 +332,7 @@ class _InstituteEditClassPageState extends State<InstituteEditClassPage> {
                 children: [
                   Expanded(
                     child: CustomTextField(
+                      
                       label: 'Class Fees (LKR)',
                       hintText: 'E.g. 2500',
                       controller: _classFeesController,
@@ -380,40 +367,55 @@ class _InstituteEditClassPageState extends State<InstituteEditClassPage> {
               ),
               const SizedBox(height: 32),
 
-              Row(
-                children: [
-                  Expanded(
-                    child: ElevatedButton(
-                      onPressed: () {},
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: AppColors.primary,
-                        foregroundColor: Colors.white,
-                        padding: const EdgeInsets.symmetric(vertical: 16),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                      ),
-                      child: const Text('Update Class'),
-                    ),
-                  ),
-                  const SizedBox(width: 12),
-                  Container(
-                    decoration: BoxDecoration(
-                      border: Border.all(color: Colors.grey.shade300),
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    child: IconButton(
-                      onPressed: () {},
-                      icon: const Icon(Icons.delete),
-                      color: AppColors.textPrimary,
-                      iconSize: 24,
-                    ),
-                  ),
-                ],
-              ),
-
               // Submit Button
-             
+              SizedBox(
+                width: double.infinity,
+                child: ElevatedButton(
+                  onPressed: () {
+                    if (_formKey.currentState!.validate() &&
+                        _startTime != null &&
+                        _endTime != null) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: const Text('Class Created Successfully!'),
+                          backgroundColor: AppColors.success,
+                          behavior: SnackBarBehavior.floating,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                        ),
+                      );
+                      Navigator.pop(context);
+                    } else if (_startTime == null || _endTime == null) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: const Text(
+                            'Please select valid start and end times',
+                          ),
+                          backgroundColor: Colors.red.shade400,
+                          behavior: SnackBarBehavior.floating,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                        ),
+                      );
+                    }
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: AppColors.primary,
+                    foregroundColor: Colors.white,
+                    padding: const EdgeInsets.symmetric(vertical: 16),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(16),
+                    ),
+                    elevation: 0,
+                  ),
+                  child: const Text(
+                    'Create Class',
+                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+                  ),
+                ),
+              ),
               const SizedBox(height: 20),
             ],
           ),

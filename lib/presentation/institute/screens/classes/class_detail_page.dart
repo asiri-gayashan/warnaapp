@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
-import '../../../../core/constants/app_colors.dart';
-import '../../../../shared/widgets/new/class_header_card.dart';
-import '../../../../shared/widgets/new/schedule_info_card.dart';
-import '../../../../shared/widgets/new/student_payment_overview_card.dart';
-import '../../../../shared/widgets/new/institute_payment_status_card.dart';
-import '../../../../shared/widgets/new/class_action_buttons.dart';
+import 'package:warna_app/core/constants/app_colors.dart';
+import 'package:warna_app/shared/widgets/new/class_header_card.dart';
+import 'package:warna_app/shared/widgets/new/schedule_info_card.dart';
+import 'package:warna_app/shared/widgets/new/student_payment_overview_card.dart';
+import 'package:warna_app/shared/widgets/new/institute_payment_status_card.dart';
+import 'package:warna_app/shared/widgets/new/class_action_buttons.dart';
 
 class ClassDetailPage extends StatelessWidget {
   // Using dummy data instead of required parameter

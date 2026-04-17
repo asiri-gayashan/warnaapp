@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:warna_app/features/institute/ui/screens/institute_edit_class.dart';
+import 'package:warna_app/presentation/institute/screens/classes/institute_edit_class.dart';
 import '../../../../core/constants/app_colors.dart';
 
 class ClassHeaderCard extends StatelessWidget {

@@ -9,11 +9,9 @@ import '../../../../features/student/ui/screens/record_page.dart';
 import 'package:jwt_decoder/jwt_decoder.dart';
 
 class StudentNavigation extends StatefulWidget {
-  final String token;
 
   const StudentNavigation({
     Key? key,
-    required this.token,
   }) : super(key: key);
 
   @override
@@ -24,34 +22,12 @@ class _StudentNavigationState extends State<StudentNavigation> {
   int _selectedIndex = 0;
   // late
 
-  void _logout() {
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      Navigator.pushAndRemoveUntil(
-        context,
-        MaterialPageRoute(builder: (_) => LoginScreen()),
-            (route) => false,
-      );
-    });
-  }
 
   @override
   void initState() {
     super.initState();
-    _checkToken();
   }
 
-  void _checkToken() {
-    if (widget.token.isEmpty) {
-      _logout();
-      return;
-    }
-
-    bool isExpired = JwtDecoder.isExpired(widget.token);
-
-    if (isExpired) {
-      _logout();
-    }
-  }
 
 
   static const List<Widget> _pages = <Widget>[
