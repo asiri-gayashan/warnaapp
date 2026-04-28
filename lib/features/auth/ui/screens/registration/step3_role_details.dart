@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:warna_app/core/constants/select_options.dart';
+import 'package:warna_app/shared/widgets/new/custom_datetime_picker.dart';
 import 'package:warna_app/shared/widgets/new/custom_select.dart';
 import 'package:warna_app/shared/widgets/field_error_text.dart';
 import '../../../../../shared/widgets/custom_button.dart';
@@ -8,7 +9,6 @@ import '../../../../../shared/widgets/customselect.dart';
 import '../../../../../core/constants/app_colors.dart';
 import '../../../../../core/constants/registration_strings.dart';
 import '../../../logic/registration_controller.dart';
-
 
 class RegistrationStep3 extends StatefulWidget {
   final RegistrationController controller;
@@ -34,9 +34,7 @@ class _RegistrationStep3State extends State<RegistrationStep3> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           // Back Button
-
           const SizedBox(height: 25),
-
 
           // Title based on role
           _buildTitle(),
@@ -58,20 +56,19 @@ class _RegistrationStep3State extends State<RegistrationStep3> {
           const SizedBox(height: 40),
 
           // Next Button
-           CustomButton (
+          CustomButton(
             text: RegistrationStrings.next,
             onPressed: widget.controller.isStep3Valid()
                 ? () {
-              widget.controller.printData(); // do current task
-              widget.onNext();                // call next function
-            }
+                    widget.controller.printData(); // do current task
+                    widget.onNext(); // call next function
+                  }
                 : null,
             // onPressed: _buildTeacherForm.,
             isDisabled: !widget.controller.isStep3Valid(),
             hasShadow: true,
           ),
           const SizedBox(height: 40),
-
         ],
       ),
     );
@@ -141,15 +138,10 @@ class _RegistrationStep3State extends State<RegistrationStep3> {
         // FieldErrorText( message: widget.controller.instituteNameError),
         //
         // const SizedBox(height: 20),
-
-
-
-
-
         CreativeSelect(
           label: "Student Count*",
           items: SelectOptions.studentCountList,
-          value : widget.controller.selectedStudentCount,
+          value: widget.controller.selectedStudentCount,
           onChanged: (value) {
             widget.controller.setStudentCount(value);
           },
@@ -159,24 +151,22 @@ class _RegistrationStep3State extends State<RegistrationStep3> {
         CreativeSelect(
           label: "Teacher Count*",
           items: SelectOptions.teacherCountList,
-          value : widget.controller.selectedTeacherCount,
+          value: widget.controller.selectedTeacherCount,
           onChanged: (value) {
             widget.controller.setTeacherCount(value);
           },
         ),
         const SizedBox(height: 20),
 
-
         CreativeSelect(
           label: "Province*",
-          value : widget.controller.selectedProvince,
+          value: widget.controller.selectedProvince,
           items: SelectOptions.provinces,
           onChanged: (value) {
             widget.controller.setProvince(value);
           },
         ),
         const SizedBox(height: 20),
-
 
         //
         CustomTextField(
@@ -187,11 +177,7 @@ class _RegistrationStep3State extends State<RegistrationStep3> {
             widget.controller.validateAddressOne(value);
           },
         ),
-        FieldErrorText( message: widget.controller.addressOneError),
-
-
-
-
+        FieldErrorText(message: widget.controller.addressOneError),
       ],
     );
   }
@@ -200,24 +186,20 @@ class _RegistrationStep3State extends State<RegistrationStep3> {
     return Column(
       children: [
         // Subjects Taught
-
-
-
         CreativeSelect(
           label: "Major Subject*",
-          value : widget.controller.selectedMajorSubject,
+          value: widget.controller.selectedMajorSubject,
           items: SelectOptions.subjects,
           onChanged: (value) {
             widget.controller.setMajorSubject(value);
           },
-
         ),
         const SizedBox(height: 20),
 
         CreativeSelect(
           label: "Expected Student Count*",
           items: SelectOptions.studentCountList,
-          value : widget.controller.selectedStudentCount,
+          value: widget.controller.selectedStudentCount,
           onChanged: (value) {
             widget.controller.setStudentCount(value);
           },
@@ -227,20 +209,18 @@ class _RegistrationStep3State extends State<RegistrationStep3> {
         // Years of Experience
         CreativeSelect(
           label: "Experience*",
-          value : widget.controller.selectedExperience,
+          value: widget.controller.selectedExperience,
           items: SelectOptions.yearsOfExperience,
           onChanged: (value) {
             widget.controller.setExperience(value);
           },
         ),
 
-
-
         const SizedBox(height: 20),
 
         CreativeSelect(
           label: "Province*",
-          value : widget.controller.selectedProvince,
+          value: widget.controller.selectedProvince,
           items: SelectOptions.provinces,
           onChanged: (value) {
             widget.controller.setProvince(value);
@@ -257,9 +237,6 @@ class _RegistrationStep3State extends State<RegistrationStep3> {
             widget.controller.validateAddressOne(value);
           },
         ),
-        FieldErrorText( message: widget.controller.addressOneError),
-
-
 
         // CustomTextField(
         //   label: "Address Line 2",
@@ -270,12 +247,6 @@ class _RegistrationStep3State extends State<RegistrationStep3> {
         //   },
         // ),
         // FieldErrorText( message: widget.controller.addressTwoError),
-        //
-
-
-
-
-
       ],
     );
   }
@@ -283,10 +254,7 @@ class _RegistrationStep3State extends State<RegistrationStep3> {
   Widget _buildStudentForm() {
     return Column(
       children: [
-
         // Grade
-
-
         CustomTextField(
           label: "School",
           hintText: "Your School",
@@ -295,16 +263,29 @@ class _RegistrationStep3State extends State<RegistrationStep3> {
             widget.controller.validateSchoolName(value);
           },
         ),
-        FieldErrorText( message: widget.controller.schoolNameError),
+        FieldErrorText(message: widget.controller.schoolNameError),
 
 
+
+        const SizedBox(height: 20),
+
+
+        CustomDateTimePicker(
+          mode: PickerMode.date,
+          label: "Birthday",
+          hintText: "Select Date",
+          selectedDate: widget.controller.selectedBirthday,
+          onDateSelected: (date) => widget.controller.setBirthday(date),
+        ),
+
+       
         const SizedBox(height: 20),
 
 
         CreativeSelect(
           label: "Grade*",
           items: SelectOptions.gradesList,
-          value : widget.controller.selectedGrade,
+          value: widget.controller.selectedGrade,
           onChanged: (value) {
             widget.controller.setGrade(value);
           },
@@ -312,12 +293,9 @@ class _RegistrationStep3State extends State<RegistrationStep3> {
 
         const SizedBox(height: 20),
 
-
-
-
         CreativeSelect(
           label: "Province*",
-          value : widget.controller.selectedProvince,
+          value: widget.controller.selectedProvince,
           items: SelectOptions.provinces,
           onChanged: (value) {
             widget.controller.setProvince(value);
@@ -325,28 +303,42 @@ class _RegistrationStep3State extends State<RegistrationStep3> {
         ),
         const SizedBox(height: 20),
 
-
-
         // Address
-
-
         CustomTextField(
-          label: "Address*",
+          label: "Address Line 1*",
           hintText: "Address",
           controller: widget.controller.addressController,
           onChanged: (value) {
             widget.controller.validateAddressOne(value);
           },
         ),
-        FieldErrorText( message: widget.controller.addressOneError),
+        FieldErrorText(message: widget.controller.addressOneError),
 
+        const SizedBox(height: 20),
 
+        CustomTextField(
+          label: "Address Line 2",
+          hintText: "Optional",
+          controller: widget.controller.addressTwoController,
+          onChanged: (value) {
+            widget.controller.validateAddressTwo(value);
+          },
+        ),
+        FieldErrorText(message: widget.controller.addressTwoError),
 
+        const SizedBox(height: 20),
+
+        CustomTextField(
+          label: "Description",
+          hintText: "Tell us more about you",
+          maxLines: 4,
+          controller: widget.controller.descriptionController,
+          onChanged: (value) {
+            widget.controller.validateDescription(value);
+          },
+        ),
+        FieldErrorText(message: widget.controller.descriptionError),
       ],
     );
   }
 }
-
-
-  
-

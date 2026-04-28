@@ -1,5 +1,4 @@
 import 'package:dio/dio.dart';
-import 'package:warna_app/core/utils/user_service.dart';
 import 'package:warna_app/features/auth/logic/auth_service.dart';
 import 'token_service.dart';
 
