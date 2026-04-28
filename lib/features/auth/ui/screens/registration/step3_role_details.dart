@@ -124,37 +124,14 @@ class _RegistrationStep3State extends State<RegistrationStep3> {
   Widget _buildAdminForm() {
     return Column(
       children: [
-        // Institute Name
-        // CustomTextField(
-        //   label: RegistrationStrings.instituteName,
-        //   hintText: RegistrationStrings.instituteNameHint,
-        //   controller: widget.controller.instituteNameController,
-        //   onChanged: (value) {
-        //     widget.controller.validateInstituteName(value);
-        //   },
-        // ),
-        //
-        //
-        // FieldErrorText( message: widget.controller.instituteNameError),
-        //
-        // const SizedBox(height: 20),
-        CreativeSelect(
-          label: "Student Count*",
-          items: SelectOptions.studentCountList,
-          value: widget.controller.selectedStudentCount,
-          onChanged: (value) {
-            widget.controller.setStudentCount(value);
-          },
-        ),
-        const SizedBox(height: 20),
-
-        CreativeSelect(
-          label: "Teacher Count*",
-          items: SelectOptions.teacherCountList,
-          value: widget.controller.selectedTeacherCount,
-          onChanged: (value) {
-            widget.controller.setTeacherCount(value);
-          },
+         
+ 
+        CustomDateTimePicker(
+          mode: PickerMode.date,
+          label: "Established Date",
+          hintText: "Select Date",
+          selectedDate: widget.controller.selectedBirthday,
+          onDateSelected: (date) => widget.controller.setBirthday(date),
         ),
         const SizedBox(height: 20),
 
@@ -168,9 +145,9 @@ class _RegistrationStep3State extends State<RegistrationStep3> {
         ),
         const SizedBox(height: 20),
 
-        //
+        // Address
         CustomTextField(
-          label: "Address*",
+          label: "Address Line 1*",
           hintText: "Address",
           controller: widget.controller.addressController,
           onChanged: (value) {
@@ -178,6 +155,31 @@ class _RegistrationStep3State extends State<RegistrationStep3> {
           },
         ),
         FieldErrorText(message: widget.controller.addressOneError),
+
+        const SizedBox(height: 20),
+
+        CustomTextField(
+          label: "Address Line 2",
+          hintText: "Optional",
+          controller: widget.controller.addressTwoController,
+          onChanged: (value) {
+            widget.controller.validateAddressTwo(value);
+          },
+        ),
+        FieldErrorText(message: widget.controller.addressTwoError),
+
+        const SizedBox(height: 20),
+
+        CustomTextField(
+          label: "Description",
+          hintText: "Tell us more about your institute",
+          maxLines: 4,
+          controller: widget.controller.descriptionController,
+          onChanged: (value) {
+            widget.controller.validateDescription(value);
+          },
+        ),
+        FieldErrorText(message: widget.controller.descriptionError),
       ],
     );
   }
