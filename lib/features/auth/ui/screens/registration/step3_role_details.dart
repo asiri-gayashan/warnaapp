@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 import 'package:warna_app/core/constants/select_options.dart';
 import 'package:warna_app/shared/widgets/new/custom_datetime_picker.dart';
 import 'package:warna_app/shared/widgets/new/custom_select.dart';
@@ -159,11 +159,11 @@ class _RegistrationStep3State extends State<RegistrationStep3> {
         const SizedBox(height: 20),
 
         CreativeSelect(
-          label: "Province*",
-          value: widget.controller.selectedProvince,
-          items: SelectOptions.provinces,
+          label: "District*",
+          value: widget.controller.selectedDistrict,
+          items: SelectOptions.districtsList,
           onChanged: (value) {
-            widget.controller.setProvince(value);
+            widget.controller.setDistrict(value);
           },
         ),
         const SizedBox(height: 20),
@@ -197,56 +197,83 @@ class _RegistrationStep3State extends State<RegistrationStep3> {
         const SizedBox(height: 20),
 
         CreativeSelect(
-          label: "Expected Student Count*",
-          items: SelectOptions.studentCountList,
-          value: widget.controller.selectedStudentCount,
+          label: "Grade*",
+          items: SelectOptions.gradesList,
+          value: widget.controller.selectedGrade,
           onChanged: (value) {
-            widget.controller.setStudentCount(value);
+            widget.controller.setGrade(value);
           },
         ),
         const SizedBox(height: 20),
 
         // Years of Experience
-        CreativeSelect(
-          label: "Experience*",
-          value: widget.controller.selectedExperience,
-          items: SelectOptions.yearsOfExperience,
-          onChanged: (value) {
-            widget.controller.setExperience(value);
-          },
-        ),
-
-        const SizedBox(height: 20),
-
-        CreativeSelect(
-          label: "Province*",
-          value: widget.controller.selectedProvince,
-          items: SelectOptions.provinces,
-          onChanged: (value) {
-            widget.controller.setProvince(value);
-          },
-        ),
-
-        const SizedBox(height: 20),
-
         CustomTextField(
-          label: "Address",
+          label: "Experience (Years)*",
+          hintText: "Enter years of experience (0 - 100)",
+          controller: widget.controller.experienceController,
+          keyboardType: TextInputType.number,
+          onChanged: (value) {
+            widget.controller.validateExperience(value);
+          },
+        ),
+        FieldErrorText(message: widget.controller.experienceError),
+
+        const SizedBox(height: 20),
+
+        CustomDateTimePicker(
+          mode: PickerMode.date,
+          label: "Birthday",
+          hintText: "Select Date",
+          selectedDate: widget.controller.selectedBirthday,
+          onDateSelected: (date) => widget.controller.setBirthday(date),
+        ),
+        const SizedBox(height: 20),
+
+        CreativeSelect(
+          label: "District*",
+          value: widget.controller.selectedDistrict,
+          items: SelectOptions.districtsList,
+          onChanged: (value) {
+            widget.controller.setDistrict(value);
+          },
+        ),
+        const SizedBox(height: 20),
+
+        // Address
+        CustomTextField(
+          label: "Address Line 1*",
           hintText: "Address",
           controller: widget.controller.addressController,
           onChanged: (value) {
             widget.controller.validateAddressOne(value);
           },
         ),
+        FieldErrorText(message: widget.controller.addressOneError),
 
-        // CustomTextField(
-        //   label: "Address Line 2",
-        //   hintText: "Optional",
-        //   // controller: widget.controller.schoolController,
-        //   onChanged: (value) {
-        //     widget.controller.validateAddressTwo(value);
-        //   },
-        // ),
-        // FieldErrorText( message: widget.controller.addressTwoError),
+        const SizedBox(height: 20),
+
+        CustomTextField(
+          label: "Address Line 2",
+          hintText: "Optional",
+          controller: widget.controller.addressTwoController,
+          onChanged: (value) {
+            widget.controller.validateAddressTwo(value);
+          },
+        ),
+        FieldErrorText(message: widget.controller.addressTwoError),
+
+        const SizedBox(height: 20),
+
+        CustomTextField(
+          label: "Description",
+          hintText: "Tell us more about you",
+          maxLines: 4,
+          controller: widget.controller.descriptionController,
+          onChanged: (value) {
+            widget.controller.validateDescription(value);
+          },
+        ),
+        FieldErrorText(message: widget.controller.descriptionError),
       ],
     );
   }
@@ -265,10 +292,7 @@ class _RegistrationStep3State extends State<RegistrationStep3> {
         ),
         FieldErrorText(message: widget.controller.schoolNameError),
 
-
-
         const SizedBox(height: 20),
-
 
         CustomDateTimePicker(
           mode: PickerMode.date,
@@ -278,9 +302,7 @@ class _RegistrationStep3State extends State<RegistrationStep3> {
           onDateSelected: (date) => widget.controller.setBirthday(date),
         ),
 
-       
         const SizedBox(height: 20),
-
 
         CreativeSelect(
           label: "Grade*",
@@ -294,11 +316,11 @@ class _RegistrationStep3State extends State<RegistrationStep3> {
         const SizedBox(height: 20),
 
         CreativeSelect(
-          label: "Province*",
-          value: widget.controller.selectedProvince,
-          items: SelectOptions.provinces,
+          label: "District*",
+          value: widget.controller.selectedDistrict,
+          items: SelectOptions.districtsList,
           onChanged: (value) {
-            widget.controller.setProvince(value);
+            widget.controller.setDistrict(value);
           },
         ),
         const SizedBox(height: 20),

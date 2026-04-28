@@ -99,12 +99,12 @@ class RegistrationController extends ChangeNotifier {
   String? _addressTwoError;
   String? get addressTwoError => _addressTwoError;
 
-  bool _provinceValidated = false;
-  bool get provinceValidated => _provinceValidated;
-  String? _provinceError;
-  String? get provinceError => _provinceError;
-  String? _selectedProvince;
-  String? get selectedProvince => _selectedProvince; //Province
+  bool _districtValidated = false;
+  bool get districtValidated => _districtValidated;
+  String? _districtError;
+  String? get districtError => _districtError;
+  String? _selectedDistrict;
+  String? get selectedDistrict => _selectedDistrict; //District
 
   String? _selectedTeacherCount;
   String? get selectedTeacherCount => _selectedTeacherCount;
@@ -179,10 +179,9 @@ class RegistrationController extends ChangeNotifier {
   String? _dobError;
   String? get dobError => _dobError;
 
-  
   void setBirthday(DateTime date) {
     _selectedBirthday = date;
-   
+
     notifyListeners();
   }
 
@@ -190,7 +189,7 @@ class RegistrationController extends ChangeNotifier {
     if (_selectedBirthday == null) {
       _dobError = "Date of birth is required";
       return false;
-    }else{
+    } else {
       _dobError = null;
       return true;
     }
@@ -205,7 +204,7 @@ class RegistrationController extends ChangeNotifier {
   void goToNextStep() {
     if (_currentStep < 5) {
       _currentStep++;
-      notifyListeners(); // ← ADD THIS LINE
+      notifyListeners(); // â† ADD THIS LINE
     }
   }
 
@@ -299,7 +298,6 @@ class RegistrationController extends ChangeNotifier {
 
   void validateDescription(String value) {
     final description = value.trim();
-
 
     if (description.isEmpty) {
       _descriptionValidated = true;
@@ -479,17 +477,17 @@ class RegistrationController extends ChangeNotifier {
 
   //----------------------------------------------------------Step 3 Teacher validation
 
-  //setProvince
+  //setDistrict
 
-  void setProvince(String value) {
-    _selectedProvince = value;
+  void setDistrict(String value) {
+    _selectedDistrict = value;
 
-    if (_selectedProvince == null || _selectedProvince!.isEmpty) {
-      _provinceValidated = false;
-      _provinceError = "Province is required";
+    if (_selectedDistrict == null || _selectedDistrict!.isEmpty) {
+      _districtValidated = false;
+      _districtError = "District is required";
     } else {
-      _provinceValidated = true;
-      _provinceError = null;
+      _districtValidated = true;
+      _districtError = null;
     }
 
     notifyListeners();
@@ -513,12 +511,20 @@ class RegistrationController extends ChangeNotifier {
 
   //Years of Experience Validation
 
-  void setExperience(String value) {
-    _selectedExperience = value;
+  void validateExperience(String value) {
+    _selectedExperience = value.trim();
+
+    final numValue = int.tryParse(_selectedExperience!);
 
     if (_selectedExperience == null || _selectedExperience!.isEmpty) {
       _experienceValidated = false;
       _experienceError = "Years of experience is required";
+    } else if (numValue == null) {
+      _experienceValidated = false;
+      _experienceError = "Please enter a valid number";
+    } else if (numValue < 0 || numValue > 100) {
+      _experienceValidated = false;
+      _experienceError = "Experience must be between 0 and 100";
     } else {
       _experienceValidated = true;
       _experienceError = null;
@@ -536,7 +542,7 @@ class RegistrationController extends ChangeNotifier {
     // Regex: letters + single spaces only
     final RegExp schoolRegex = RegExp(r'^[a-zA-Z]+(?: [a-zA-Z]+)*$');
 
-    // Optional → allow empty
+    // Optional â†’ allow empty
     if (school.isEmpty) {
       _schoolNameValidated = true;
       _schoolNameError = null;
@@ -645,7 +651,7 @@ class RegistrationController extends ChangeNotifier {
       "mobile": mobileController.text,
       "School": schoolController.text,
       "grade": selectedGrade,
-      "province": selectedProvince,
+      "District": selectedDistrict,
       "Address": addressController.text,
     };
 
@@ -657,7 +663,7 @@ class RegistrationController extends ChangeNotifier {
       "Subject": selectedMajorSubject,
       "Student Count": selectedStudentCount,
       "Experience": selectedExperience,
-      "province": selectedProvince,
+      "District": selectedDistrict,
       "Address": addressController.text,
     };
 
@@ -669,7 +675,7 @@ class RegistrationController extends ChangeNotifier {
       "Institute Name": instituteNameController.text,
       "Student Count": selectedStudentCount,
       "Teacher Count": selectedTeacherCount,
-      "province": selectedProvince,
+      "District": selectedDistrict,
       "Address": addressController.text,
     };
 
@@ -679,7 +685,7 @@ class RegistrationController extends ChangeNotifier {
       "mobile": mobileController.text,
       "password": passwordController.text,
       "role": userTypeRole,
-      "province": selectedProvince,
+      "province": selectedDistrict,
       "address": addressController.text,
     };
     // debugPrint(studentData.toString());
@@ -704,13 +710,16 @@ class RegistrationController extends ChangeNotifier {
       case UserRole.instituteAdmin:
         return _studentCountValidated &&
             _teacherCountValidated &&
-            _provinceValidated &&
+            _districtValidated &&
             _addressOneValidated;
 
       case UserRole.teacher:
         return _addressOneValidated &&
             _addressTwoValidated &&
-            _provinceValidated &&
+            isDobSelected() &&
+            _descriptionValidated &&
+            _districtValidated &&
+            _gradeValidated &&
             _experienceValidated &&
             _majorSubjectValidated;
 
@@ -721,7 +730,7 @@ class RegistrationController extends ChangeNotifier {
             _descriptionValidated &&
             _schoolNameValidated &&
             _gradeValidated &&
-            _provinceValidated &&
+            _districtValidated &&
             _addressOneValidated;
 
       default:
