@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:warna_app/features/auth/ui/screens/login/login_screen.dart';
+import 'package:warna_app/router/router_names.dart';
 import '../../../../../shared/widgets/custom_button.dart';
 import '../../../../../core/constants/app_colors.dart';
 import '../../../../../core/constants/registration_strings.dart';
@@ -66,13 +68,7 @@ class RegistrationStep5 extends StatelessWidget {
           text: "Login to Dashboard",
           onPressed: () {
             // Navigate to student dashboard
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) => const LoginScreen(),
-              ),
-            );
-            // Navigator.pushReplacementNamed(context, '/student');
+            GoRouter.of(context).goNamed(RouterNames.splashscreen);
           },
           hasShadow: true,
           backgroundColor: AppColors.success,

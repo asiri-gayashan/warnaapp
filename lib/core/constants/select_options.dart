@@ -4,8 +4,16 @@ import '../../shared/widgets/new/custom_select.dart';
 class SelectOptions {
   // Grade/Level Options
   static List<SelectOption> grades = [
-    const SelectOption(value: 'grade1', label: 'Grade 1', icon: Icons.looks_one),
-    const SelectOption(value: 'grade2', label: 'Grade 2', icon: Icons.looks_two),
+    const SelectOption(
+      value: 'grade1',
+      label: 'Grade 1',
+      icon: Icons.looks_one,
+    ),
+    const SelectOption(
+      value: 'grade2',
+      label: 'Grade 2',
+      icon: Icons.looks_two,
+    ),
     const SelectOption(value: 'grade3', label: 'Grade 3', icon: Icons.looks_3),
     const SelectOption(value: 'grade4', label: 'Grade 4', icon: Icons.looks_4),
     const SelectOption(value: 'grade5', label: 'Grade 5', icon: Icons.looks_5),
@@ -13,13 +21,29 @@ class SelectOptions {
     const SelectOption(value: 'grade7', label: 'Grade 7', icon: Icons.filter_7),
     const SelectOption(value: 'grade8', label: 'Grade 8', icon: Icons.filter_8),
     const SelectOption(value: 'grade9', label: 'Grade 9', icon: Icons.filter_9),
-    const SelectOption(value: 'grade10', label: 'Grade 10', icon: Icons.filter_9_plus),
-    const SelectOption(value: 'grade11', label: 'Grade 11', icon: Icons.plus_one),
-    const SelectOption(value: 'grade12', label: 'Grade 12', icon: Icons.plus_one),
-    const SelectOption(value: 'grade13', label: 'Grade 13', icon: Icons.plus_one),
+    const SelectOption(
+      value: 'grade10',
+      label: 'Grade 10',
+      icon: Icons.filter_9_plus,
+    ),
+    const SelectOption(
+      value: 'grade11',
+      label: 'Grade 11',
+      icon: Icons.plus_one,
+    ),
+    const SelectOption(
+      value: 'grade12',
+      label: 'Grade 12',
+      icon: Icons.plus_one,
+    ),
+    const SelectOption(
+      value: 'grade13',
+      label: 'Grade 13',
+      icon: Icons.plus_one,
+    ),
   ];
 
-//------------------------------------------------------------------------Provinces
+  //------------------------------------------------------------------------Provinces
   static const List<String> provinces = [
     "Western Province",
     "Central Province",
@@ -32,10 +56,8 @@ class SelectOptions {
     "Sabaragamuwa Province",
   ];
 
-
   // ------------------------------------------------------------------Subject Options
   static const List<String> subjects = [
-
     // Primary (Grade 1–5)
     "First Language (Sinhala/Tamil)",
     "Second Language (Tamil/Sinhala)",
@@ -97,8 +119,6 @@ class SelectOptions {
     "Information & Communication Technology (Advanced Level)",
   ];
 
-
-
   // ------------------------------------------------------------------ YEars of experience
 
   static const List<String> yearsOfExperience = [
@@ -113,9 +133,25 @@ class SelectOptions {
     "30+ Years",
   ];
 
-
   // ------------------------------------------------------------------ Grade List
 
+  static const List<Map<String, String>> newgradesList = [
+    {"id": "1", "name": "Grade 1"},
+    {"id": "2", "name": "Grade 2"},
+    {"id": "3", "name": "Grade 3"},
+    {"id": "4", "name": "Grade 4"},
+    {"id": "5", "name": "Grade 5"},
+    {"id": "6", "name": "Grade 6"},
+    {"id": "7", "name": "Grade 7"},
+    {"id": "8", "name": "Grade 8"},
+    {"id": "9", "name": "Grade 9"},
+    {"id": "10", "name": "Grade 10"},
+    {"id": "11", "name": "Grade 11"},
+    {"id": "12", "name": "Grade 12"},
+    {"id": "13", "name": "Grade 13"},
+  ];
+
+  
   static const List<String> gradesList = [
     "Grade 1",
     "Grade 2",
@@ -134,7 +170,6 @@ class SelectOptions {
 
   // ------------------------------------------------------------------ studentCountList
 
-
   static const List<String> daysList = [
     'Monday',
     'Tuesday',
@@ -145,7 +180,6 @@ class SelectOptions {
     'Sunday',
   ];
 
-
   static const List<String> studentCountList = [
     "1 - 50",
     "51 - 100",
@@ -154,10 +188,7 @@ class SelectOptions {
     "1001 - 2000",
   ];
 
-
   // ------------------------------------------------------------------ Teacher CountList
-
-
 
   static const List<String> teacherCountList = [
     "1 - 9",
@@ -165,7 +196,6 @@ class SelectOptions {
     "25 - 50",
     "50 - 100",
   ];
-
 
   static const List<String> districtsList = [
     // Western Province
@@ -212,20 +242,43 @@ class SelectOptions {
     "Kegalle",
   ];
 
-
   // Institute Type Options
   static List<SelectOption> instituteTypes = [
     const SelectOption(value: 'school', label: 'School', icon: Icons.school),
-    const SelectOption(value: 'tuition', label: 'Tuition Center', icon: Icons.groups),
-    const SelectOption(value: 'academy', label: 'Academy', icon: Icons.account_balance),
-    const SelectOption(value: 'college', label: 'College', icon: Icons.cast_for_education),
-    const SelectOption(value: 'university', label: 'University', icon: Icons.account_balance),
+    const SelectOption(
+      value: 'tuition',
+      label: 'Tuition Center',
+      icon: Icons.groups,
+    ),
+    const SelectOption(
+      value: 'academy',
+      label: 'Academy',
+      icon: Icons.account_balance,
+    ),
+    const SelectOption(
+      value: 'college',
+      label: 'College',
+      icon: Icons.cast_for_education,
+    ),
+    const SelectOption(
+      value: 'university',
+      label: 'University',
+      icon: Icons.account_balance,
+    ),
   ];
 
   // Teaching Type Options
   static List<SelectOption> teachingTypes = [
-    const SelectOption(value: 'independent', label: 'Independent Teacher', icon: Icons.person),
-    const SelectOption(value: 'institute', label: 'Works under Institute', icon: Icons.business),
+    const SelectOption(
+      value: 'independent',
+      label: 'Independent Teacher',
+      icon: Icons.person,
+    ),
+    const SelectOption(
+      value: 'institute',
+      label: 'Works under Institute',
+      icon: Icons.business,
+    ),
   ];
 
   // Years of Experience

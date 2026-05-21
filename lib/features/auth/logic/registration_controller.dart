@@ -1,14 +1,14 @@
-import 'dart:convert';
-import 'dart:ffi';
 
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
-import '../../../config/config.dart';
+import 'package:dio/dio.dart';
+import '../../../core/network/dio_client.dart';
 
 enum UserRole { instituteAdmin, teacher, student }
 
 class RegistrationController extends ChangeNotifier {
   // Current Step
+
+  final _dio = DioClient.instance; 
   int _currentStep = 1;
   int get currentStep => _currentStep;
   bool isAPIcallProcess = false;
@@ -179,6 +179,8 @@ class RegistrationController extends ChangeNotifier {
   String? _dobError;
   String? get dobError => _dobError;
 
+  final List<Map<String, String>> districtsList = [];
+  
   void setBirthday(DateTime date) {
     _selectedBirthday = date;
 
@@ -522,9 +524,9 @@ class RegistrationController extends ChangeNotifier {
     } else if (numValue == null) {
       _experienceValidated = false;
       _experienceError = "Please enter a valid number";
-    } else if (numValue < 0 || numValue > 100) {
+    } else if (numValue < 0 || numValue > 50) {
       _experienceValidated = false;
-      _experienceError = "Experience must be between 0 and 100";
+      _experienceError = "Experience must be between 0 and 50";
     } else {
       _experienceValidated = true;
       _experienceError = null;
@@ -629,89 +631,107 @@ class RegistrationController extends ChangeNotifier {
     notifyListeners();
   }
 
-  void printData() async {
+  Future<List<dynamic>?> districtData() async {
+    try {
+      var response = await _dio.get(
+        "/metadata/get-district",
+      );
+      return response.data['data'];
+    } on DioException catch (error) {
+      print(error);
+      return null;
+    }
+  }
+
+
+  Future<List<dynamic>?> SubjectData() async {
+    try {
+      var response = await _dio.get(
+        "/metadata/get-subject",
+      );
+      return response.data['data'];
+    } on DioException catch (error) {
+      print(error);
+      return null;
+    }
+  }
+
+
+
+
+  Future<Map<String, dynamic>?> registerUser() async {
+  try {
     String? userTypeRole;
 
+ 
     switch (_selectedRole) {
       case UserRole.instituteAdmin:
         userTypeRole = "INSTITUTE";
+        break;
+
       case UserRole.teacher:
         userTypeRole = "TUTOR";
+        break;
 
       case UserRole.student:
         userTypeRole = "STUDENT";
+        break;
 
       default:
-        userTypeRole = null;
+        return {"success": false, "message": "Invalid role"};
     }
 
-    final studentData = {
-      "full name": fullNameController.text,
+    final data = {
+      // user table
+      "full_name": fullNameController.text,
       "email": emailController.text,
-      "mobile": mobileController.text,
-      "School": schoolController.text,
-      "grade": selectedGrade,
-      "District": selectedDistrict,
-      "Address": addressController.text,
-    };
-
-    final tutorData = {
-      "full name": fullNameController.text,
-      "email": emailController.text,
-      "mobile": mobileController.text,
       "password": passwordController.text,
-      "Subject": selectedMajorSubject,
-      "Student Count": selectedStudentCount,
-      "Experience": selectedExperience,
-      "District": selectedDistrict,
-      "Address": addressController.text,
-    };
-
-    final institiuteData = {
-      "full name": fullNameController.text,
-      "email": emailController.text,
-      "mobile": mobileController.text,
-      "password": passwordController.text,
-      "Institute Name": instituteNameController.text,
-      "Student Count": selectedStudentCount,
-      "Teacher Count": selectedTeacherCount,
-      "District": selectedDistrict,
-      "Address": addressController.text,
-    };
-
-    final user = {
-      "fullName": fullNameController.text,
-      "email": emailController.text,
-      "mobile": mobileController.text,
-      "password": passwordController.text,
+      "address_line1": addressController.text,
+      "address_line2": addressTwoController.text,
+      "phone": mobileController.text,
+      "district_id": selectedDistrict,
+      "description": descriptionController.text,
       "role": userTypeRole,
-      "province": selectedDistrict,
-      "address": addressController.text,
+
+      // student table
+      "grade": selectedGrade,
+      "dob": selectedBirthday?.toIso8601String(),
+      "school": schoolController.text,
+
+      // tutor table
+      "subject_id": selectedMajorSubject,
+      "experience": selectedExperience,
     };
-    // debugPrint(studentData.toString());
-    //
-    var response = await http.post(
-      Uri.parse("http://10.0.2.2:5001/api/auth/register"),
-      headers: {"Content-Type": "application/json"},
-      body: jsonEncode(user),
+
+    // print(data);
+
+    final response = await _dio.post(
+      "/auth/register",
+      data: data,
     );
-    //
+    
+    print(response.data);
+    return response.data;
 
-    var jsonResponse = jsonDecode(response.body);
+  } on DioException catch (e) {
+    print(e.response?.data);
+      return e.response?.data;
 
-    debugPrint("Status Code: ${response.statusCode}");
-    debugPrint("Response Body: ${response.body}");
-
-    // debugPrint(user.toString());
+  } catch (e) {
+    print(e);
+    return null;
   }
+}
+
+
+
 
   bool isStep3Valid() {
     switch (_selectedRole) {
       case UserRole.instituteAdmin:
         return _addressOneValidated &&
             _addressTwoValidated &&
-              isDobSelected() &&
-               _descriptionValidated &&
+            _descriptionValidated &&
             _districtValidated;
 
       case UserRole.teacher:

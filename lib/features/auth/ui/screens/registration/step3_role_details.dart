@@ -1,8 +1,10 @@
 ﻿import 'package:flutter/material.dart';
 import 'package:warna_app/core/constants/select_options.dart';
+import 'package:warna_app/data/repositories/metadata_repository.dart';
 import 'package:warna_app/shared/widgets/new/custom_datetime_picker.dart';
 import 'package:warna_app/shared/widgets/new/custom_select.dart';
 import 'package:warna_app/shared/widgets/field_error_text.dart';
+import 'package:warna_app/shared/widgets/new/new_select_options.dart';
 import '../../../../../shared/widgets/custom_button.dart';
 import '../../../../../shared/widgets/new/custom_textfield.dart';
 import '../../../../../shared/widgets/customselect.dart';
@@ -27,6 +29,52 @@ class RegistrationStep3 extends StatefulWidget {
 }
 
 class _RegistrationStep3State extends State<RegistrationStep3> {
+  List<Map<String, String>> districtsList = [];
+  List<Map<String, String>> subjectsList = [];
+
+  @override
+  initState() {
+    super.initState();
+    // Fetch district data when the widget is initialized
+    loadDistrictData();
+    loadSubjectData();
+  }
+
+  Future<void> loadDistrictData() async {
+    final rawDistricts = await MetadataRepository().getDistricts();
+
+    // print(rawDistricts);
+    if (rawDistricts != null) {
+      // List<String> districts = List<String>.from(data['districts']);
+      setState(() {
+        districtsList = rawDistricts
+            .map(
+              (d) => {"id": d["id"].toString(), "name": d["name"].toString()},
+            )
+            .toList();
+      });
+    } else {
+      print("Failed to load district data");
+    }
+  }
+
+  Future<void> loadSubjectData() async {
+    final rawSubjects = await MetadataRepository().getSubjects();
+
+    // print(rawSubjects);
+    if (rawSubjects != null) {
+      setState(() {
+        subjectsList = rawSubjects
+            .map(
+              (s) => {"id": s["id"].toString(), "name": s["name"].toString()},
+            )
+            .toList();
+      });
+    } else {
+      print("Failed to load subject data");
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return SingleChildScrollView(
@@ -59,9 +107,52 @@ class _RegistrationStep3State extends State<RegistrationStep3> {
           CustomButton(
             text: RegistrationStrings.next,
             onPressed: widget.controller.isStep3Valid()
-                ? () {
-                    widget.controller.printData(); // do current task
+                ? () async {
+                    final response = await widget.controller
+                        .registerUser(); // do current task
+                    if (response != null && response["status"] == true) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          behavior: SnackBarBehavior.floating,
+                          margin: EdgeInsets.all(16),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          backgroundColor: AppColors.success,
+                          content: Row(
+                            children: [
+                              Icon(Icons.check_circle, color: Colors.white),
+                              SizedBox(width: 10),
+                              Expanded(child: Text(response["message"])),
+
+                            ],
+                          ),
+                        ),
+                      );
                     widget.onNext(); // call next function
+
+
+                    }else{
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          behavior: SnackBarBehavior.floating,
+                          margin: EdgeInsets.all(16),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          backgroundColor: AppColors.error,
+                          content: Row(
+                            children: [
+                              Icon(Icons.error, color: Colors.white),
+                              SizedBox(width: 10),
+                              Expanded(child: Text(response == null ? "An error occurred" : response["message"])),
+
+                            ],
+                          ),
+                        ),
+                      );
+                    }
+
                   }
                 : null,
             // onPressed: _buildTeacherForm.,
@@ -124,23 +215,13 @@ class _RegistrationStep3State extends State<RegistrationStep3> {
   Widget _buildAdminForm() {
     return Column(
       children: [
-         
- 
-        CustomDateTimePicker(
-          mode: PickerMode.date,
-          label: "Established Date",
-          hintText: "Select Date",
-          selectedDate: widget.controller.selectedBirthday,
-          onDateSelected: (date) => widget.controller.setBirthday(date),
-        ),
-        const SizedBox(height: 20),
-
-        CreativeSelect(
+        NewSelectOptions(
           label: "District*",
-          value: widget.controller.selectedDistrict,
-          items: SelectOptions.districtsList,
-          onChanged: (value) {
-            widget.controller.setDistrict(value);
+          value: widget.controller.selectedDistrict, // stores ID
+          items: districtsList, // List<Map<String,String>>
+          onChanged: (id) {
+            widget.controller.setDistrict(id); // saves ID
+            // print("Selected ID: $id"); // prints the UUID
           },
         ),
         const SizedBox(height: 20),
@@ -187,31 +268,33 @@ class _RegistrationStep3State extends State<RegistrationStep3> {
   Widget _buildTeacherForm() {
     return Column(
       children: [
-        // Subjects Taught
-        CreativeSelect(
+        NewSelectOptions(
           label: "Major Subject*",
-          value: widget.controller.selectedMajorSubject,
-          items: SelectOptions.subjects,
-          onChanged: (value) {
-            widget.controller.setMajorSubject(value);
+          value: widget.controller.selectedMajorSubject, // stores ID
+          items: subjectsList, // List<Map<String,String>>
+          onChanged: (id) {
+            widget.controller.setMajorSubject(id); // saves ID
+            print("Selected ID: $id"); // prints the UUID
           },
         ),
-        const SizedBox(height: 20),
 
-        CreativeSelect(
+        const SizedBox(height: 20),
+        NewSelectOptions(
           label: "Grade*",
-          items: SelectOptions.gradesList,
-          value: widget.controller.selectedGrade,
-          onChanged: (value) {
-            widget.controller.setGrade(value);
+          value: widget.controller.selectedGrade, // stores ID
+          items: SelectOptions.newgradesList, // List<Map<String,String>>
+          onChanged: (id) {
+            widget.controller.setGrade(id); // saves ID
+            // print("Selected ID: $id"); // prints the UUID
           },
         ),
+
         const SizedBox(height: 20),
 
         // Years of Experience
         CustomTextField(
           label: "Experience (Years)*",
-          hintText: "Enter years of experience (0 - 100)",
+          hintText: "Enter years of experience (0 - 50)",
           controller: widget.controller.experienceController,
           keyboardType: TextInputType.number,
           onChanged: (value) {
@@ -231,12 +314,13 @@ class _RegistrationStep3State extends State<RegistrationStep3> {
         ),
         const SizedBox(height: 20),
 
-        CreativeSelect(
+        NewSelectOptions(
           label: "District*",
-          value: widget.controller.selectedDistrict,
-          items: SelectOptions.districtsList,
-          onChanged: (value) {
-            widget.controller.setDistrict(value);
+          value: widget.controller.selectedDistrict, // stores ID
+          items: districtsList, // List<Map<String,String>>
+          onChanged: (id) {
+            widget.controller.setDistrict(id); // saves ID
+            // print("Selected ID: $id"); // prints the UUID
           },
         ),
         const SizedBox(height: 20),
@@ -306,23 +390,25 @@ class _RegistrationStep3State extends State<RegistrationStep3> {
 
         const SizedBox(height: 20),
 
-        CreativeSelect(
+        NewSelectOptions(
           label: "Grade*",
-          items: SelectOptions.gradesList,
-          value: widget.controller.selectedGrade,
-          onChanged: (value) {
-            widget.controller.setGrade(value);
+          value: widget.controller.selectedGrade, // stores ID
+          items: SelectOptions.newgradesList, // List<Map<String,String>>
+          onChanged: (id) {
+            widget.controller.setGrade(id); // saves ID
+            // print("Selected ID: $id"); // prints the UUID
           },
         ),
 
         const SizedBox(height: 20),
 
-        CreativeSelect(
+        NewSelectOptions(
           label: "District*",
-          value: widget.controller.selectedDistrict,
-          items: SelectOptions.districtsList,
-          onChanged: (value) {
-            widget.controller.setDistrict(value);
+          value: widget.controller.selectedDistrict, // stores ID
+          items: districtsList, // List<Map<String,String>>
+          onChanged: (id) {
+            widget.controller.setDistrict(id); // saves ID
+            // print("Selected ID: $id"); // prints the UUID
           },
         ),
         const SizedBox(height: 20),

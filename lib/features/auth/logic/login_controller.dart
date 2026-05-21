@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:http/http.dart' as http;
+import 'package:warna_app/core/network/dio_client.dart';
 import 'package:warna_app/core/utils/token_service.dart';
 import 'package:warna_app/core/utils/user_service.dart';
 import 'package:warna_app/router/router_names.dart';
@@ -10,6 +11,9 @@ import 'package:dio/dio.dart';
 
 class LoginController extends ChangeNotifier {
   // Form Fields
+
+  final _dio = DioClient.instance; 
+
   final TextEditingController emailController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
 
@@ -116,7 +120,7 @@ class LoginController extends ChangeNotifier {
     };
 
     try {
-      final response = await Dio().post(
+      final response = await _dio.post(
         "http://10.0.2.2:5001/api/auth/login",
         data: user,
       );
