@@ -4,8 +4,8 @@ class RegistrationStrings {
     'Account',
     'Security',
     'Details',
-    'Verify',
-    'Done'
+    'Complete',
+    'Login'
   ];
 
   // Step 1 - Basic Information
@@ -16,9 +16,9 @@ class RegistrationStrings {
   static const String roleAdmin = 'Institute';
   static const String roleAdminDesc = 'Manage institute, staff & students';
   static const String roleTeacher = 'Tutor';
-  static const String roleTeacherDesc = 'Create courses & teach students';
+  static const String roleTeacherDesc = 'Create Classes & teach students';
   static const String roleStudent = 'Student';
-  static const String roleStudentDesc = 'Learn from courses & assignments';
+  static const String roleStudentDesc = 'Learn from teachers & join classes';
 
   static const String fullName = 'Full Name';
   static const String fullNameHint = 'Enter your full name';

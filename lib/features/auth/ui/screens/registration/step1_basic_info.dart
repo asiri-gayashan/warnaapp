@@ -139,7 +139,7 @@ class _RegistrationStep1State extends State<RegistrationStep1> {
       children: [
         // Full Name
         CustomTextField(
-          label: RegistrationStrings.fullName,
+          label: widget.controller.selectedRole ==  UserRole.instituteAdmin ? "Institute Name" : "Full Name",
           hintText: RegistrationStrings.fullNameHint,
           controller: widget.controller.fullNameController,
           onChanged: (value) {
