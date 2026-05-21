@@ -5,11 +5,14 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import '../../../config/config.dart';
 import 'package:dio/dio.dart';
+import '../../../core/network/dio_client.dart';
 
 enum UserRole { instituteAdmin, teacher, student }
 
 class RegistrationController extends ChangeNotifier {
   // Current Step
+
+  final _dio = DioClient.instance; 
   int _currentStep = 1;
   int get currentStep => _currentStep;
   bool isAPIcallProcess = false;
@@ -634,7 +637,7 @@ class RegistrationController extends ChangeNotifier {
 
   Future<List<dynamic>?> districtData() async {
     try {
-      var response = await Dio().get(
+      var response = await _dio.get(
         "http://10.0.2.2:5001/api/metadata/get-district",
       );
       return response.data['data'];
@@ -647,7 +650,7 @@ class RegistrationController extends ChangeNotifier {
 
   Future<List<dynamic>?> SubjectData() async {
     try {
-      var response = await Dio().get(
+      var response = await _dio.get(
         "http://10.0.2.2:5001/api/metadata/get-subject",
       );
       return response.data['data'];
@@ -706,7 +709,7 @@ class RegistrationController extends ChangeNotifier {
 
     // print(data);
 
-    final response = await Dio().post(
+    final response = await _dio.post(
       "http://10.0.2.2:5001/api/auth/register",
       data: data,
     );
