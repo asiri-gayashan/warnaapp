@@ -1,9 +1,5 @@
-import 'dart:convert';
-import 'dart:ffi';
 
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
-import '../../../config/config.dart';
 import 'package:dio/dio.dart';
 import '../../../core/network/dio_client.dart';
 
@@ -638,7 +634,7 @@ class RegistrationController extends ChangeNotifier {
   Future<List<dynamic>?> districtData() async {
     try {
       var response = await _dio.get(
-        "http://10.0.2.2:5001/api/metadata/get-district",
+        "/metadata/get-district",
       );
       return response.data['data'];
     } on DioException catch (error) {
@@ -651,7 +647,7 @@ class RegistrationController extends ChangeNotifier {
   Future<List<dynamic>?> SubjectData() async {
     try {
       var response = await _dio.get(
-        "http://10.0.2.2:5001/api/metadata/get-subject",
+        "/metadata/get-subject",
       );
       return response.data['data'];
     } on DioException catch (error) {
@@ -710,7 +706,7 @@ class RegistrationController extends ChangeNotifier {
     // print(data);
 
     final response = await _dio.post(
-      "http://10.0.2.2:5001/api/auth/register",
+      "/auth/register",
       data: data,
     );
     

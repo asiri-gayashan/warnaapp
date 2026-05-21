@@ -1,7 +1,7 @@
 import 'package:dio/dio.dart';
 
 class DioClient {
-  DioClient._(); // private constructor - outside කෙනෙකුට new DioClient() කරන්න බෑ
+  DioClient._(); 
 
   static final Dio instance = Dio(
     BaseOptions(

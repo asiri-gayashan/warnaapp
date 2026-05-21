@@ -1,5 +1,6 @@
 ﻿import 'package:flutter/material.dart';
 import 'package:warna_app/core/constants/select_options.dart';
+import 'package:warna_app/data/repositories/metadata_repository.dart';
 import 'package:warna_app/shared/widgets/new/custom_datetime_picker.dart';
 import 'package:warna_app/shared/widgets/new/custom_select.dart';
 import 'package:warna_app/shared/widgets/field_error_text.dart';
@@ -40,7 +41,7 @@ class _RegistrationStep3State extends State<RegistrationStep3> {
   }
 
   Future<void> loadDistrictData() async {
-    final rawDistricts = await widget.controller.districtData();
+    final rawDistricts = await MetadataRepository().getDistricts();
 
     // print(rawDistricts);
     if (rawDistricts != null) {
@@ -58,7 +59,7 @@ class _RegistrationStep3State extends State<RegistrationStep3> {
   }
 
   Future<void> loadSubjectData() async {
-    final rawSubjects = await widget.controller.SubjectData();
+    final rawSubjects = await MetadataRepository().getSubjects();
 
     // print(rawSubjects);
     if (rawSubjects != null) {
