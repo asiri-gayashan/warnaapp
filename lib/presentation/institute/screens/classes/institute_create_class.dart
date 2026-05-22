@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:warna_app/core/constants/app_colors.dart';
 import 'package:warna_app/core/constants/select_options.dart';
 import 'package:warna_app/data/repositories/metadata_repository.dart';
 import 'package:warna_app/presentation/institute/controllers/create_class_controller.dart';
 import 'package:warna_app/shared/widgets/custom_button.dart';
 import 'package:warna_app/shared/widgets/field_error_text.dart';
+import 'package:warna_app/shared/widgets/modals/teacher_search_dialog.dart';
 import 'package:warna_app/shared/widgets/new/custom_select.dart';
 import 'package:warna_app/shared/widgets/new/custom_textfield.dart';
 import 'package:warna_app/shared/widgets/new/new_select_options.dart';
@@ -79,6 +81,10 @@ class _InstituteCreateClassPageState extends State<InstituteCreateClassPage> {
       print("Failed to load subject data");
     }
   }
+
+  // -----------------------------------------------------------------------
+  // Teacher Search Modal
+  // -----------------------------------------------------------------------
 
   // -----------------------------------------------------------------------
   // Time Picker
@@ -242,7 +248,7 @@ class _InstituteCreateClassPageState extends State<InstituteCreateClassPage> {
                 value: controller.selectedGrade,
                 items: SelectOptions.newgradesList,
                 onChanged: (id) {
-                 setState(() =>  controller.setGrade(id));
+                  setState(() => controller.setGrade(id));
                   print("Selected ID: $id");
                 },
               ),
@@ -252,17 +258,80 @@ class _InstituteCreateClassPageState extends State<InstituteCreateClassPage> {
               // -------------------------------------------------------
               // Teacher
               // -------------------------------------------------------
-              CustomSelect(
-                label: 'Teacher*',
-                hintText: 'Select Teacher',
-                value: controller.selectedTeacher,
-                options: _teachers
-                    .map((t) => SelectOption(value: t, label: t))
-                    .toList(),
-                onChanged: (val) {
-                  setState(() => controller.setTeacher(val));
-                },
-                isRequired: true,
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.only(bottom: 8),
+                    child: Text(
+                      'Teacher*',
+                      style: const TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w600,
+                        color: AppColors.textPrimary,
+                      ),
+                    ),
+                  ),
+                  GestureDetector(
+                    onTap: () => showDialog(
+                      context: context,
+                      builder: (context) {
+                        return TeacherSearchDialog(
+                          onSearch: (email) async {
+                            return await controller.searchTeacherByEmail(email);
+                          },
+
+                          onTeacherSelected: (teacher) {
+                            setState(() {
+                              controller.setTeacherWithName(
+                                teacher['users']['id']?.toString(),
+                                teacher['users']['email'],
+                              );
+                            });
+                          },
+                        );
+                      },
+                    ),
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 16,
+                        vertical: 16,
+                      ),
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(12),
+                        border: Border.all(
+                          color: controller.selectedTeacher != null
+                              ? Colors.grey.shade300
+                              : Colors.grey.shade200,
+                        ),
+                      ),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Expanded(
+                            child: Text(
+                              controller.selectedTeacherEmail ??
+                                  'Select Teacher by Email',
+                              style: TextStyle(
+                                color: controller.selectedTeacher != null
+                                    ? AppColors.textPrimary
+                                    : AppColors.textSecondary,
+                                fontSize: 14,
+                              ),
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ),
+                          const Icon(
+                            Icons.search,
+                            color: AppColors.textSecondary,
+                            size: 20,
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ],
               ),
               FieldErrorText(message: controller.teacherError),
               const SizedBox(height: 20),
@@ -399,6 +468,8 @@ class _InstituteCreateClassPageState extends State<InstituteCreateClassPage> {
                               ),
                             ),
                           );
+
+                          Navigator.pop(context);
                         } else {
                           ScaffoldMessenger.of(context).showSnackBar(
                             SnackBar(

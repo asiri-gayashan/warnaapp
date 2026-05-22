@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:warna_app/core/utils/user_service.dart';
 import '../../../core/network/dio_client.dart';
 import 'package:dio/dio.dart';
 
@@ -18,6 +19,8 @@ class CreateClassController extends ChangeNotifier {
   // -----------------------------------------------------------------------
   String? _selectedTeacher;
   String? get selectedTeacher => _selectedTeacher;
+  String? _selectedTeacherEmail;
+  String? get selectedTeacherEmail => _selectedTeacherEmail;
 
   String? _selectedGrade;
   String? get selectedGrade => _selectedGrade;
@@ -44,9 +47,7 @@ class CreateClassController extends ChangeNotifier {
 
   void validateClassName(String value) {
     final className = value.trim();
-    final RegExp classNameRegex = RegExp(
-       r'^[a-zA-Z0-9]+$',
-    );
+    final RegExp classNameRegex = RegExp(r'^[a-zA-Z0-9 ]+$');
 
     if (className.isEmpty) {
       _classNameValidated = false;
@@ -166,6 +167,21 @@ class CreateClassController extends ChangeNotifier {
     _selectedTeacher = value;
 
     if (value == null || value.isEmpty) {
+      _teacherValidated = false;
+      _teacherError = "Please select a teacher";
+    } else {
+      _teacherValidated = true;
+      _teacherError = null;
+    }
+
+    notifyListeners();
+  }
+
+  void setTeacherWithName(String? id, String? email) {
+    _selectedTeacher = id;
+    _selectedTeacherEmail = email;
+
+    if (id == null || id.isEmpty) {
       _teacherValidated = false;
       _teacherError = "Please select a teacher";
     } else {
@@ -300,32 +316,39 @@ class CreateClassController extends ChangeNotifier {
   bool isLoading = false;
 
   Future<Map<String, dynamic>?> createClass() async {
+    final user = await UserService.getUser();
     try {
       isLoading = true;
       notifyListeners();
 
       final data = {
-        "class_name": classNameController.text.trim(),
-        "fees": double.tryParse(classFeesController.text.trim()),
-        "commission": double.tryParse(commissionController.text.trim()),
-        "description": descriptionController.text.trim(),
-        "teacher_id": _selectedTeacher,
-        "grade": _selectedGrade,
+        "name": classNameController.text.trim(),
         "subject_id": _selectedSubject,
-        "day": _selectedDay,
-        "start_time": _startTime != null
-            ? "${_startTime!.hour}:${_startTime!.minute.toString().padLeft(2, '0')}"
-            : null,
-        "end_time": _endTime != null
-            ? "${_endTime!.hour}:${_endTime!.minute.toString().padLeft(2, '0')}"
-            : null,
+        "tutor_id": _selectedTeacher,
+        "institute_id": user?["id"], // TODO - get from user profile
+       "start_time": _startTime != null
+    ? "${_startTime!.hour.toString().padLeft(2, '0')}:${_startTime!.minute.toString().padLeft(2, '0')}:00"
+    : null,
+
+"end_time": _endTime != null
+    ? "${_endTime!.hour.toString().padLeft(2, '0')}:${_endTime!.minute.toString().padLeft(2, '0')}:00"
+    : null,
+        "day": int.parse(_selectedDay.toString()),
+        "description": descriptionController.text.trim(),
+        "amount": double.tryParse(classFeesController.text.trim()),
+        "institute_commission": double.tryParse(
+          commissionController.text.trim(),
+        ),
+        "location": user?["full_name"],
+        "grade":  int.parse(_selectedGrade.toString()),
       };
 
-      final response = await _dio.post("/class/create", data: data);
+      final response = await _dio.post("/classes/create", data: data);
+
+      print("Create Class Payload: $data");
 
       isLoading = false;
       notifyListeners();
-
       return response.data;
     } on DioException catch (e) {
       isLoading = false;
@@ -335,6 +358,23 @@ class CreateClassController extends ChangeNotifier {
     } catch (e) {
       isLoading = false;
       notifyListeners();
+      print(e);
+      return null;
+    }
+  }
+
+  // -----------------------------------------------------------------------
+  // API Call - Search Teacher by Email
+  // -----------------------------------------------------------------------
+  Future<Map<String, dynamic>?> searchTeacherByEmail(String email) async {
+    try {
+      final response = await _dio.get("/teachers/email/$email");
+      print("Search Teacher Response: ${response.data}");
+      return response.data;
+    } on DioException catch (e) {
+      print(e.response?.data);
+      return null;
+    } catch (e) {
       print(e);
       return null;
     }
