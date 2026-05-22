@@ -93,7 +93,7 @@ class RegistrationController extends ChangeNotifier {
   bool get addressOneValidated => _addressOneValidated;
   String? _addressOneError;
   String? get addressOneError => _addressOneError;
-
+  
   bool _addressTwoValidated = false;
   bool get addressTwoValidated => _addressTwoValidated;
   String? _addressTwoError;

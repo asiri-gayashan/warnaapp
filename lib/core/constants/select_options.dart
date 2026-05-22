@@ -150,6 +150,17 @@ class SelectOptions {
     {"id": "12", "name": "Grade 12"},
     {"id": "13", "name": "Grade 13"},
   ];
+  static const List<Map<String, String>> days = [
+    {"id": "1", "name": "Monday"},
+    {"id": "2", "name": "Tuesday"},
+    {"id": "3", "name": "Wednesday"},
+    {"id": "4", "name": "Thursday"},
+    {"id": "5", "name": "Friday"},
+    {"id": "6", "name": "Saturday"},
+    {"id": "7", "name": "Sunday"},
+  ];
+
+  
 
   
   static const List<String> gradesList = [

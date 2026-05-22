@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:warna_app/core/constants/app_colors.dart';
 import 'package:warna_app/presentation/institute/screens/classes/class_detail_page.dart';
 import 'package:warna_app/presentation/institute/screens/classes/institute_create_class.dart';
+import 'package:warna_app/router/router_names.dart';
 import 'package:warna_app/shared/widgets/new/course_card.dart';
 
 // --- Data model ---
@@ -114,6 +116,10 @@ const List<CourseData> sampleCourses = [
 class InstituteCoursesPage extends StatelessWidget {
   const InstituteCoursesPage({Key? key}) : super(key: key);
 
+
+
+
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -159,10 +165,9 @@ class InstituteCoursesPage extends StatelessWidget {
       //Floating action  button to add new course
       floatingActionButton: FloatingActionButton(
         onPressed: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(builder: (context) => const InstituteCreateClassPage()),
-          );
+            GoRouter.of(context).pushNamed(InstituteRouteNames.createClass);
+
+         
         },
         backgroundColor: AppColors.primary,
         elevation: 10,

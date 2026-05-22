@@ -26,7 +26,7 @@ class RegistrationStep3 extends StatefulWidget {
 
   @override
   State<RegistrationStep3> createState() => _RegistrationStep3State();
-}
+} 
 
 class _RegistrationStep3State extends State<RegistrationStep3> {
   List<Map<String, String>> districtsList = [];
