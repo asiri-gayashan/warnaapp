@@ -135,7 +135,7 @@ class CreateClassController extends ChangeNotifier {
   // -----------------------------------------------------------------------
   bool _descriptionValidated = true; // optional field
   bool get descriptionValidated => _descriptionValidated;
-  String? _descriptionError;
+  String? _descriptionError;  
   String? get descriptionError => _descriptionError;
 
   void validateDescription(String value) {
@@ -326,13 +326,13 @@ class CreateClassController extends ChangeNotifier {
         "subject_id": _selectedSubject,
         "tutor_id": _selectedTeacher,
         "institute_id": user?["id"], // TODO - get from user profile
-       "start_time": _startTime != null
-    ? "${_startTime!.hour.toString().padLeft(2, '0')}:${_startTime!.minute.toString().padLeft(2, '0')}:00"
-    : null,
+        "start_time": _startTime != null
+            ? "${_startTime!.hour.toString().padLeft(2, '0')}:${_startTime!.minute.toString().padLeft(2, '0')}:00"
+            : null,
 
-"end_time": _endTime != null
-    ? "${_endTime!.hour.toString().padLeft(2, '0')}:${_endTime!.minute.toString().padLeft(2, '0')}:00"
-    : null,
+        "end_time": _endTime != null
+            ? "${_endTime!.hour.toString().padLeft(2, '0')}:${_endTime!.minute.toString().padLeft(2, '0')}:00"
+            : null,
         "day": int.parse(_selectedDay.toString()),
         "description": descriptionController.text.trim(),
         "amount": double.tryParse(classFeesController.text.trim()),
@@ -340,7 +340,7 @@ class CreateClassController extends ChangeNotifier {
           commissionController.text.trim(),
         ),
         "location": user?["full_name"],
-        "grade":  int.parse(_selectedGrade.toString()),
+        "grade": int.parse(_selectedGrade.toString()),
       };
 
       final response = await _dio.post("/classes/create", data: data);

@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
 import 'package:warna_app/core/constants/app_colors.dart';
 import 'package:warna_app/core/constants/select_options.dart';
 import 'package:warna_app/data/repositories/metadata_repository.dart';
@@ -7,7 +6,6 @@ import 'package:warna_app/presentation/institute/controllers/create_class_contro
 import 'package:warna_app/shared/widgets/custom_button.dart';
 import 'package:warna_app/shared/widgets/field_error_text.dart';
 import 'package:warna_app/shared/widgets/modals/teacher_search_dialog.dart';
-import 'package:warna_app/shared/widgets/new/custom_select.dart';
 import 'package:warna_app/shared/widgets/new/custom_textfield.dart';
 import 'package:warna_app/shared/widgets/new/new_select_options.dart';
 
@@ -24,36 +22,7 @@ class _InstituteCreateClassPageState extends State<InstituteCreateClassPage> {
   late CreateClassController controller;
   List<Map<String, String>> subjectsList = [];
 
-  // Dummy data - replace with API data
-  final List<String> _teachers = [
-    'Dr. Sarah Johnson',
-    'Prof. Alan Smith',
-    'Mr. David Wilson',
-  ];
-  final List<String> _grades = [
-    'Grade 9',
-    'Grade 10',
-    'Grade 11',
-    'Grade 12',
-    'A/L',
-  ];
-  final List<String> _subjects = [
-    'Mathematics',
-    'Science',
-    'English',
-    'Physics',
-    'Chemistry',
-  ];
-  final List<String> _days = [
-    'Monday',
-    'Tuesday',
-    'Wednesday',
-    'Thursday',
-    'Friday',
-    'Saturday',
-    'Sunday',
-  ];
-
+   
   @override
   void initState() {
     super.initState();
@@ -81,10 +50,7 @@ class _InstituteCreateClassPageState extends State<InstituteCreateClassPage> {
       print("Failed to load subject data");
     }
   }
-
-  // -----------------------------------------------------------------------
-  // Teacher Search Modal
-  // -----------------------------------------------------------------------
+ 
 
   // -----------------------------------------------------------------------
   // Time Picker
