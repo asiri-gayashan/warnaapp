@@ -415,7 +415,7 @@ class _InstituteCreateClassPageState extends State<InstituteCreateClassPage> {
                 onPressed: controller.isFormValid()
                     ? () async {
                         final response = await controller
-                            .createClass(); // do current task
+                            .createClass(); // returns null on error, otherwise returns API response map
                         if (response != null && response["status"] == true) {
                           ScaffoldMessenger.of(context).showSnackBar(
                             SnackBar(

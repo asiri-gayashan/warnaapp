@@ -1,34 +1,5 @@
 import 'package:flutter/material.dart';
-
-// ============================================================
-// DATA MODEL
-// ============================================================
-
-class CourseData {
-  final String title;
-  final String subject;
-  final String grade;
-  final String location;
-  final String day;
-  final String time;
-  final String duration;
-  final int studentCount;
-  final Color dayColor;
-  final Color dayBg;
-
-  const CourseData({
-    required this.title,
-    required this.subject,
-    required this.grade,
-    required this.location,
-    required this.day,
-    required this.time,
-    required this.duration,
-    required this.studentCount,
-    required this.dayColor,
-    required this.dayBg,
-  });
-}
+import 'package:warna_app/data/models/class_model.dart';
 
 // ============================================================
 // CLASS PAGE CONTROLLER
@@ -59,10 +30,52 @@ class ClassPageController extends ChangeNotifier {
   TimeOfDay? get startTime => _startTime;
   TimeOfDay? get endTime => _endTime;
 
-  // ── Source data (in a real app, fetched from API/repo) ───────
-  List<CourseData> _allCourses = [];
+  String? _timeError;
+  String? get timeError => _timeError;
 
-  List<CourseData> get allCourses => _allCourses;
+  // ── Source data ─────────────────────────────────────────────
+  List<ClassModel> _allClasses = [];
+  List<ClassModel> get allClasses => _allClasses;
+
+  // ── Setters ──────────────────────────────────────────────────
+  void setSubject(String? value) {
+    _selectedSubject = value;
+  }
+
+  void setDay(String? value) {
+    _selectedDay = value;
+  }
+
+  void setGrade(String? value) {
+    _selectedGrade = value;
+    notifyListeners();
+  }
+
+  void setStartTime(TimeOfDay time) {
+    _startTime = time;
+    _validateTime();
+    notifyListeners();
+  }
+
+  void setEndTime(TimeOfDay time) {
+    _endTime = time;
+    _validateTime();
+    notifyListeners();
+  }
+
+  void _validateTime() {
+    if (_startTime == null || _endTime == null) {
+      _timeError = null;
+      return;
+    }
+    final start = _startTime!.hour * 60 + _startTime!.minute;
+    final end = _endTime!.hour * 60 + _endTime!.minute;
+    if (end <= start) {
+      _timeError = "End time must be after start time";
+    } else {
+      _timeError = null;
+    }
+  }
 
   // ── Computed: active filter count ────────────────────────────
   int get activeFilterCount {
@@ -76,47 +89,83 @@ class ClassPageController extends ChangeNotifier {
   }
 
   // ── Computed: filtered list ──────────────────────────────────
-  List<CourseData> get filteredCourses {
-    return _allCourses.where((course) {
+  List<ClassModel> get filteredClasses {
+    return _allClasses.where((cls) {
+      // Search: match name or subject name
       final matchesSearch =
           _searchQuery.isEmpty ||
-          course.title.toLowerCase().contains(_searchQuery.toLowerCase()) ||
-          course.subject.toLowerCase().contains(_searchQuery.toLowerCase());
+          cls.name.toLowerCase().contains(_searchQuery.toLowerCase()) ||
+          cls.subjectName.toLowerCase().contains(_searchQuery.toLowerCase()) ||
+           cls.tutorName.toLowerCase().contains(_searchQuery.toLowerCase());
 
+      // Day filter: compare day int to selected id string (e.g. "1" == cls.day)
       final matchesDay =
           _selectedDay == null ||
-          course.day.toLowerCase() == _selectedDay!.toLowerCase();
+          cls.day.toString() == _selectedDay;
 
+      // Subject filter: compare subjectId to selected id
       final matchesSubject =
           _selectedSubject == null ||
-          course.subject.toLowerCase() == _selectedSubject!.toLowerCase();
+          cls.subjectId == _selectedSubject;
 
+      // Grade filter: compare grade int to selected id string (e.g. "11" == cls.grade)
       final matchesGrade =
           _selectedGrade == null ||
-          course.grade.toLowerCase().replaceAll(' ', '_') ==
-              _selectedGrade!.toLowerCase();
+          cls.grade.toString() == _selectedGrade;
 
-      return matchesSearch && matchesDay && matchesSubject && matchesGrade;
+      // Status filter: compare status string
+      final matchesStatus =
+          _selectedStatus == null ||
+          cls.status.toUpperCase() == _selectedStatus!.toUpperCase();
+
+      // Time filter: class startTime (HH:mm) must be within range
+      bool matchesTime = true;
+      if (_startTime != null || _endTime != null) {
+        try {
+          final parts = cls.startTime.split(':');
+          final classMinutes =
+              int.parse(parts[0]) * 60 + int.parse(parts[1]);
+          if (_startTime != null) {
+            final filterStart =
+                _startTime!.hour * 60 + _startTime!.minute;
+            if (classMinutes < filterStart) matchesTime = false;
+          }
+          if (_endTime != null) {
+            final filterEnd =
+                _endTime!.hour * 60 + _endTime!.minute;
+            if (classMinutes > filterEnd) matchesTime = false;
+          }
+        } catch (_) {
+          matchesTime = true;
+        }
+      }
+
+      return matchesSearch &&
+          matchesDay &&
+          matchesSubject &&
+          matchesGrade &&
+          matchesStatus &&
+          matchesTime;
     }).toList();
   }
 
   // ── Computed: total pages ────────────────────────────────────
   int get totalPages =>
-      (filteredCourses.length / itemsPerPage).ceil().clamp(1, 999);
+      (filteredClasses.length / itemsPerPage).ceil().clamp(1, 999);
 
   // ── Computed: current page items ─────────────────────────────
-  List<CourseData> get currentPageItems {
-    if (filteredCourses.isEmpty) return [];
+  List<ClassModel> get currentPageItems {
+    if (filteredClasses.isEmpty) return [];
     final start = _currentPage * itemsPerPage;
-    final end = (start + itemsPerPage).clamp(0, filteredCourses.length);
-    return filteredCourses.sublist(start, end);
+    final end = (start + itemsPerPage).clamp(0, filteredClasses.length);
+    return filteredClasses.sublist(start, end);
   }
 
   // ── Methods ──────────────────────────────────────────────────
 
-  /// Load or replace the full course list (e.g., after an API call).
-  void loadCourses(List<CourseData> courses) {
-    _allCourses = courses;
+  /// Load or replace the full class list (called after API fetch).
+  void loadClasses(List<ClassModel> classes) {
+    _allClasses = classes;
     _currentPage = 0;
     notifyListeners();
   }

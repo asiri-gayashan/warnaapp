@@ -2,167 +2,18 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:warna_app/core/constants/app_colors.dart';
 import 'package:warna_app/core/constants/select_options.dart';
-import 'package:warna_app/data/repositories/class_repository.dart';
 import 'package:warna_app/data/models/class_model.dart';
+import 'package:warna_app/data/repositories/class_repository.dart';
+import 'package:warna_app/data/repositories/metadata_repository.dart';
 import 'package:warna_app/presentation/institute/controllers/class_page_controller.dart';
 import 'package:warna_app/presentation/institute/screens/classes/class_detail_page.dart';
 import 'package:warna_app/router/router_names.dart';
+import 'package:warna_app/shared/widgets/field_error_text.dart';
 import 'package:warna_app/shared/widgets/new/course_card.dart';
 import 'package:warna_app/shared/widgets/new/custom_textfield.dart';
 import 'package:warna_app/shared/widgets/new/new_select_options.dart';
 
-// --- Data model ---
-class CourseData {
-  final String title;
-  final String subject;
-  final String grade;
-  final String location;
-  final String day;
-  final String time;
-  final String duration;
-  final int studentCount;
-  final Color dayColor;
-  final Color dayBg;
-
-  const CourseData({
-    required this.title,
-    required this.subject,
-    required this.grade,
-    required this.location,
-    required this.day,
-    required this.time,
-    required this.duration,
-    required this.studentCount,
-    required this.dayColor,
-    required this.dayBg,
-  });
-}
-
-// --- Sample data ---
-List<CourseData> sampleCourses = [
-  CourseData(
-    title: 'Science 2026',
-    subject: 'Science',
-    grade: 'Grade 11',
-    location: 'Kurunegala',
-    day: 'Monday',
-    time: '10:30 AM',
-    duration: '60 mins',
-    studentCount: 8,
-    dayColor: Color(0xff185FA5),
-    dayBg: Color(0xffE8F2FF),
-  ),
-  CourseData(
-    title: 'Pure Maths 2026',
-    subject: 'Mathematics',
-    grade: 'Grade 12',
-    location: 'Colombo',
-    day: 'Wednesday',
-    time: '2:00 PM',
-    duration: '90 mins',
-    studentCount: 12,
-    dayColor: Color(0xff0F6E56),
-    dayBg: Color(0xffE1F5EE),
-  ),
-  CourseData(
-    title: 'Physics 2026',
-    subject: 'Physics',
-    grade: 'Grade 11',
-    location: 'Kandy',
-    day: 'Friday',
-    time: '9:00 AM',
-    duration: '75 mins',
-    studentCount: 6,
-    dayColor: Color(0xff993C1D),
-    dayBg: Color(0xffFAECE7),
-  ),
-  CourseData(
-    title: 'Combined Maths',
-    subject: 'Mathematics',
-    grade: 'Grade 12',
-    location: 'Gampaha',
-    day: 'Tuesday',
-    time: '3:30 PM',
-    duration: '90 mins',
-    studentCount: 15,
-    dayColor: Color(0xff185FA5),
-    dayBg: Color(0xffE8F2FF),
-  ),
-  CourseData(
-    title: 'Chemistry 2026',
-    subject: 'Chemistry',
-    grade: 'Grade 11',
-    location: 'Kurunegala',
-    day: 'Thursday',
-    time: '11:00 AM',
-    duration: '60 mins',
-    studentCount: 10,
-    dayColor: Color(0xff0F6E56),
-    dayBg: Color(0xffE1F5EE),
-  ),
-  CourseData(
-    title: 'Chemistry 2026',
-    subject: 'Chemistry',
-    grade: 'Grade 11',
-    location: 'Kurunegala',
-    day: 'Thursday',
-    time: '11:00 AM',
-    duration: '60 mins',
-    studentCount: 10,
-    dayColor: Color(0xff0F6E56),
-    dayBg: Color(0xffE1F5EE),
-  ),
-  CourseData(
-    title: 'Chemistry 2026',
-    subject: 'Chemistry',
-    grade: 'Grade 11',
-    location: 'Kurunegala',
-    day: 'Thursday',
-    time: '11:00 AM',
-    duration: '60 mins',
-    studentCount: 10,
-    dayColor: Color(0xff0F6E56),
-    dayBg: Color(0xffE1F5EE),
-  ),
-  CourseData(
-    title: 'Biology 2026',
-    subject: 'Biology',
-    grade: 'Grade 12',
-    location: 'Colombo',
-    day: 'Saturday',
-    time: '8:00 AM',
-    duration: '120 mins',
-    studentCount: 18,
-    dayColor: Color(0xff993C1D),
-    dayBg: Color(0xffFAECE7),
-  ),
-];
-
-// --- Filter options ---
-const List<Map<String, String>> dayItems = [
-  {'id': 'monday', 'label': 'Monday'},
-  {'id': 'tuesday', 'label': 'Tuesday'},
-  {'id': 'wednesday', 'label': 'Wednesday'},
-  {'id': 'thursday', 'label': 'Thursday'},
-  {'id': 'friday', 'label': 'Friday'},
-  {'id': 'saturday', 'label': 'Saturday'},
-  {'id': 'sunday', 'label': 'Sunday'},
-];
-
-const List<Map<String, String>> subjectItems = [
-  {'id': 'science', 'label': 'Science'},
-  {'id': 'mathematics', 'label': 'Mathematics'},
-  {'id': 'physics', 'label': 'Physics'},
-  {'id': 'chemistry', 'label': 'Chemistry'},
-  {'id': 'biology', 'label': 'Biology'},
-];
-
-const List<Map<String, String>> gradeItems = [
-  {'id': 'grade_10', 'label': 'Grade 10'},
-  {'id': 'grade_11', 'label': 'Grade 11'},
-  {'id': 'grade_12', 'label': 'Grade 12'},
-  {'id': 'grade_13', 'label': 'Grade 13'},
-];
+// ── Filter options ───────────────────────────────────────────
 
 const List<String> statusOptions = [
   'ACTIVE',
@@ -184,115 +35,113 @@ class InstituteCoursesPage extends StatefulWidget {
 }
 
 class _InstituteCoursesPageState extends State<InstituteCoursesPage> {
-  List<ClassModel> ClassesData = [];
-
-  static const int _itemsPerPage = 4;
-  int _currentPage = 0;
+  late ClassPageController controller;
+  List<Map<String, String>> subjectsList = [];
   bool isLoading = true;
 
-  late ClassPageController controller = ClassPageController();
   final TextEditingController _searchController = TextEditingController();
-  String _searchQuery = '';
-
-  String? _selectedDay;
-  String? _selectedSubject;
-  String? _selectedGrade;
-  String? _selectedStatus;
-  TimeOfDay? _startTime;
-  TimeOfDay? _endTime;
 
   @override
   void initState() {
     super.initState();
+    controller = ClassPageController();
     loadClassData();
+    loadSubjectData();
   }
+
+  // ── Data loading ─────────────────────────────────────────────
 
   Future<void> loadClassData() async {
     final rawClassesData = await ClassRepository().getClasses();
-
     if (rawClassesData != null) {
-      ClassesData = rawClassesData
+      final classes = rawClassesData
           .map<ClassModel>((e) => ClassModel.fromJson(e))
           .toList();
-      // print(rawClassesData);
-      isLoading = false;
-      print(ClassesData);
+      controller.loadClasses(classes);
     } else {
       print("Failed to load classes data");
     }
+    setState(() => isLoading = false);
   }
 
-  int get _activeFilterCount {
-    int count = 0;
-    if (_selectedDay != null) count++;
-    if (_selectedSubject != null) count++;
-    if (_selectedGrade != null) count++;
-    if (_selectedStatus != null) count++;
-    if (_startTime != null || _endTime != null) count++;
-    return count;
+  Future<void> loadSubjectData() async {
+    final rawSubjects = await MetadataRepository().getSubjects();
+    if (rawSubjects != null) {
+      setState(() {
+        subjectsList = rawSubjects
+            .map(
+              (s) => {"id": s["id"].toString(), "name": s["name"].toString()},
+            )
+            .toList();
+      });
+    } else {
+      print("Failed to load subject data");
+    }
   }
 
-  List<CourseData> get _filteredCourses {
-    return sampleCourses.where((course) {
-      final matchesSearch =
-          _searchQuery.isEmpty ||
-          course.title.toLowerCase().contains(_searchQuery.toLowerCase()) ||
-          course.subject.toLowerCase().contains(_searchQuery.toLowerCase());
-      final matchesDay =
-          _selectedDay == null ||
-          course.day.toLowerCase() == _selectedDay!.toLowerCase();
-      final matchesSubject =
-          _selectedSubject == null ||
-          course.subject.toLowerCase() == _selectedSubject!.toLowerCase();
-      final matchesGrade =
-          _selectedGrade == null ||
-          course.grade.toLowerCase().replaceAll(' ', '_') ==
-              _selectedGrade!.toLowerCase();
-      return matchesSearch && matchesDay && matchesSubject && matchesGrade;
-    }).toList();
+  // ── Helpers ──────────────────────────────────────────────────
+
+  /// Map a day integer to a display name using SelectOptions.days.
+  String _getDayName(int day) {
+    try {
+      return SelectOptions.days.firstWhere(
+            (e) => e['id'] == day.toString(),
+          )['name'] ??
+          '';
+    } catch (_) {
+      return '';
+    }
   }
 
-  int get _totalPages =>
-      (_filteredCourses.length / _itemsPerPage).ceil().clamp(1, 999);
-
-  List<CourseData> get _currentPageItems {
-    if (_filteredCourses.isEmpty) return [];
-    final start = _currentPage * _itemsPerPage;
-    final end = (start + _itemsPerPage).clamp(0, _filteredCourses.length);
-    return _filteredCourses.sublist(start, end);
+  /// Map a grade integer to a display name using SelectOptions.newgradesList.
+  String _getGradeName(int grade) {
+    try {
+      return SelectOptions.newgradesList.firstWhere(
+            (e) => e['id'] == grade.toString(),
+          )['name'] ??
+          '';
+    } catch (_) {
+      return '';
+    }
   }
 
-  void _goToPage(int page) {
-    if (page < 0 || page >= _totalPages) return;
-    setState(() => _currentPage = page);
+  /// Generate a consistent day colour pair based on day index.
+  Color _getDayColor(int day) {
+    const colors = [
+      Color(0xff185FA5),
+      Color(0xff0F6E56),
+      Color(0xff993C1D),
+      Color(0xff7B3FA0),
+      Color(0xff1A7A4A),
+      Color(0xffB5500B),
+      Color(0xff185FA5),
+    ];
+    return colors[day % colors.length];
   }
 
-  void _onSearchChanged(String value) {
-    setState(() {
-      _searchQuery = value;
-      _currentPage = 0;
-    });
+  Color _getDayBg(int day) {
+    const bgs = [
+      Color(0xffE8F2FF),
+      Color(0xffE1F5EE),
+      Color(0xffFAECE7),
+      Color(0xffF3E8FF),
+      Color(0xffE2F5EC),
+      Color(0xffFFF0E0),
+      Color(0xffE8F2FF),
+    ];
+    return bgs[day % bgs.length];
   }
 
-  void _clearFilters() {
-    setState(() {
-      _selectedDay = null;
-      _selectedSubject = null;
-      _selectedGrade = null;
-      _selectedStatus = null;
-      _startTime = null;
-      _endTime = null;
-      _currentPage = 0;
-    });
-  }
+  // ── Filter sheet ─────────────────────────────────────────────
 
   void _openFilterSheet() {
-    String? tempDay = _selectedDay;
-    String? tempSubject = _selectedSubject;
-    String? tempGrade = _selectedGrade;
-    String? tempStatus = _selectedStatus;
-    TimeOfDay? tempStart = _startTime;
-    TimeOfDay? tempEnd = _endTime;
+    // Temp values for the sheet (not applied until "Apply Filters" tapped)
+    String? tempDay = controller.selectedDay;
+    String? tempSubject = controller.selectedSubject;
+    String? tempGrade = controller.selectedGrade;
+    String? tempStatus = controller.selectedStatus;
+    TimeOfDay? tempStart = controller.startTime;
+    TimeOfDay? tempEnd = controller.endTime;
 
     showModalBottomSheet(
       context: context,
@@ -301,23 +150,6 @@ class _InstituteCoursesPageState extends State<InstituteCoursesPage> {
       builder: (sheetContext) {
         return StatefulBuilder(
           builder: (context, setSheetState) {
-            Future<void> pickTime(bool isStart) async {
-              final picked = await showTimePicker(
-                context: context,
-                initialTime: isStart
-                    ? (tempStart ?? const TimeOfDay(hour: 8, minute: 0))
-                    : (tempEnd ?? const TimeOfDay(hour: 10, minute: 0)),
-              );
-              if (picked != null) {
-                setSheetState(() {
-                  if (isStart)
-                    tempStart = picked;
-                  else
-                    tempEnd = picked;
-                });
-              }
-            }
-
             return DraggableScrollableSheet(
               initialChildSize: 0.85,
               minChildSize: 0.5,
@@ -326,12 +158,12 @@ class _InstituteCoursesPageState extends State<InstituteCoursesPage> {
                 return Container(
                   decoration: const BoxDecoration(
                     color: Colors.white,
-                    borderRadius: BorderRadius.vertical(
-                      top: Radius.circular(20),
-                    ),
+                    borderRadius:
+                        BorderRadius.vertical(top: Radius.circular(20)),
                   ),
                   child: Column(
                     children: [
+                      // Handle
                       Center(
                         child: Container(
                           margin: const EdgeInsets.only(top: 12, bottom: 4),
@@ -343,11 +175,10 @@ class _InstituteCoursesPageState extends State<InstituteCoursesPage> {
                           ),
                         ),
                       ),
+                      // Header
                       Padding(
                         padding: const EdgeInsets.symmetric(
-                          horizontal: 20,
-                          vertical: 12,
-                        ),
+                            horizontal: 20, vertical: 12),
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
@@ -376,36 +207,38 @@ class _InstituteCoursesPageState extends State<InstituteCoursesPage> {
                           ],
                         ),
                       ),
+                      // Filter fields
                       Expanded(
                         child: ListView(
                           controller: scrollController,
                           padding: const EdgeInsets.all(20),
                           children: [
                             NewSelectOptions(
-                              label: 'Day',
+                              label: "Day*",
                               value: tempDay,
-                              items: dayItems,
+                              items: SelectOptions.days,
                               onChanged: (id) =>
                                   setSheetState(() => tempDay = id),
                             ),
                             const SizedBox(height: 20),
                             NewSelectOptions(
-                              label: 'Subject',
+                              label: "Subject*",
                               value: tempSubject,
-                              items: subjectItems,
+                              items: subjectsList,
                               onChanged: (id) =>
                                   setSheetState(() => tempSubject = id),
                             ),
                             const SizedBox(height: 20),
                             NewSelectOptions(
-                              label: 'Grade',
+                              label: "Grade*",
                               value: tempGrade,
-                              items: gradeItems,
+                              items: SelectOptions.newgradesList,
                               onChanged: (id) =>
                                   setSheetState(() => tempGrade = id),
                             ),
                             const SizedBox(height: 20),
-                            _FilterSectionLabel('Status'),
+                            // Status chips
+                            const _FilterSectionLabel('Status'),
                             const SizedBox(height: 10),
                             Wrap(
                               spacing: 8,
@@ -413,21 +246,19 @@ class _InstituteCoursesPageState extends State<InstituteCoursesPage> {
                               children: statusOptions.map((status) {
                                 final isSelected = tempStatus == status;
                                 return GestureDetector(
-                                  onTap: () => setSheetState(
-                                    () =>
-                                        tempStatus = isSelected ? null : status,
-                                  ),
+                                  onTap: () => setSheetState(() =>
+                                      tempStatus = isSelected ? null : status),
                                   child: AnimatedContainer(
-                                    duration: const Duration(milliseconds: 180),
+                                    duration:
+                                        const Duration(milliseconds: 180),
                                     padding: const EdgeInsets.symmetric(
-                                      horizontal: 14,
-                                      vertical: 8,
-                                    ),
+                                        horizontal: 14, vertical: 8),
                                     decoration: BoxDecoration(
                                       color: isSelected
                                           ? AppColors.primary
                                           : const Color(0xffF5F7FB),
-                                      borderRadius: BorderRadius.circular(20),
+                                      borderRadius:
+                                          BorderRadius.circular(20),
                                       border: Border.all(
                                         color: isSelected
                                             ? AppColors.primary
@@ -450,53 +281,99 @@ class _InstituteCoursesPageState extends State<InstituteCoursesPage> {
                               }).toList(),
                             ),
                             const SizedBox(height: 20),
-                            _FilterSectionLabel('Time Range'),
-                            const SizedBox(height: 10),
+                            // Time range
                             Row(
                               children: [
                                 Expanded(
                                   child: _buildTimePicker(
-                                    label: 'Start Time',
+                                    label: 'Start Time*',
                                     selectedTime: tempStart,
-                                    onTap: () => pickTime(true),
+                                    onTap: () async {
+                                      final picked = await showTimePicker(
+                                        context: context,
+                                        initialTime: tempStart ??
+                                            const TimeOfDay(
+                                                hour: 8, minute: 0),
+                                      );
+                                      if (picked != null) {
+                                        setSheetState(
+                                            () => tempStart = picked);
+                                      }
+                                    },
                                   ),
                                 ),
                                 const SizedBox(width: 16),
                                 Expanded(
                                   child: _buildTimePicker(
-                                    label: 'End Time',
+                                    label: 'End Time*',
                                     selectedTime: tempEnd,
-                                    onTap: () => pickTime(false),
+                                    onTap: () async {
+                                      final picked = await showTimePicker(
+                                        context: context,
+                                        initialTime: tempEnd ??
+                                            const TimeOfDay(
+                                                hour: 10, minute: 0),
+                                      );
+                                      if (picked != null) {
+                                        setSheetState(() => tempEnd = picked);
+                                      }
+                                    },
                                   ),
                                 ),
                               ],
                             ),
+                            // Time error
+                            if (tempStart != null && tempEnd != null)
+                              Builder(builder: (_) {
+                                final s =
+                                    tempStart!.hour * 60 + tempStart!.minute;
+                                final e =
+                                    tempEnd!.hour * 60 + tempEnd!.minute;
+                                if (e <= s) {
+                                  return const Padding(
+                                    padding: EdgeInsets.only(top: 8),
+                                    child: FieldErrorText(
+                                        message:
+                                            "End time must be after start time"),
+                                  );
+                                }
+                                return const SizedBox.shrink();
+                              }),
                             const SizedBox(height: 30),
                           ],
                         ),
                       ),
+                      // Apply button
                       Container(
-                        padding: const EdgeInsets.fromLTRB(20, 12, 20, 24),
+                        padding:
+                            const EdgeInsets.fromLTRB(20, 12, 20, 24),
                         decoration: const BoxDecoration(
                           color: Colors.white,
                           border: Border(
-                            top: BorderSide(color: Color(0xffEEEEEE)),
-                          ),
+                              top: BorderSide(color: Color(0xffEEEEEE))),
                         ),
                         child: SizedBox(
                           width: double.infinity,
                           height: 50,
                           child: ElevatedButton(
                             onPressed: () {
-                              setState(() {
-                                _selectedDay = tempDay;
-                                _selectedSubject = tempSubject;
-                                _selectedGrade = tempGrade;
-                                _selectedStatus = tempStatus;
-                                _startTime = tempStart;
-                                _endTime = tempEnd;
-                                _currentPage = 0;
-                              });
+                              // Validate before applying
+                              if (tempStart != null && tempEnd != null) {
+                                final s = tempStart!.hour * 60 +
+                                    tempStart!.minute;
+                                final e =
+                                    tempEnd!.hour * 60 + tempEnd!.minute;
+                                if (e <= s) return; // block apply
+                              }
+                              controller.applyFilters(
+                                day: tempDay,
+                                subject: tempSubject,
+                                grade: tempGrade,
+                                status: tempStatus,
+                                startTime: tempStart,
+                                endTime: tempEnd,
+                              );
+                              setState(() {}); // refresh page
                               Navigator.pop(context);
                             },
                             style: ElevatedButton.styleFrom(
@@ -528,298 +405,321 @@ class _InstituteCoursesPageState extends State<InstituteCoursesPage> {
     );
   }
 
+  // ── Time picker widget ───────────────────────────────────────
+
   Widget _buildTimePicker({
     required String label,
     required TimeOfDay? selectedTime,
     required VoidCallback onTap,
   }) {
-    final display = selectedTime != null
-        ? selectedTime.format(context)
-        : 'Select';
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
-        decoration: BoxDecoration(
-          color: const Color(0xffF5F7FB),
-          borderRadius: BorderRadius.circular(10),
-          border: Border.all(color: const Color(0xffDDDDDD)),
-        ),
-        child: Row(
-          children: [
-            const Icon(
-              Icons.access_time_rounded,
-              size: 18,
-              color: Color(0xff888888),
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Padding(
+          padding: const EdgeInsets.only(bottom: 8),
+          child: Text(
+            label,
+            style: const TextStyle(
+              fontSize: 14,
+              fontWeight: FontWeight.w600,
+              color: AppColors.textPrimary,
             ),
-            const SizedBox(width: 8),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    label,
-                    style: const TextStyle(
-                      fontSize: 11,
-                      color: Color(0xff888888),
-                    ),
-                  ),
-                  const SizedBox(height: 2),
-                  Text(
-                    display,
-                    style: TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w500,
-                      color: selectedTime != null
-                          ? const Color(0xff1A1A2E)
-                          : const Color(0xffAAAAAA),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ],
+          ),
         ),
-      ),
+        GestureDetector(
+          onTap: onTap,
+          child: Container(
+            padding:
+                const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(color: Colors.grey.shade200),
+            ),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  selectedTime != null
+                      ? selectedTime.format(context)
+                      : 'Select Time',
+                  style: TextStyle(
+                    color: selectedTime != null
+                        ? AppColors.textPrimary
+                        : AppColors.textSecondary,
+                    fontSize: 14,
+                  ),
+                ),
+                const Icon(Icons.access_time,
+                    color: AppColors.textSecondary, size: 20),
+              ],
+            ),
+          ),
+        ),
+      ],
     );
   }
+
+  // ── Lifecycle ─────────────────────────────────────────────────
 
   @override
   void dispose() {
     _searchController.dispose();
+    controller.dispose();
     super.dispose();
   }
 
+  // ── Build ─────────────────────────────────────────────────────
+
   @override
   Widget build(BuildContext context) {
-    final courses = _currentPageItems;
+    return AnimatedBuilder(
+      animation: controller,
+      builder: (context, _) {
+        final pageItems = controller.currentPageItems;
+        final filteredCount = controller.filteredClasses.length;
+        final activeFilterCount = controller.activeFilterCount;
 
-    return Scaffold(
-      backgroundColor: const Color(0xffF5F7FB),
-      appBar: AppBar(
-        title: const Text(
-          'My Classes',
-          style: TextStyle(
-            fontWeight: FontWeight.w600,
-            color: AppColors.textPrimary,
-          ),
-        ),
-        backgroundColor: Colors.white,
-        elevation: 0,
-        centerTitle: true,
-      ),
-
-      // ── Everything in one single scrollable ──
-      body: CustomScrollView(
-        slivers: [
-          // Search + filter bar (pinned=false so it scrolls away)
-          SliverToBoxAdapter(
-            child: Container(
-              color: Colors.white,
-              padding: const EdgeInsets.fromLTRB(16, 0, 16, 10),
-              child: Row(
-                children: [
-                  Expanded(
-                    child: Container(
-                      child: CustomTextField(
-                        label: '',
-                        hintText: 'Search classes...',
-                        controller: _searchController,
-                        isRequired: true,
-                        onChanged: _onSearchChanged,
-                      ),
-                    ),
-                  ),
-
-                  const SizedBox(width: 10),
-                  Padding(
-                    padding: const EdgeInsets.only(top: 28),
-                    child: GestureDetector(
-                      onTap: _openFilterSheet,
-                      child: Stack(
-                        clipBehavior: Clip.none,
-                        children: [
-                          Container(
-                            height: 50,
-                            width: 50,
-                            decoration: BoxDecoration(
-                              color: _activeFilterCount > 0
-                                  ? AppColors.primary.withOpacity(0.1)
-                                  : const Color(0xffF5F7FB),
-                              borderRadius: BorderRadius.circular(10),
-                              border: Border.all(
-                                color: _activeFilterCount > 0
-                                    ? AppColors.primary
-                                    : const Color(0xffE5E5E5),
-                              ),
-                            ),
-                            child: Icon(
-                              Icons.tune_rounded,
-                              size: 20,
-                              color: _activeFilterCount > 0
-                                  ? AppColors.primary
-                                  : const Color(0xff888888),
-                            ),
-                          ),
-                          if (_activeFilterCount > 0)
-                            Positioned(
-                              top: -6,
-                              right: -6,
-                              child: Container(
-                                width: 18,
-                                height: 18,
-                                decoration: BoxDecoration(
-                                  color: AppColors.primary,
-                                  shape: BoxShape.circle,
-                                ),
-                                alignment: Alignment.center,
-                                child: Text(
-                                  '$_activeFilterCount',
-                                  style: const TextStyle(
-                                    color: Colors.white,
-                                    fontSize: 10,
-                                    fontWeight: FontWeight.w700,
-                                  ),
-                                ),
-                              ),
-                            ),
-                        ],
-                      ),
-                    ),
-                  ),
-                ],
+        return Scaffold(
+          backgroundColor: const Color(0xffF5F7FB),
+          appBar: AppBar(
+            title: const Text(
+              'My Classes',
+              style: TextStyle(
+                fontWeight: FontWeight.w600,
+                color: AppColors.textPrimary,
               ),
             ),
+            backgroundColor: Colors.white,
+            elevation: 0,
+            centerTitle: true,
           ),
-
-          // Active filter indicator
-          if (_activeFilterCount > 0)
-            SliverToBoxAdapter(
-              child: Container(
-                color: Colors.white,
-                padding: const EdgeInsets.only(left: 16, right: 16, bottom: 10),
-                child: Row(
-                  children: [
-                    const Icon(
-                      Icons.filter_alt_outlined,
-                      size: 14,
-                      color: Color(0xff888888),
-                    ),
-                    const SizedBox(width: 6),
-                    const Text(
-                      'Filters applied:',
-                      style: TextStyle(fontSize: 12, color: Color(0xff888888)),
-                    ),
-                    const SizedBox(width: 6),
-                    Text(
-                      '$_activeFilterCount active',
-                      style: TextStyle(
-                        fontSize: 12,
-                        fontWeight: FontWeight.w600,
-                        color: AppColors.primary,
-                      ),
-                    ),
-                    const Spacer(),
-                    GestureDetector(
-                      onTap: _clearFilters,
-                      child: const Text(
-                        'Clear all',
-                        style: TextStyle(
-                          fontSize: 12,
-                          color: Color(0xffE53935),
-                          fontWeight: FontWeight.w500,
+          body: isLoading
+              ? const Center(child: CircularProgressIndicator())
+              : CustomScrollView(
+                  slivers: [
+                    // ── Search + filter bar ──────────────────────────
+                    SliverToBoxAdapter(
+                      child: Container(
+                        color: Colors.white,
+                        padding:
+                            const EdgeInsets.fromLTRB(16, 0, 16, 10),
+                        child: Row(
+                          children: [
+                            Expanded(
+                              child: CustomTextField(
+                                label: '',
+                                hintText: 'Search classes...',
+                                controller: _searchController,
+                                isRequired: true,
+                                onChanged: (value) {
+                                  controller.onSearchChanged(value);
+                                  setState(() {});
+                                },
+                              ),
+                            ),
+                            const SizedBox(width: 10),
+                            Padding(
+                              padding: const EdgeInsets.only(top: 28),
+                              child: GestureDetector(
+                                onTap: _openFilterSheet,
+                                child: Stack(
+                                  clipBehavior: Clip.none,
+                                  children: [
+                                    Container(
+                                      height: 50,
+                                      width: 50,
+                                      decoration: BoxDecoration(
+                                        color: activeFilterCount > 0
+                                            ? AppColors.primary
+                                                .withOpacity(0.1)
+                                            : const Color(0xffF5F7FB),
+                                        borderRadius:
+                                            BorderRadius.circular(10),
+                                        border: Border.all(
+                                          color: activeFilterCount > 0
+                                              ? AppColors.primary
+                                              : const Color(0xffE5E5E5),
+                                        ),
+                                      ),
+                                      child: Icon(
+                                        Icons.tune_rounded,
+                                        size: 20,
+                                        color: activeFilterCount > 0
+                                            ? AppColors.primary
+                                            : const Color(0xff888888),
+                                      ),
+                                    ),
+                                    if (activeFilterCount > 0)
+                                      Positioned(
+                                        top: -6,
+                                        right: -6,
+                                        child: Container(
+                                          width: 18,
+                                          height: 18,
+                                          decoration: const BoxDecoration(
+                                            color: AppColors.primary,
+                                            shape: BoxShape.circle,
+                                          ),
+                                          alignment: Alignment.center,
+                                          child: Text(
+                                            '$activeFilterCount',
+                                            style: const TextStyle(
+                                              color: Colors.white,
+                                              fontSize: 10,
+                                              fontWeight: FontWeight.w700,
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                          ],
                         ),
                       ),
                     ),
+
+                    // ── Active filter indicator ──────────────────────
+                    if (activeFilterCount > 0)
+                      SliverToBoxAdapter(
+                        child: Container(
+                          color: Colors.white,
+                          padding: const EdgeInsets.only(
+                              left: 16, right: 16, bottom: 10),
+                          child: Row(
+                            children: [
+                              const Icon(Icons.filter_alt_outlined,
+                                  size: 14, color: Color(0xff888888)),
+                              const SizedBox(width: 6),
+                              const Text(
+                                'Filters applied:',
+                                style: TextStyle(
+                                    fontSize: 12,
+                                    color: Color(0xff888888)),
+                              ),
+                              const SizedBox(width: 6),
+                              Text(
+                                '$activeFilterCount active',
+                                style: TextStyle(
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.w600,
+                                  color: AppColors.primary,
+                                ),
+                              ),
+                              const Spacer(),
+                              GestureDetector(
+                                onTap: () {
+                                  controller.clearFilters();
+                                  setState(() {});
+                                },
+                                child: const Text(
+                                  'Clear all',
+                                  style: TextStyle(
+                                    fontSize: 12,
+                                    color: Color(0xffE53935),
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+
+                    const SliverToBoxAdapter(
+                      child: Divider(
+                          height: 1, color: Color(0xffEEEEEE)),
+                    ),
+
+                    // ── Empty state ──────────────────────────────────
+                    if (filteredCount == 0)
+                      SliverFillRemaining(
+                        child: Center(
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Icon(Icons.search_off_rounded,
+                                  size: 56,
+                                  color: Colors.grey.shade300),
+                              const SizedBox(height: 12),
+                              const Text(
+                                'No classes found',
+                                style: TextStyle(
+                                    color: Color(0xffAAAAAA),
+                                    fontSize: 15),
+                              ),
+                            ],
+                          ),
+                        ),
+                      )
+                    else ...[
+                      // ── Cards ──────────────────────────────────────
+                      SliverPadding(
+                        padding: const EdgeInsets.all(16),
+                        sliver: SliverList(
+                          delegate: SliverChildBuilderDelegate(
+                            (context, index) {
+                              final cls = pageItems[index];
+                              return CourseCard(
+                                title: cls.name,
+                                subject: cls.subjectName,
+                                grade: _getGradeName(cls.grade),
+                                tutorName: cls.tutorName,
+                                location: cls.location,
+                                day: _getDayName(cls.day),
+                                time: cls.startTime.length >= 5
+                                    ? cls.startTime.substring(0, 5)
+                                    : cls.startTime,
+                                duration: cls.duration,
+                                studentCount: cls.studentCount,
+                                dayColor: _getDayColor(cls.day),
+                                dayBg: _getDayBg(cls.day),
+                                onViewDetails: () {
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                        builder: (_) =>
+                                            ClassDetailPage()),
+                                  );
+                                },
+                              );
+                            },
+                            childCount: pageItems.length,
+                          ),
+                        ),
+                      ),
+
+                      // ── Pagination ─────────────────────────────────
+                      SliverToBoxAdapter(
+                        child: Padding(
+                          padding: const EdgeInsets.only(bottom: 50),
+                          child: _PaginationBar(
+                            currentPage: controller.currentPage,
+                            totalPages: controller.totalPages,
+                            onPageChanged: (page) {
+                              controller.goToPage(page);
+                              setState(() {});
+                            },
+                          ),
+                        ),
+                      ),
+                    ],
                   ],
                 ),
-              ),
-            ),
-
-          SliverToBoxAdapter(
-            child: const Divider(height: 1, color: Color(0xffEEEEEE)),
+          floatingActionButton: FloatingActionButton(
+            onPressed: () => GoRouter.of(context)
+                .pushNamed(InstituteRouteNames.createClass).then((_) {
+  loadClassData(); // reload after returning
+}),
+                
+            backgroundColor: AppColors.primary,
+            elevation: 10,
+            child: const Icon(Icons.add),
           ),
-
-          // Empty state
-          if (_filteredCourses.isEmpty)
-            SliverFillRemaining(
-              child: Center(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Icon(
-                      Icons.search_off_rounded,
-                      size: 56,
-                      color: Colors.grey.shade300,
-                    ),
-                    const SizedBox(height: 12),
-                    const Text(
-                      'No classes found',
-                      style: TextStyle(color: Color(0xffAAAAAA), fontSize: 15),
-                    ),
-                  ],
-                ),
-              ),
-            )
-          else ...[
-            // Cards
-            SliverPadding(
-              padding: const EdgeInsets.all(16),
-              sliver: SliverList(
-                delegate: SliverChildBuilderDelegate((context, index) {
-                  final cls = ClassesData[index];
-                  return CourseCard(
-                    title: cls.name,
-                    subject: cls.subjectName,
-                    grade:
-                        SelectOptions.newgradesList.firstWhere(
-                          (e) => e["id"] == cls.grade.toString(),
-                        )['name'] ??
-                        '',
-                    location: cls.location,
-                    day:
-                        SelectOptions.days.firstWhere(
-                          (e) => e['id'] == cls.day.toString(),
-                        )['name'] ??
-                        '',
-                    time: cls.startTime.substring(0, 5),
-                    duration: cls.duration,
-                    studentCount: cls.studentCount,
-                    dayColor: Color(0xff185FA5),
-                    dayBg: Color(0xffE8F2FF),
-                    onViewDetails: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(builder: (_) => ClassDetailPage()),
-                      );
-                    },
-                  );
-                }, childCount: ClassesData.length),
-              ),
-            ),
-
-            // Pagination — part of the scroll flow
-            SliverToBoxAdapter(
-              child: Padding(
-                padding: const EdgeInsets.only(bottom: 50), // room for FAB
-                child: _PaginationBar(
-                  currentPage: _currentPage,
-                  totalPages: _totalPages,
-                  onPageChanged: _goToPage,
-                ),
-              ),
-            ),
-          ],
-        ],
-      ),
-
-      floatingActionButton: FloatingActionButton(
-        onPressed: () =>
-            GoRouter.of(context).pushNamed(InstituteRouteNames.createClass),
-        backgroundColor: AppColors.primary,
-        elevation: 10,
-        child: const Icon(Icons.add),
-      ),
+        );
+      },
     );
   }
 }
@@ -861,28 +761,19 @@ class _PaginationBar extends StatelessWidget {
   });
 
   List<dynamic> _buildPageItems() {
-    // Shows: [prev] 1 ... 4 5 6 ... 12 [next]
-    // For small total, show all pages
     if (totalPages <= 7) {
       return List.generate(totalPages, (i) => i);
     }
-
     final items = <dynamic>[];
-    items.add(0); // always first
-
+    items.add(0);
     if (currentPage > 3) items.add('...');
-
-    for (
-      int i = (currentPage - 1).clamp(1, totalPages - 2);
-      i <= (currentPage + 1).clamp(1, totalPages - 2);
-      i++
-    ) {
+    for (int i = (currentPage - 1).clamp(1, totalPages - 2);
+        i <= (currentPage + 1).clamp(1, totalPages - 2);
+        i++) {
       items.add(i);
     }
-
     if (currentPage < totalPages - 4) items.add('...');
-
-    items.add(totalPages - 1); // always last
+    items.add(totalPages - 1);
     return items;
   }
 
@@ -894,7 +785,6 @@ class _PaginationBar extends StatelessWidget {
       padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
       child: Column(
         children: [
-          // Page info text
           Text(
             'Page ${currentPage + 1} of $totalPages',
             style: const TextStyle(
@@ -904,20 +794,15 @@ class _PaginationBar extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 10),
-
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              // Prev button
               _ModernNavButton(
                 icon: Icons.arrow_back_ios_new_rounded,
                 enabled: currentPage > 0,
                 onTap: () => onPageChanged(currentPage - 1),
               ),
-
               const SizedBox(width: 6),
-
-              // Page number buttons / ellipsis
               ...pageItems.map((item) {
                 if (item == '...') {
                   return const Padding(
@@ -925,10 +810,9 @@ class _PaginationBar extends StatelessWidget {
                     child: Text(
                       '···',
                       style: TextStyle(
-                        fontSize: 16,
-                        color: Color(0xffAAAAAA),
-                        letterSpacing: 1,
-                      ),
+                          fontSize: 16,
+                          color: Color(0xffAAAAAA),
+                          letterSpacing: 1),
                     ),
                   );
                 }
@@ -942,10 +826,7 @@ class _PaginationBar extends StatelessWidget {
                   ),
                 );
               }),
-
               const SizedBox(width: 6),
-
-              // Next button
               _ModernNavButton(
                 icon: Icons.arrow_forward_ios_rounded,
                 enabled: currentPage < totalPages - 1,
@@ -958,8 +839,6 @@ class _PaginationBar extends StatelessWidget {
     );
   }
 }
-
-// ── Modern nav arrow button ──────────────────────────────────
 
 class _ModernNavButton extends StatelessWidget {
   final IconData icon;
@@ -984,7 +863,9 @@ class _ModernNavButton extends StatelessWidget {
           color: enabled ? Colors.white : const Color(0xffF5F5F5),
           borderRadius: BorderRadius.circular(10),
           border: Border.all(
-            color: enabled ? const Color(0xffDDE3F0) : const Color(0xffEEEEEE),
+            color: enabled
+                ? const Color(0xffDDE3F0)
+                : const Color(0xffEEEEEE),
           ),
           boxShadow: enabled
               ? [
@@ -1005,8 +886,6 @@ class _ModernNavButton extends StatelessWidget {
     );
   }
 }
-
-// ── Modern page number button ────────────────────────────────
 
 class _ModernPageButton extends StatelessWidget {
   final int page;
@@ -1041,7 +920,9 @@ class _ModernPageButton extends StatelessWidget {
           color: isSelected ? null : Colors.white,
           borderRadius: BorderRadius.circular(10),
           border: Border.all(
-            color: isSelected ? AppColors.primary : const Color(0xffDDE3F0),
+            color: isSelected
+                ? AppColors.primary
+                : const Color(0xffDDE3F0),
           ),
           boxShadow: isSelected
               ? [
@@ -1064,8 +945,11 @@ class _ModernPageButton extends StatelessWidget {
           '${page + 1}',
           style: TextStyle(
             fontSize: 13,
-            fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
-            color: isSelected ? Colors.white : const Color(0xff555555),
+            fontWeight:
+                isSelected ? FontWeight.w700 : FontWeight.w500,
+            color: isSelected
+                ? Colors.white
+                : const Color(0xff555555),
           ),
         ),
       ),
