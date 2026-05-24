@@ -98,13 +98,13 @@ class RouterClass {
         },
       ),
 
-      GoRoute(
-        path: "/institute/classes/details",
-        name: InstituteRouteNames.classDetail,
-        builder: (context, state) {
-          return ClassDetailPage();
-        },
-      ),
+      // GoRoute(
+      //   path: "/institute/classes/details",
+      //   name: InstituteRouteNames.classDetail,
+      //   builder: (context, state) {
+      //     return ClassDetailPage( classItem: {});
+      //   },
+      // ),
 
       GoRoute(
         path: "/institute/students",

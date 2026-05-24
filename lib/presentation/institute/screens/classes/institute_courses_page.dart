@@ -681,7 +681,9 @@ class _InstituteCoursesPageState extends State<InstituteCoursesPage> {
                                     context,
                                     MaterialPageRoute(
                                         builder: (_) =>
-                                            ClassDetailPage()),
+                                            ClassDetailPage(
+                                               ClassItemDetails: cls
+                                               )),
                                   );
                                 },
                               );
