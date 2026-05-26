@@ -158,8 +158,9 @@ class _InstituteCoursesPageState extends State<InstituteCoursesPage> {
                 return Container(
                   decoration: const BoxDecoration(
                     color: Colors.white,
-                    borderRadius:
-                        BorderRadius.vertical(top: Radius.circular(20)),
+                    borderRadius: BorderRadius.vertical(
+                      top: Radius.circular(20),
+                    ),
                   ),
                   child: Column(
                     children: [
@@ -178,7 +179,9 @@ class _InstituteCoursesPageState extends State<InstituteCoursesPage> {
                       // Header
                       Padding(
                         padding: const EdgeInsets.symmetric(
-                            horizontal: 20, vertical: 12),
+                          horizontal: 20,
+                          vertical: 12,
+                        ),
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
@@ -246,19 +249,21 @@ class _InstituteCoursesPageState extends State<InstituteCoursesPage> {
                               children: statusOptions.map((status) {
                                 final isSelected = tempStatus == status;
                                 return GestureDetector(
-                                  onTap: () => setSheetState(() =>
-                                      tempStatus = isSelected ? null : status),
+                                  onTap: () => setSheetState(
+                                    () =>
+                                        tempStatus = isSelected ? null : status,
+                                  ),
                                   child: AnimatedContainer(
-                                    duration:
-                                        const Duration(milliseconds: 180),
+                                    duration: const Duration(milliseconds: 180),
                                     padding: const EdgeInsets.symmetric(
-                                        horizontal: 14, vertical: 8),
+                                      horizontal: 14,
+                                      vertical: 8,
+                                    ),
                                     decoration: BoxDecoration(
                                       color: isSelected
                                           ? AppColors.primary
                                           : const Color(0xffF5F7FB),
-                                      borderRadius:
-                                          BorderRadius.circular(20),
+                                      borderRadius: BorderRadius.circular(20),
                                       border: Border.all(
                                         color: isSelected
                                             ? AppColors.primary
@@ -291,13 +296,12 @@ class _InstituteCoursesPageState extends State<InstituteCoursesPage> {
                                     onTap: () async {
                                       final picked = await showTimePicker(
                                         context: context,
-                                        initialTime: tempStart ??
-                                            const TimeOfDay(
-                                                hour: 8, minute: 0),
+                                        initialTime:
+                                            tempStart ??
+                                            const TimeOfDay(hour: 8, minute: 0),
                                       );
                                       if (picked != null) {
-                                        setSheetState(
-                                            () => tempStart = picked);
+                                        setSheetState(() => tempStart = picked);
                                       }
                                     },
                                   ),
@@ -310,9 +314,12 @@ class _InstituteCoursesPageState extends State<InstituteCoursesPage> {
                                     onTap: () async {
                                       final picked = await showTimePicker(
                                         context: context,
-                                        initialTime: tempEnd ??
+                                        initialTime:
+                                            tempEnd ??
                                             const TimeOfDay(
-                                                hour: 10, minute: 0),
+                                              hour: 10,
+                                              minute: 0,
+                                            ),
                                       );
                                       if (picked != null) {
                                         setSheetState(() => tempEnd = picked);
@@ -324,33 +331,36 @@ class _InstituteCoursesPageState extends State<InstituteCoursesPage> {
                             ),
                             // Time error
                             if (tempStart != null && tempEnd != null)
-                              Builder(builder: (_) {
-                                final s =
-                                    tempStart!.hour * 60 + tempStart!.minute;
-                                final e =
-                                    tempEnd!.hour * 60 + tempEnd!.minute;
-                                if (e <= s) {
-                                  return const Padding(
-                                    padding: EdgeInsets.only(top: 8),
-                                    child: FieldErrorText(
+                              Builder(
+                                builder: (_) {
+                                  final s =
+                                      tempStart!.hour * 60 + tempStart!.minute;
+                                  final e =
+                                      tempEnd!.hour * 60 + tempEnd!.minute;
+                                  if (e <= s) {
+                                    return const Padding(
+                                      padding: EdgeInsets.only(top: 8),
+                                      child: FieldErrorText(
                                         message:
-                                            "End time must be after start time"),
-                                  );
-                                }
-                                return const SizedBox.shrink();
-                              }),
+                                            "End time must be after start time",
+                                      ),
+                                    );
+                                  }
+                                  return const SizedBox.shrink();
+                                },
+                              ),
                             const SizedBox(height: 30),
                           ],
                         ),
                       ),
                       // Apply button
                       Container(
-                        padding:
-                            const EdgeInsets.fromLTRB(20, 12, 20, 24),
+                        padding: const EdgeInsets.fromLTRB(20, 12, 20, 24),
                         decoration: const BoxDecoration(
                           color: Colors.white,
                           border: Border(
-                              top: BorderSide(color: Color(0xffEEEEEE))),
+                            top: BorderSide(color: Color(0xffEEEEEE)),
+                          ),
                         ),
                         child: SizedBox(
                           width: double.infinity,
@@ -359,10 +369,9 @@ class _InstituteCoursesPageState extends State<InstituteCoursesPage> {
                             onPressed: () {
                               // Validate before applying
                               if (tempStart != null && tempEnd != null) {
-                                final s = tempStart!.hour * 60 +
-                                    tempStart!.minute;
-                                final e =
-                                    tempEnd!.hour * 60 + tempEnd!.minute;
+                                final s =
+                                    tempStart!.hour * 60 + tempStart!.minute;
+                                final e = tempEnd!.hour * 60 + tempEnd!.minute;
                                 if (e <= s) return; // block apply
                               }
                               controller.applyFilters(
@@ -429,8 +438,7 @@ class _InstituteCoursesPageState extends State<InstituteCoursesPage> {
         GestureDetector(
           onTap: onTap,
           child: Container(
-            padding:
-                const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
             decoration: BoxDecoration(
               color: Colors.white,
               borderRadius: BorderRadius.circular(12),
@@ -450,8 +458,11 @@ class _InstituteCoursesPageState extends State<InstituteCoursesPage> {
                     fontSize: 14,
                   ),
                 ),
-                const Icon(Icons.access_time,
-                    color: AppColors.textSecondary, size: 20),
+                const Icon(
+                  Icons.access_time,
+                  color: AppColors.textSecondary,
+                  size: 20,
+                ),
               ],
             ),
           ),
@@ -502,8 +513,7 @@ class _InstituteCoursesPageState extends State<InstituteCoursesPage> {
                     SliverToBoxAdapter(
                       child: Container(
                         color: Colors.white,
-                        padding:
-                            const EdgeInsets.fromLTRB(16, 0, 16, 10),
+                        padding: const EdgeInsets.fromLTRB(16, 0, 16, 10),
                         child: Row(
                           children: [
                             Expanded(
@@ -531,11 +541,9 @@ class _InstituteCoursesPageState extends State<InstituteCoursesPage> {
                                       width: 50,
                                       decoration: BoxDecoration(
                                         color: activeFilterCount > 0
-                                            ? AppColors.primary
-                                                .withOpacity(0.1)
+                                            ? AppColors.primary.withOpacity(0.1)
                                             : const Color(0xffF5F7FB),
-                                        borderRadius:
-                                            BorderRadius.circular(10),
+                                        borderRadius: BorderRadius.circular(10),
                                         border: Border.all(
                                           color: activeFilterCount > 0
                                               ? AppColors.primary
@@ -587,17 +595,24 @@ class _InstituteCoursesPageState extends State<InstituteCoursesPage> {
                         child: Container(
                           color: Colors.white,
                           padding: const EdgeInsets.only(
-                              left: 16, right: 16, bottom: 10),
+                            left: 16,
+                            right: 16,
+                            bottom: 10,
+                          ),
                           child: Row(
                             children: [
-                              const Icon(Icons.filter_alt_outlined,
-                                  size: 14, color: Color(0xff888888)),
+                              const Icon(
+                                Icons.filter_alt_outlined,
+                                size: 14,
+                                color: Color(0xff888888),
+                              ),
                               const SizedBox(width: 6),
                               const Text(
                                 'Filters applied:',
                                 style: TextStyle(
-                                    fontSize: 12,
-                                    color: Color(0xff888888)),
+                                  fontSize: 12,
+                                  color: Color(0xff888888),
+                                ),
                               ),
                               const SizedBox(width: 6),
                               Text(
@@ -629,8 +644,7 @@ class _InstituteCoursesPageState extends State<InstituteCoursesPage> {
                       ),
 
                     const SliverToBoxAdapter(
-                      child: Divider(
-                          height: 1, color: Color(0xffEEEEEE)),
+                      child: Divider(height: 1, color: Color(0xffEEEEEE)),
                     ),
 
                     // ── Empty state ──────────────────────────────────
@@ -640,15 +654,18 @@ class _InstituteCoursesPageState extends State<InstituteCoursesPage> {
                           child: Column(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
-                              Icon(Icons.search_off_rounded,
-                                  size: 56,
-                                  color: Colors.grey.shade300),
+                              Icon(
+                                Icons.search_off_rounded,
+                                size: 56,
+                                color: Colors.grey.shade300,
+                              ),
                               const SizedBox(height: 12),
                               const Text(
                                 'No classes found',
                                 style: TextStyle(
-                                    color: Color(0xffAAAAAA),
-                                    fontSize: 15),
+                                  color: Color(0xffAAAAAA),
+                                  fontSize: 15,
+                                ),
                               ),
                             ],
                           ),
@@ -659,37 +676,41 @@ class _InstituteCoursesPageState extends State<InstituteCoursesPage> {
                       SliverPadding(
                         padding: const EdgeInsets.all(16),
                         sliver: SliverList(
-                          delegate: SliverChildBuilderDelegate(
-                            (context, index) {
-                              final cls = pageItems[index];
-                              return CourseCard(
-                                title: cls.name,
-                                subject: cls.subjectName,
-                                grade: _getGradeName(cls.grade),
-                                tutorName: cls.tutorName,
-                                location: cls.location,
-                                day: _getDayName(cls.day),
-                                time: cls.startTime.length >= 5
-                                    ? cls.startTime.substring(0, 5)
-                                    : cls.startTime,
-                                duration: cls.duration,
-                                studentCount: cls.studentCount,
-                                dayColor: _getDayColor(cls.day),
-                                dayBg: _getDayBg(cls.day),
-                                onViewDetails: () {
-                                  Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                        builder: (_) =>
-                                            ClassDetailPage(
-                                               classItemDetails: cls
-                                               )),
-                                  );
-                                },
-                              ); 
-                            },
-                            childCount: pageItems.length,
-                          ),
+                          delegate: SliverChildBuilderDelegate((
+                            context,
+                            index,
+                          ) {
+                            final cls = pageItems[index];
+                            return CourseCard(
+                              title: cls.name,
+                              subject: cls.subjectName,
+                              grade: _getGradeName(cls.grade),
+                              tutorName: cls.tutorName,
+                              location: cls.location,
+                              day: _getDayName(cls.day),
+                              time: cls.startTime.length >= 5
+                                  ? cls.startTime.substring(0, 5)
+                                  : cls.startTime,
+                              duration: cls.duration,
+                              studentCount: cls.studentCount,
+                              dayColor: _getDayColor(cls.day),
+                              dayBg: _getDayBg(cls.day),
+                              onViewDetails: () {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (_) =>
+                                        ClassDetailPage(classItemDetails: cls),
+                                  ),
+                                ).then((_) {
+                                  setState(() {
+                                    isLoading = true;
+                                  });
+                                  loadClassData(); // your existing function that fetches classes
+                                });
+                              },
+                            );
+                          }, childCount: pageItems.length),
                         ),
                       ),
 
@@ -712,10 +733,11 @@ class _InstituteCoursesPageState extends State<InstituteCoursesPage> {
                 ),
           floatingActionButton: FloatingActionButton(
             onPressed: () => GoRouter.of(context)
-                .pushNamed(InstituteRouteNames.createClass).then((_) {
-  loadClassData(); // reload after returning
-}),
-                
+                .pushNamed(InstituteRouteNames.createClass)
+                .then((_) {
+                  loadClassData(); // reload after returning
+                }),
+
             backgroundColor: AppColors.primary,
             elevation: 10,
             child: const Icon(Icons.add),
@@ -769,9 +791,11 @@ class _PaginationBar extends StatelessWidget {
     final items = <dynamic>[];
     items.add(0);
     if (currentPage > 3) items.add('...');
-    for (int i = (currentPage - 1).clamp(1, totalPages - 2);
-        i <= (currentPage + 1).clamp(1, totalPages - 2);
-        i++) {
+    for (
+      int i = (currentPage - 1).clamp(1, totalPages - 2);
+      i <= (currentPage + 1).clamp(1, totalPages - 2);
+      i++
+    ) {
       items.add(i);
     }
     if (currentPage < totalPages - 4) items.add('...');
@@ -812,9 +836,10 @@ class _PaginationBar extends StatelessWidget {
                     child: Text(
                       '···',
                       style: TextStyle(
-                          fontSize: 16,
-                          color: Color(0xffAAAAAA),
-                          letterSpacing: 1),
+                        fontSize: 16,
+                        color: Color(0xffAAAAAA),
+                        letterSpacing: 1,
+                      ),
                     ),
                   );
                 }
@@ -865,9 +890,7 @@ class _ModernNavButton extends StatelessWidget {
           color: enabled ? Colors.white : const Color(0xffF5F5F5),
           borderRadius: BorderRadius.circular(10),
           border: Border.all(
-            color: enabled
-                ? const Color(0xffDDE3F0)
-                : const Color(0xffEEEEEE),
+            color: enabled ? const Color(0xffDDE3F0) : const Color(0xffEEEEEE),
           ),
           boxShadow: enabled
               ? [
@@ -922,9 +945,7 @@ class _ModernPageButton extends StatelessWidget {
           color: isSelected ? null : Colors.white,
           borderRadius: BorderRadius.circular(10),
           border: Border.all(
-            color: isSelected
-                ? AppColors.primary
-                : const Color(0xffDDE3F0),
+            color: isSelected ? AppColors.primary : const Color(0xffDDE3F0),
           ),
           boxShadow: isSelected
               ? [
@@ -947,11 +968,8 @@ class _ModernPageButton extends StatelessWidget {
           '${page + 1}',
           style: TextStyle(
             fontSize: 13,
-            fontWeight:
-                isSelected ? FontWeight.w700 : FontWeight.w500,
-            color: isSelected
-                ? Colors.white
-                : const Color(0xff555555),
+            fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
+            color: isSelected ? Colors.white : const Color(0xff555555),
           ),
         ),
       ),
