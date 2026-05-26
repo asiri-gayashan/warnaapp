@@ -1,10 +1,20 @@
 import 'package:flutter/material.dart';
 import 'package:warna_app/core/constants/app_colors.dart';
-import 'package:warna_app/shared/widgets/new/custom_select.dart';
+import 'package:warna_app/core/constants/select_options.dart';
+import 'package:warna_app/data/models/class_model.dart';
+import 'package:warna_app/data/repositories/metadata_repository.dart';
+import 'package:warna_app/presentation/institute/controllers/edit_class_controller.dart';
+import 'package:warna_app/shared/widgets/custom_button.dart';
+import 'package:warna_app/shared/widgets/field_error_text.dart';
+import 'package:warna_app/shared/widgets/modals/teacher_search_dialog.dart';
 import 'package:warna_app/shared/widgets/new/custom_textfield.dart';
+import 'package:warna_app/shared/widgets/new/new_select_options.dart';
 
 class InstituteEditClassPage extends StatefulWidget {
-  const InstituteEditClassPage({Key? key}) : super(key: key);
+  final ClassModel classModel;
+
+  const InstituteEditClassPage({Key? key, required this.classModel})
+    : super(key: key);
 
   @override
   State<InstituteEditClassPage> createState() => _InstituteEditClassPageState();
@@ -12,84 +22,48 @@ class InstituteEditClassPage extends StatefulWidget {
 
 class _InstituteEditClassPageState extends State<InstituteEditClassPage> {
   final _formKey = GlobalKey<FormState>();
+  late EditClassController controller;
 
-  // Controllers for text fields
-  final TextEditingController _classNameController = TextEditingController();
-  final TextEditingController _classFeesController = TextEditingController();
-  final TextEditingController _commissionController = TextEditingController();
-  final TextEditingController _descriptionController = TextEditingController();
-
-  // Selected values for dropdowns and time pickers
-  String? _selectedTeacher;
-  String? _selectedGrade;
-  String? _selectedSubject;
-  String? _selectedDay;
-  String? _selectedHall;
-  TimeOfDay? _startTime;
-  TimeOfDay? _endTime;
-
-  // Dummy data for dropdowns
-  final List<String> _teachers = [
-    'Dr. Sarah Johnson',
-    'Prof. Alan Smith',
-    'Mr. David Wilson',
-  ];
-  final List<String> _grades = [
-    'Grade 9',
-    'Grade 10',
-    'Grade 11',
-    'Grade 12',
-    'A/L',
-  ];
-  final List<String> _subjects = [
-    'Mathematics',
-    'Science',
-    'English',
-    'Physics',
-    'Chemistry',
-  ];
-  final List<String> _days = [
-    'Monday',
-    'Tuesday',
-    'Wednesday',
-    'Thursday',
-    'Friday',
-    'Saturday',
-    'Sunday',
-  ];
-  final List<String> _halls = ['Hall A', 'Hall B', 'Hall C', 'Main Lab'];
+  List<Map<String, String>> subjectsList = [];
 
   @override
   void initState() {
     super.initState();
-    // Simulating existing data for edit
-    _classNameController.text = 'Advanced Mathematics 2024';
-    _classFeesController.text = '2500';
-    _commissionController.text = '20';
-    _descriptionController.text = 'Preparation for final exams.';
-
-    _selectedTeacher = 'Dr. Sarah Johnson';
-    _selectedGrade = 'Grade 10';
-    _selectedSubject = 'Mathematics';
-    _selectedDay = 'Monday';
-    _selectedHall = 'Hall A';
-    _startTime = const TimeOfDay(hour: 14, minute: 30);
-    _endTime = const TimeOfDay(hour: 16, minute: 30);
+    controller = EditClassController();
+    controller.loadFromModel(widget.classModel);
+    loadSubjectData();
   }
 
   @override
   void dispose() {
-    _classNameController.dispose();
-    _classFeesController.dispose();
-    _commissionController.dispose();
-    _descriptionController.dispose();
+    controller.dispose();
     super.dispose();
   }
 
+  Future<void> loadSubjectData() async {
+    final rawSubjects = await MetadataRepository().getSubjects();
+    if (rawSubjects != null) {
+      setState(() {
+        subjectsList = rawSubjects
+            .map(
+              (s) => {"id": s["id"].toString(), "name": s["name"].toString()},
+            )
+            .toList();
+      });
+    } else {
+      print("Failed to load subject data");
+    }
+  }
+
+  // -----------------------------------------------------------------------
+  // Time Picker
+  // -----------------------------------------------------------------------
   Future<void> _selectTime(BuildContext context, bool isStart) async {
     final TimeOfDay? picked = await showTimePicker(
       context: context,
-      initialTime: (isStart ? _startTime : _endTime) ?? TimeOfDay.now(),
+      initialTime: isStart
+          ? (controller.startTime ?? TimeOfDay.now())
+          : (controller.endTime ?? TimeOfDay.now()),
       builder: (context, child) {
         return Theme(
           data: Theme.of(context).copyWith(
@@ -107,28 +81,232 @@ class _InstituteEditClassPageState extends State<InstituteEditClassPage> {
     if (picked != null) {
       setState(() {
         if (isStart) {
-          _startTime = picked;
+          controller.setStartTime(picked);
         } else {
-          _endTime = picked;
+          controller.setEndTime(picked);
         }
       });
     }
   }
 
-  Widget _buildLabel(String text) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 8),
-      child: Text(
-        text,
-        style: const TextStyle(
-          fontSize: 14,
-          fontWeight: FontWeight.w600,
-          color: AppColors.textPrimary,
+  // -----------------------------------------------------------------------
+  // Time Picker Widget
+  // -----------------------------------------------------------------------
+  Widget _buildTimePicker({
+    required String label,
+    required TimeOfDay? selectedTime,
+    required VoidCallback onTap,
+  }) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Padding(
+          padding: const EdgeInsets.only(bottom: 8),
+          child: Text(
+            label,
+            style: const TextStyle(
+              fontSize: 14,
+              fontWeight: FontWeight.w600,
+              color: AppColors.textPrimary,
+            ),
+          ),
+        ),
+        GestureDetector(
+          onTap: onTap,
+          child: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(color: Colors.grey.shade200),
+            ),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  selectedTime?.format(context) ?? 'Select Time',
+                  style: TextStyle(
+                    color: selectedTime != null
+                        ? AppColors.textPrimary
+                        : AppColors.textSecondary,
+                    fontSize: 14,
+                  ),
+                ),
+                const Icon(
+                  Icons.access_time,
+                  color: AppColors.textSecondary,
+                  size: 20,
+                ),
+              ],
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  // -----------------------------------------------------------------------
+  // Status Toggle Widget
+  // -----------------------------------------------------------------------
+  Widget _buildStatusToggle() {
+    final isActive = controller.status == ClassStatus.ACTIVE;
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Padding(
+          padding: EdgeInsets.only(bottom: 8),
+          child: Text(
+            'Class Status*',
+            style: TextStyle(
+              fontSize: 14,
+              fontWeight: FontWeight.w600,
+              color: AppColors.textPrimary,
+            ),
+          ),
+        ),
+        Container(
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(color: Colors.grey.shade200),
+          ),
+          child: Row(
+            children: [
+              // ACTIVE option
+              Expanded(
+                child: GestureDetector(
+                  onTap: () =>
+                      setState(() => controller.setStatus(ClassStatus.ACTIVE)),
+                  child: AnimatedContainer(
+                    duration: const Duration(milliseconds: 200),
+                    padding: const EdgeInsets.symmetric(vertical: 14),
+                    decoration: BoxDecoration(
+                      color: isActive
+                          ? const Color(0xff0F6E56)
+                          : Colors.transparent,
+                      borderRadius: const BorderRadius.only(
+                        topLeft: Radius.circular(11),
+                        bottomLeft: Radius.circular(11),
+                      ),
+                    ),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(
+                          Icons.check_circle_outline,
+                          size: 16,
+                          color: isActive
+                              ? Colors.white
+                              : const Color(0xff888888),
+                        ),
+                        const SizedBox(width: 6),
+                        Text(
+                          'ACTIVE',
+                          style: TextStyle(
+                            fontSize: 13,
+                            fontWeight: FontWeight.w700,
+                            color: isActive
+                                ? Colors.white
+                                : const Color(0xff888888),
+                            letterSpacing: 0.5,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+              // Divider
+              Container(width: 1, height: 48, color: Colors.grey.shade200),
+              // INACTIVE option
+              Expanded(
+                child: GestureDetector(
+                  onTap: () => setState(
+                    () => controller.setStatus(ClassStatus.INACTIVE),
+                  ),
+                  child: AnimatedContainer(
+                    duration: const Duration(milliseconds: 200),
+                    padding: const EdgeInsets.symmetric(vertical: 14),
+                    decoration: BoxDecoration(
+                      color: !isActive
+                          ? const Color(0xffE53935)
+                          : Colors.transparent,
+                      borderRadius: const BorderRadius.only(
+                        topRight: Radius.circular(11),
+                        bottomRight: Radius.circular(11),
+                      ),
+                    ),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(
+                          Icons.pause_circle_outline,
+                          size: 16,
+                          color: !isActive
+                              ? Colors.white
+                              : const Color(0xff888888),
+                        ),
+                        const SizedBox(width: 6),
+                        Text(
+                          'INACTIVE',
+                          style: TextStyle(
+                            fontSize: 13,
+                            fontWeight: FontWeight.w700,
+                            color: !isActive
+                                ? Colors.white
+                                : const Color(0xff888888),
+                            letterSpacing: 0.5,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+        const SizedBox(height: 6),
+        Text(
+          isActive
+              ? 'Students and Turtors can view this class.'
+              : 'This class is hidden to Students and Tutors.',
+          style: TextStyle(
+            fontSize: 12,
+            color: isActive
+                ? AppColors.success
+                : AppColors.error.withOpacity(0.8),
+          ),
+        ),
+      ],
+    );
+  }
+
+  // -----------------------------------------------------------------------
+  // Snackbar helper
+  // -----------------------------------------------------------------------
+  void _showSnackBar(String message, Color color, IconData icon) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        behavior: SnackBarBehavior.floating,
+        margin: const EdgeInsets.all(16),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        backgroundColor: color,
+        content: Row(
+          children: [
+            Icon(icon, color: Colors.white),
+            const SizedBox(width: 10),
+            Expanded(child: Text(message)),
+          ],
         ),
       ),
     );
   }
 
+  // -----------------------------------------------------------------------
+  // Build
+  // -----------------------------------------------------------------------
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -161,260 +339,188 @@ class _InstituteEditClassPageState extends State<InstituteEditClassPage> {
             children: [
               const SizedBox(height: 20),
 
+              // -------------------------------------------------------
               // Class Name
+              // -------------------------------------------------------
               CustomTextField(
-                label: 'Class Name',
-                hintText: 'E.g. Advanced Mathematics 2024',
-                controller: _classNameController,
-                validator: (value) =>
-                    value == null || value.isEmpty ? 'Required field' : null,
+                label: 'Class Name*',
+                hintText: 'E.g. Mathematics 2024',
+                controller: controller.classNameController,
                 isRequired: true,
+                onChanged: (value) {
+                  setState(() => controller.validateClassName(value));
+                },
               ),
+              FieldErrorText(message: controller.classNameError),
               const SizedBox(height: 20),
 
-              CustomSelect(
+              // -------------------------------------------------------
+              // Subject
+              // -------------------------------------------------------
+              NewSelectOptions(
+                label: "Major Subject*",
+                value: controller.selectedSubject,
+                items: subjectsList,
+                onChanged: (id) {
+                  setState(() => controller.setSubject(id));
+                },
+              ),
+              FieldErrorText(message: controller.subjectError),
+              const SizedBox(height: 20),
+
+              // -------------------------------------------------------
+              // Grade
+              // -------------------------------------------------------
+              NewSelectOptions(
+                label: "Grade*",
+                value: controller.selectedGrade,
+                items: SelectOptions.newgradesList,
+                onChanged: (id) {
+                  setState(() => controller.setGrade(id));
+                },
+              ),
+              FieldErrorText(message: controller.gradeError),
+              const SizedBox(height: 20),
+
+              // -------------------------------------------------------
+              // Teacher
+              // -------------------------------------------------------
+              CustomTextField(
                 label: 'Teacher',
-                hintText: 'Select Teacher',
-                value: _selectedTeacher,
-                options: _teachers
-                    .map((t) => SelectOption(value: t, label: t))
-                    .toList(),
-                onChanged: (val) => setState(() => _selectedTeacher = val),
-                validator: (value) =>
-                    value == null || value.isEmpty ? 'Required' : null,
-                isRequired: true,
+                hintText: controller.tutorNameController.text,
+                readOnly: true ,
               ),
               const SizedBox(height: 20),
 
-              CustomSelect(
-                label: 'Subject',
-                hintText: 'Select Subject',
-                value: _selectedSubject,
-                options: _subjects
-                    .map((s) => SelectOption(value: s, label: s))
-                    .toList(),
-                onChanged: (val) => setState(() => _selectedSubject = val),
-                validator: (value) =>
-                    value == null || value.isEmpty ? 'Required' : null,
-                isRequired: true,
-              ),
-              const SizedBox(height: 20),
+               
 
-              // Grade and Hall
+              // -------------------------------------------------------
+              // Start & End Time
+              // -------------------------------------------------------
               Row(
                 children: [
                   Expanded(
-                    child: CustomSelect(
-                      label: 'Grade',
-                      hintText: 'Select Grade',
-                      value: _selectedGrade,
-                      options: _grades
-                          .map((g) => SelectOption(value: g, label: g))
-                          .toList(),
-                      onChanged: (val) => setState(() => _selectedGrade = val),
-                      validator: (value) =>
-                          value == null || value.isEmpty ? 'Required' : null,
-                      isRequired: true,
+                    child: _buildTimePicker(
+                      label: 'Start Time*',
+                      selectedTime: controller.startTime,
+                      onTap: () => _selectTime(context, true),
                     ),
                   ),
                   const SizedBox(width: 16),
                   Expanded(
-                    child: CustomSelect(
-                      label: 'Hall',
-                      hintText: 'Select Hall',
-                      value: _selectedHall,
-                      options: _halls
-                          .map((h) => SelectOption(value: h, label: h))
-                          .toList(),
-                      onChanged: (val) => setState(() => _selectedHall = val),
-                      validator: (value) =>
-                          value == null || value.isEmpty ? 'Required' : null,
-                      isRequired: true,
+                    child: _buildTimePicker(
+                      label: 'End Time*',
+                      selectedTime: controller.endTime,
+                      onTap: () => _selectTime(context, false),
                     ),
                   ),
                 ],
               ),
+              if (controller.timeError != null)
+                FieldErrorText(message: controller.timeError),
               const SizedBox(height: 20),
 
+              // -------------------------------------------------------
               // Day
-              CustomSelect(
-                label: 'Day',
-                hintText: 'Select Day',
-                value: _selectedDay,
-                options: _days
-                    .map((d) => SelectOption(value: d, label: d))
-                    .toList(),
-                onChanged: (val) => setState(() => _selectedDay = val),
-                validator: (value) =>
-                    value == null || value.isEmpty ? 'Required' : null,
-                isRequired: true,
+              // -------------------------------------------------------
+              NewSelectOptions(
+                label: "Day*",
+                value: controller.selectedDay,
+                items: SelectOptions.days,
+                onChanged: (id) {
+                  setState(() => controller.setDay(id));
+                },
               ),
+              FieldErrorText(message: controller.dayError),
               const SizedBox(height: 20),
 
-              // Time
-              Row(
-                children: [
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        _buildLabel('Start Time'),
-                        GestureDetector(
-                          onTap: () => _selectTime(context, true),
-                          child: Container(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 16,
-                              vertical: 16,
-                            ),
-                            decoration: BoxDecoration(
-                              color: Colors.white,
-                              borderRadius: BorderRadius.circular(12),
-                              border: Border.all(color: Colors.grey.shade200),
-                            ),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                Text(
-                                  _startTime?.format(context) ?? 'Select Time',
-                                  style: TextStyle(
-                                    color: _startTime != null
-                                        ? AppColors.textPrimary
-                                        : AppColors.textSecondary,
-                                    fontSize: 14,
-                                  ),
-                                ),
-                                const Icon(
-                                  Icons.access_time,
-                                  color: AppColors.textSecondary,
-                                  size: 20,
-                                ),
-                              ],
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  const SizedBox(width: 16),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        _buildLabel('End Time'),
-                        GestureDetector(
-                          onTap: () => _selectTime(context, false),
-                          child: Container(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 16,
-                              vertical: 16,
-                            ),
-                            decoration: BoxDecoration(
-                              color: Colors.white,
-                              borderRadius: BorderRadius.circular(12),
-                              border: Border.all(color: Colors.grey.shade200),
-                            ),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                Text(
-                                  _endTime?.format(context) ?? 'Select Time',
-                                  style: TextStyle(
-                                    color: _endTime != null
-                                        ? AppColors.textPrimary
-                                        : AppColors.textSecondary,
-                                    fontSize: 14,
-                                  ),
-                                ),
-                                const Icon(
-                                  Icons.access_time,
-                                  color: AppColors.textSecondary,
-                                  size: 20,
-                                ),
-                              ],
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 20),
-
-              // Fees and Commission
+              // -------------------------------------------------------
+              // Fees & Commission
+              // -------------------------------------------------------
               Row(
                 children: [
                   Expanded(
                     child: CustomTextField(
-                      label: 'Class Fees (LKR)',
+                      label: 'Class Fees (LKR)*',
                       hintText: 'E.g. 2500',
-                      controller: _classFeesController,
+                      controller: controller.classFeesController,
                       keyboardType: TextInputType.number,
-                      validator: (value) =>
-                          value == null || value.isEmpty ? 'Required' : null,
                       isRequired: true,
+                      onChanged: (value) {
+                        setState(() => controller.validateClassFees(value));
+                      },
                     ),
                   ),
                   const SizedBox(width: 16),
                   Expanded(
                     child: CustomTextField(
-                      label: 'Institute Commission (%)',
+                      label: 'Commission (%)*',
                       hintText: 'E.g. 20',
-                      controller: _commissionController,
+                      controller: controller.commissionController,
                       keyboardType: TextInputType.number,
-                      validator: (value) =>
-                          value == null || value.isEmpty ? 'Required' : null,
                       isRequired: true,
+                      onChanged: (value) {
+                        setState(() => controller.validateCommission(value));
+                      },
                     ),
                   ),
                 ],
               ),
+              FieldErrorText(message: controller.classFeesError),
+              FieldErrorText(message: controller.commissionError),
               const SizedBox(height: 20),
 
+              // -------------------------------------------------------
               // Description
+              // -------------------------------------------------------
               CustomTextField(
                 label: 'Description',
                 hintText: 'Add optional class description or notes...',
-                controller: _descriptionController,
+                controller: controller.descriptionController,
                 maxLines: 4,
+                onChanged: (value) {
+                  setState(() => controller.validateDescription(value));
+                },
               ),
+              FieldErrorText(message: controller.descriptionError),
+              const SizedBox(height: 20),
+
+              // -------------------------------------------------------
+              // Status Toggle
+              // -------------------------------------------------------
+              _buildStatusToggle(),
               const SizedBox(height: 32),
 
-              Row(
-                children: [
-                  Expanded(
-                    child: ElevatedButton(
-                      onPressed: () {},
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: AppColors.primary,
-                        foregroundColor: Colors.white,
-                        padding: const EdgeInsets.symmetric(vertical: 16),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                      ),
-                      child: const Text('Update Class'),
-                    ),
-                  ),
-                  const SizedBox(width: 12),
-                  Container(
-                    decoration: BoxDecoration(
-                      border: Border.all(color: Colors.grey.shade300),
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    child: IconButton(
-                      onPressed: () {},
-                      icon: const Icon(Icons.delete),
-                      color: AppColors.textPrimary,
-                      iconSize: 24,
-                    ),
-                  ),
-                ],
+              // -------------------------------------------------------
+              // Update Button
+              // -------------------------------------------------------
+              CustomButton(
+                text: "Update Class",
+                isDisabled: !controller.isFormValid(),
+                hasShadow: true,
+                onPressed: controller.isFormValid()
+                    ? () async {
+                        final response = await controller.updateClass();
+                        if (response != null && response["status"] == true) {
+                          _showSnackBar(
+                            response["message"] ?? "Class updated successfully",
+                            AppColors.success,
+                            Icons.check_circle,
+                          );
+                          Navigator.pop(context);
+                        } else {
+                          _showSnackBar(
+                            response == null
+                                ? "An error occurred"
+                                : response["message"] ?? "Update failed",
+                            AppColors.error,
+                            Icons.error,
+                          );
+                        }
+                      }
+                    : null,
               ),
-
-              // Submit Button
-             
-              const SizedBox(height: 20),
+              const SizedBox(height: 40),
             ],
           ),
         ),

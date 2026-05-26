@@ -84,10 +84,8 @@ class ClassHeaderCard extends StatelessWidget {
               ),
               const SizedBox(width: 12),
               GestureDetector(onTap: () =>{
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => const InstituteEditClassPage()),
-                )
+                
+                print('Edit class tapped'),
               },
               child: _buildInfoChip(icon: Icons.edit, label: 'Edit' ),),
             ],

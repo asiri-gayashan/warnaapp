@@ -682,11 +682,11 @@ class _InstituteCoursesPageState extends State<InstituteCoursesPage> {
                                     MaterialPageRoute(
                                         builder: (_) =>
                                             ClassDetailPage(
-                                               ClassItemDetails: cls
+                                               classItemDetails: cls
                                                )),
                                   );
                                 },
-                              );
+                              ); 
                             },
                             childCount: pageItems.length,
                           ),

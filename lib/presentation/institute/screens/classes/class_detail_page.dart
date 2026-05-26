@@ -2,42 +2,63 @@ import 'package:flutter/material.dart';
 import 'package:warna_app/core/constants/app_colors.dart';
 import 'package:warna_app/core/constants/select_options.dart';
 import 'package:warna_app/data/models/class_model.dart';
+import 'package:warna_app/data/repositories/class_repository.dart';
 import 'package:warna_app/features/institute/ui/screens/fees_attendance_page.dart';
 import 'package:warna_app/features/tutor/ui/screens/enroll_student_page.dart';
 import 'package:warna_app/presentation/institute/screens/classes/institute_edit_class.dart';
-import 'package:warna_app/shared/widgets/new/class_header_card.dart';
 import 'package:warna_app/shared/widgets/new/schedule_info_card.dart';
 import 'package:warna_app/shared/widgets/new/student_payment_overview_card.dart';
 
-class ClassDetailPage extends StatelessWidget {
-  // Using dummy data instead of required parameter
-  final ClassModel ClassItemDetails;
+class ClassDetailPage extends StatefulWidget {
+  final ClassModel classItemDetails;
 
-  ClassDetailPage({Key? key, required this.ClassItemDetails})
-    : super(key: key) {
-    print(ClassItemDetails.name);
-  }
+  const ClassDetailPage({Key? key, required this.classItemDetails})
+    : super(key: key);
 
-  String TutorName = "Tutor Name";
+  @override
+  State<ClassDetailPage> createState() => _ClassDetailPageState();
+}
+
+class _ClassDetailPageState extends State<ClassDetailPage> {
+  ClassModel? classesData;
+  bool isLoading = true;
   bool isReceived = false;
 
-  // Dummy class data
-  final classItem = (
-    id: '1',
-    name: 'Mathematics Advanced',
-    subject: 'Mathematics',
-    grade: 'Grade 10',
-    teacher: 'Anura Dharmasiri',
-    day: 'Monday',
-    time: '09:00 AM',
-    duration: '2 hours',
-    totalStudents: 30,
-    description:
-        'Advanced mathematics class focusing on algebra and geometry. Students will learn fundamental concepts and problem-solving techniques.',
-  );
+  @override
+  void initState() {
+    super.initState();
+    loadClassData();
+  }
+
+  Future<void> loadClassData() async {
+    final rawClassesData = await ClassRepository().getClassesById(
+      widget.classItemDetails.id,
+    );
+
+    if (rawClassesData != null) {
+      setState(() {
+        classesData = ClassModel.fromJson(rawClassesData);
+        isLoading = false;
+      });
+    } else {
+      setState(() {
+        isLoading = false;
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
+    if (isLoading) {
+      return const Scaffold(
+        backgroundColor: Colors.white,
+        body: Center(child: CircularProgressIndicator()),
+      );
+    }
+
+    // classesData is from database, widget.classItemDetails is fallback only
+    final classData = classesData!;
+
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
@@ -55,7 +76,6 @@ class ClassDetailPage extends StatelessWidget {
             color: AppColors.textPrimary,
           ),
         ),
-
         backgroundColor: Colors.white,
         elevation: 0,
         centerTitle: true,
@@ -102,9 +122,9 @@ class ClassDetailPage extends StatelessWidget {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              ClassItemDetails.name.length > 21
-                                  ? ClassItemDetails.name.substring(0, 22) + ''
-                                  : ClassItemDetails.name,
+                              classData.name.length > 21
+                                  ? classData.name.substring(0, 22)
+                                  : classData.name,
                               style: const TextStyle(
                                 color: Colors.white,
                                 fontSize: 22,
@@ -113,7 +133,7 @@ class ClassDetailPage extends StatelessWidget {
                             ),
                             const SizedBox(height: 4),
                             Text(
-                              '${ClassItemDetails.subjectName} • ${ClassItemDetails.tutorName}',
+                              '${classData.subjectName} • ${classData.tutorName}',
                               style: const TextStyle(
                                 color: Colors.white70,
                                 fontSize: 14,
@@ -131,26 +151,31 @@ class ClassDetailPage extends StatelessWidget {
                         icon: Icons.sailing,
                         label:
                             SelectOptions.newgradesList.firstWhere(
-                              (e) =>
-                                  e['id'] == ClassItemDetails.grade.toString(),
+                              (e) => e['id'] == classData.grade.toString(),
                             )['name'] ??
                             '',
                       ),
                       const SizedBox(width: 12),
                       _buildInfoChip(
                         icon: Icons.people,
-                        label: '${ClassItemDetails.studentCount} Students',
+                        label: '${classData.studentCount} Students',
                       ),
                       const SizedBox(width: 12),
                       GestureDetector(
-                        onTap: () => {
+                        onTap: () {
                           Navigator.push(
                             context,
                             MaterialPageRoute(
-                              builder: (context) =>
-                                  const InstituteEditClassPage(),
+                              builder: (_) =>
+                                  InstituteEditClassPage(classModel: classData),
                             ),
-                          ),
+                          ).then((_) {
+                            // This runs when user comes back from edit page
+                            setState(() {
+                              isLoading = true;
+                            });
+                            loadClassData();
+                          });
                         },
                         child: _buildInfoChip(icon: Icons.edit, label: 'Edit'),
                       ),
@@ -171,14 +196,13 @@ class ClassDetailPage extends StatelessWidget {
             ScheduleInfoCard(
               day:
                   SelectOptions.days.firstWhere(
-                    (e) => e['id'] == ClassItemDetails.day.toString(),
+                    (e) => e['id'] == classData.day.toString(),
                   )['name'] ??
                   '',
-              time: ClassItemDetails.startTime.length >= 5
-                  ? ClassItemDetails.startTime.substring(0, 5)
-                  : ClassItemDetails
-                        .startTime, // Assuming startTime is in "HH:mm:ss" format
-              duration: ClassItemDetails.duration,
+              time: classData.startTime.length >= 5
+                  ? classData.startTime.substring(0, 5)
+                  : classData.startTime,
+              duration: classData.duration,
             ),
 
             const SizedBox(height: 24),
@@ -191,7 +215,7 @@ class ClassDetailPage extends StatelessWidget {
 
             const SizedBox(height: 16),
 
-            // Institute Payment Status Card
+            // Tutor Payment Status Card
             Container(
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
@@ -219,7 +243,7 @@ class ClassDetailPage extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          ClassItemDetails.tutorName,
+                          classData.tutorName,
                           style: const TextStyle(
                             fontSize: 16,
                             fontWeight: FontWeight.w600,
@@ -281,8 +305,8 @@ class ClassDetailPage extends StatelessWidget {
             Padding(
               padding: const EdgeInsets.only(bottom: 10),
               child: Text(
-                ClassItemDetails.description,
-                style: TextStyle(
+                classData.description,
+                style: const TextStyle(
                   color: AppColors.textSecondary,
                   fontSize: 15,
                   height: 1.5,
@@ -291,7 +315,6 @@ class ClassDetailPage extends StatelessWidget {
             ),
 
             const SizedBox(height: 24),
-
             const SizedBox(height: 12),
 
             // Fees & Attendance and Enroll Student Row
@@ -342,8 +365,6 @@ class ClassDetailPage extends StatelessWidget {
             ),
 
             const SizedBox(height: 30),
-
-            // Remove Class Button
           ],
         ),
       ),
@@ -370,46 +391,4 @@ class ClassDetailPage extends StatelessWidget {
       ),
     );
   }
-
-  // void _showRemoveClassDialog(BuildContext context) {
-  //   showDialog(
-  //     context: context,
-  //     builder: (BuildContext context) {
-  //       return AlertDialog(
-  //         title: const Text('Remove Class'),
-  //         content: const Text(
-  //           'Are you sure you want to remove this class? This action cannot be undone.',
-  //         ),
-  //         shape: RoundedRectangleBorder(
-  //           borderRadius: BorderRadius.circular(16),
-  //         ),
-  //         actions: [
-  //           TextButton(
-  //             onPressed: () => Navigator.pop(context),
-  //             child: const Text('Cancel'),
-  //           ),
-  //           ElevatedButton(
-  //             onPressed: () {
-  //               Navigator.pop(context);
-  //               ScaffoldMessenger.of(context).showSnackBar(
-  //                 const SnackBar(
-  //                   content: Text('Class removed successfully'),
-  //                   backgroundColor: Colors.red,
-  //                 ),
-  //               );
-  //             },
-  //             style: ElevatedButton.styleFrom(
-  //               backgroundColor: Colors.red,
-  //               foregroundColor: Colors.white,
-  //               shape: RoundedRectangleBorder(
-  //                 borderRadius: BorderRadius.circular(8),
-  //               ),
-  //             ),
-  //             child: const Text('Remove'),
-  //           ),
-  //         ],
-  //       );
-  //     },
-  //   );
-  // }
 }

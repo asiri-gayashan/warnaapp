@@ -1,4 +1,5 @@
 import 'package:dio/dio.dart';
+import 'package:warna_app/data/models/class_model.dart';
 import '../../core/network/dio_client.dart';
 
 class ClassRepository {
@@ -13,6 +14,28 @@ class ClassRepository {
       return null;
     }
   }
+
+
+  Future<Map<String, dynamic>?> getClassesById(String classId) async {
+    try {
+      final response = await _dio.get("/classes/$classId");
+      // print(response.data["data"]);    
+      return response.data['data'];
+    } on DioException catch (error) {
+      print(error);
+      return null;
+    }
+  }
+  // Future<Map<String, dynamic>?> getClassesById(String classId) async {
+  //   try {
+  //     final response = await _dio.get("/classes/$classId");
+  //     // print(response.data["data"]);
+  //     return response.data['data'];
+  //   } on DioException catch (error) {
+  //     print(error);
+  //     return null;
+  //   }
+  // }
 
  
 }

@@ -90,13 +90,13 @@ class RouterClass {
         builder: (context, state) => InstituteCreateClassPage(),
       ),
 
-      GoRoute(
-        path: "/institute/classes/edit",
-        name: InstituteRouteNames.editClass,
-        builder: (context, state) {
-          return InstituteEditClassPage();
-        },
-      ),
+      // GoRoute(
+      //   path: "/institute/classes/edit",
+      //   name: InstituteRouteNames.editClass,
+      //   builder: (context, state) {
+      //     return InstituteEditClassPage();
+      //   },
+      // ),
 
       // GoRoute(
       //   path: "/institute/classes/details",
