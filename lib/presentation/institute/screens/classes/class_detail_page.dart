@@ -4,7 +4,7 @@ import 'package:warna_app/core/constants/select_options.dart';
 import 'package:warna_app/data/models/class_model.dart';
 import 'package:warna_app/data/repositories/class_repository.dart';
 import 'package:warna_app/features/institute/ui/screens/fees_attendance_page.dart';
-import 'package:warna_app/features/tutor/ui/screens/enroll_student_page.dart';
+import 'package:warna_app/presentation/institute/screens/classes/enroll_student_page.dart';
 import 'package:warna_app/presentation/institute/screens/classes/institute_edit_class.dart';
 import 'package:warna_app/shared/widgets/new/schedule_info_card.dart';
 import 'package:warna_app/shared/widgets/new/student_payment_overview_card.dart';
@@ -144,6 +144,119 @@ class _ClassDetailPageState extends State<ClassDetailPage> {
                       ),
                     ],
                   ),
+
+                      const SizedBox(height: 20),
+
+
+                  Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 16,
+                      vertical: 12,
+                    ),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(16),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.white.withOpacity(0.2),
+                          blurRadius: 10,
+                          offset: const Offset(0, 2),
+                        ),
+                      ],
+                    ),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Row(
+                          children: [
+                            Container(
+                              padding: const EdgeInsets.all(8),
+                              decoration: BoxDecoration(
+                                color: AppColors.primary.withOpacity(0.1),
+                                borderRadius: BorderRadius.circular(10),
+                              ),
+                              child: const Icon(
+                                Icons.payments_outlined,
+                                color: AppColors.primary,
+                                size: 20,
+                              ),
+                            ),
+                            const SizedBox(width: 12),
+                            Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                const Text(
+                                  'Monthly Fee',
+                                  style: TextStyle(
+                                    fontSize: 12,
+                                    color: AppColors.textSecondary,
+                                  ),
+                                ),
+                                const SizedBox(height: 2),
+                                Text(
+                                  'Rs. ${classData.amount.toString().split('.').first}',
+                                  style: const TextStyle(
+                                    fontSize: 18,
+                                    fontWeight: FontWeight.bold,
+                                    color: AppColors.textPrimary,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
+                        InkWell(
+                          onTap:  () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (_) =>
+                                  InstituteEditClassPage(classModel: classData),
+                            ),
+                          ).then((_) {
+                            // This runs when user comes back from edit page
+                            setState(() {
+                              isLoading = true;
+                            });
+                            loadClassData();
+                          });
+                        },
+                          borderRadius: BorderRadius.circular(20),
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 12,
+                              vertical: 6,
+                            ),
+                            decoration: BoxDecoration(
+                              color: AppColors.primary.withOpacity(0.1),
+                              borderRadius: BorderRadius.circular(20),
+                            ),
+                            child: Row(
+                              children: [
+                                Container(
+                                  width: 8,
+                                  height: 8,
+                                  decoration: const BoxDecoration(
+                                    color: AppColors.primary,
+                                    shape: BoxShape.circle,
+                                  ),
+                                ),
+                                const SizedBox(width: 6),
+                                const Text(
+                                  'Edit Class',
+                                  style: TextStyle(
+                                    color: AppColors.primary,
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
                   const SizedBox(height: 20),
                   Row(
                     children: [
@@ -161,24 +274,28 @@ class _ClassDetailPageState extends State<ClassDetailPage> {
                         label: '${classData.studentCount} Students',
                       ),
                       const SizedBox(width: 12),
-                      GestureDetector(
-                        onTap: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (_) =>
-                                  InstituteEditClassPage(classModel: classData),
-                            ),
-                          ).then((_) {
-                            // This runs when user comes back from edit page
-                            setState(() {
-                              isLoading = true;
-                            });
-                            loadClassData();
-                          });
-                        },
-                        child: _buildInfoChip(icon: Icons.edit, label: 'Edit'),
+                      _buildInfoChip(
+                        icon: Icons.circle,
+                        label: classData.status,
                       ),
+                      // GestureDetector(
+                      //   onTap: () {
+                      //     Navigator.push(
+                      //       context,
+                      //       MaterialPageRoute(
+                      //         builder: (_) =>
+                      //             InstituteEditClassPage(classModel: classData),
+                      //       ),
+                      //     ).then((_) {
+                      //       // This runs when user comes back from edit page
+                      //       setState(() {
+                      //         isLoading = true;
+                      //       });
+                      //       loadClassData();
+                      //     });
+                      //   },
+                      //   child: _buildInfoChip(icon: Icons.edit, label: 'Edit'),
+                      // ),
                     ],
                   ),
                 ],
@@ -352,9 +469,18 @@ class _ClassDetailPageState extends State<ClassDetailPage> {
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (context) => const EnrollStudentPage(),
+                          builder: (context) => EnrollStudentPage(
+                            classId: classData.id,
+                            className: classData.name,
+                          ),
                         ),
-                      );
+                      ).then((_) {
+                            // This runs when user comes back from edit page
+                            setState(() {
+                              isLoading = true;
+                            });
+                            loadClassData();
+                          });;
                     },
                     icon: const Icon(Icons.person_add_alt_1),
                     color: AppColors.textPrimary,

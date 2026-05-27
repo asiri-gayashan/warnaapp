@@ -112,11 +112,11 @@ class RouterClass {
         builder: (context, state) => InstituteStudentsPage(),
       ),
 
-      GoRoute(
-        path: "/institute/students/enroll",
-        name: InstituteRouteNames.enrollStudent,
-        builder: (context, state) => const EnrollStudentPage(),
-      ),
+      // GoRoute(
+      //   path: "/institute/students/enroll",
+      //   name: InstituteRouteNames.enrollStudent,
+      //   builder: (context, state) => const EnrollStudentPage(),
+      // ),
 
       GoRoute(
         path: "/institute/students/:id",
