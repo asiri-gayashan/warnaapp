@@ -9,6 +9,9 @@ import 'package:warna_app/presentation/institute/screens/classes/institute_edit_
 import 'package:warna_app/shared/widgets/new/schedule_info_card.dart';
 import 'package:warna_app/shared/widgets/new/student_payment_overview_card.dart';
 
+import 'package:warna_app/presentation/institute/screens/student/mark_payment_page.dart';
+import 'package:warna_app/presentation/institute/screens/student/mark_attendance_page.dart';
+
 class ClassDetailPage extends StatefulWidget {
   final ClassModel classItemDetails;
 
@@ -28,6 +31,7 @@ class _ClassDetailPageState extends State<ClassDetailPage> {
   void initState() {
     super.initState();
     loadClassData();
+    
   }
 
   Future<void> loadClassData() async {
@@ -36,6 +40,8 @@ class _ClassDetailPageState extends State<ClassDetailPage> {
     );
 
     if (rawClassesData != null) {
+
+      
       setState(() {
         classesData = ClassModel.fromJson(rawClassesData);
         isLoading = false;
@@ -70,7 +76,7 @@ class _ClassDetailPageState extends State<ClassDetailPage> {
           onPressed: () => Navigator.pop(context),
         ),
         title: const Text(
-          'Class Details Institute',
+          'Institute Class Details ',
           style: TextStyle(
             fontWeight: FontWeight.w600,
             color: AppColors.textPrimary,
@@ -79,6 +85,26 @@ class _ClassDetailPageState extends State<ClassDetailPage> {
         backgroundColor: Colors.white,
         elevation: 0,
         centerTitle: true,
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => EnrollStudentPage(
+                classId: classData.id,
+                className: classData.name,
+              ),
+            ),
+          ).then((_) {
+            // This runs when user comes back from edit page
+            setState(() {
+              isLoading = true;
+            });
+            loadClassData();
+          });
+        },
+        child: const Icon(Icons.person_add_alt_1),
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(20),
@@ -145,8 +171,7 @@ class _ClassDetailPageState extends State<ClassDetailPage> {
                     ],
                   ),
 
-                      const SizedBox(height: 20),
-
+                  const SizedBox(height: 20),
 
                   Container(
                     padding: const EdgeInsets.symmetric(
@@ -206,21 +231,22 @@ class _ClassDetailPageState extends State<ClassDetailPage> {
                           ],
                         ),
                         InkWell(
-                          onTap:  () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (_) =>
-                                  InstituteEditClassPage(classModel: classData),
-                            ),
-                          ).then((_) {
-                            // This runs when user comes back from edit page
-                            setState(() {
-                              isLoading = true;
+                          onTap: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (_) => InstituteEditClassPage(
+                                  classModel: classData,
+                                ),
+                              ),
+                            ).then((_) {
+                              // This runs when user comes back from edit page
+                              setState(() {
+                                isLoading = true;
+                              });
+                              loadClassData();
                             });
-                            loadClassData();
-                          });
-                        },
+                          },
                           borderRadius: BorderRadius.circular(20),
                           child: Container(
                             padding: const EdgeInsets.symmetric(
@@ -432,9 +458,7 @@ class _ClassDetailPageState extends State<ClassDetailPage> {
             ),
 
             const SizedBox(height: 24),
-            const SizedBox(height: 12),
 
-            // Fees & Attendance and Enroll Student Row
             Row(
               children: [
                 Expanded(
@@ -443,54 +467,53 @@ class _ClassDetailPageState extends State<ClassDetailPage> {
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (context) => const FeesAttendancePage(),
+                          builder: (context) => MarkAttendancePage(
+                            className: classData.name,
+                            classId: classData.id,
+                          ),
                         ),
                       );
                     },
                     style: ElevatedButton.styleFrom(
                       backgroundColor: AppColors.primary,
                       foregroundColor: Colors.white,
-                      padding: const EdgeInsets.symmetric(vertical: 16),
+                      padding: const EdgeInsets.symmetric(vertical: 14),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(12),
                       ),
+                      elevation: 0,
                     ),
-                    child: const Text('Fees & Attendance'),
+                    child: const Text('Mark Attendance'),
                   ),
                 ),
                 const SizedBox(width: 12),
-                Container(
-                  decoration: BoxDecoration(
-                    border: Border.all(color: Colors.grey.shade300),
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: IconButton(
+                Expanded(
+                  child: OutlinedButton(
                     onPressed: () {
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (context) => EnrollStudentPage(
-                            classId: classData.id,
-                            className: classData.name,
-                          ),
+                          builder: (context) => const MarkPaymentPage(),
                         ),
-                      ).then((_) {
-                            // This runs when user comes back from edit page
-                            setState(() {
-                              isLoading = true;
-                            });
-                            loadClassData();
-                          });;
+                      );
                     },
-                    icon: const Icon(Icons.person_add_alt_1),
-                    color: AppColors.textPrimary,
-                    iconSize: 24,
+                    style: OutlinedButton.styleFrom(
+                      foregroundColor: AppColors.primary,
+                      side: const BorderSide(color: AppColors.primary),
+                      padding: const EdgeInsets.symmetric(vertical: 14),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                    ),
+                    child: const Text('Mark Payment'),
                   ),
                 ),
               ],
             ),
+            const SizedBox(height: 20),
 
-            const SizedBox(height: 30),
+            // Fees & Attendance and Enroll Student Row
+
           ],
         ),
       ),

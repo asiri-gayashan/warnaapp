@@ -152,13 +152,13 @@ class RouterClass {
         builder: (context, state) => FeesAttendancePage(),
       ),
 
-      GoRoute(
-        path: "/institute/classes/attendance/:id",
-        name: InstituteRouteNames.markAttendance,
-        builder: (context, state) {
-          return MarkAttendancePage();
-        },
-      ),
+      // GoRoute(
+      //   path: "/institute/classes/attendance/:id",
+      //   name: InstituteRouteNames.markAttendance,
+      //   builder: (context, state) {
+      //     return MarkAttendancePage();
+      //   },
+      // ),
 
       GoRoute(
         path: "/institute/classes/payment",

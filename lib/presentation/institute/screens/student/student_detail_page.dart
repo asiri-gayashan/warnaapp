@@ -224,12 +224,12 @@ class StudentDetailPage extends StatelessWidget {
                 Expanded(
                   child: ElevatedButton.icon(
                     onPressed: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => const MarkAttendancePage(),
-                        ),
-                      );
+                      // Navigator.push(
+                      //   context,
+                      //   MaterialPageRoute(
+                      //     builder: (context) => const MarkAttendancePage(),
+                      //   ),
+                      // );
                     },
 
                     icon: const Icon(Icons.assignment_add),
