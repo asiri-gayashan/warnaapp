@@ -493,7 +493,11 @@ class _ClassDetailPageState extends State<ClassDetailPage> {
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (context) => const MarkPaymentPage(),
+                          builder: (context) => MarkPaymentPage(
+                            classId: classData.id,
+                            className: classData.name,
+                            classAmount: classData.amount,
+                          ),
                         ),
                       );
                     },

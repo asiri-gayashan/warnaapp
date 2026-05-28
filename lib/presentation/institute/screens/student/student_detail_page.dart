@@ -248,12 +248,12 @@ class StudentDetailPage extends StatelessWidget {
                 Expanded(
                   child: OutlinedButton.icon(
                     onPressed: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => const MarkPaymentPage(),
-                        ),
-                      );
+                      // Navigator.push(
+                      //   context,
+                      //   MaterialPageRoute(
+                      //     builder: (context) => const MarkPaymentPage(),
+                      //   ),
+                      // );
                     },
 
                     icon: const Icon(Icons.payment),

@@ -48,7 +48,9 @@ class _MarkAttendancePageState extends State<MarkAttendancePage> {
     setState(() => _isLoading = true);
 
     // Load enrolled students
-    final students = await _controller.getEnrollStudentsByClassId(widget.classId);
+    final students = await _controller.getEnrollStudentsByClassId(
+      widget.classId,
+    );
 
     // Load existing attendance for selected date
     final attendance = await _controller.getAttendanceByClassAndDate(
@@ -152,11 +154,23 @@ class _MarkAttendancePageState extends State<MarkAttendancePage> {
 
     if (markedUserId == null) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Could not get logged in user'),
-          backgroundColor: Colors.red,
+        SnackBar(
+          behavior: SnackBarBehavior.floating,
+          margin: EdgeInsets.all(16),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+          ),
+          backgroundColor: AppColors.error,
+          content: Row(
+            children: [
+              Icon(Icons.error, color: Colors.white),
+              SizedBox(width: 10),
+              Expanded(child: Text('Could not get logged in user')),
+            ],
+          ),
         ),
       );
+
       setState(() => _isSaving = false);
       return;
     }
@@ -205,18 +219,41 @@ class _MarkAttendancePageState extends State<MarkAttendancePage> {
 
     if (allSuccess) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Attendance saved successfully'),
-          backgroundColor: Colors.green,
+        SnackBar(
+          behavior: SnackBarBehavior.floating,
+          margin: EdgeInsets.all(16),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+          ),
+          backgroundColor: AppColors.success,
+          content: Row(
+            children: [
+              Icon(Icons.check_circle, color: Colors.white),
+              SizedBox(width: 10),
+              Expanded(child: Text('Attendance saved successfully')),
+            ],
+          ),
         ),
       );
+
       // Reload to sync fresh data
       await _loadData();
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Some records failed to save'),
-          backgroundColor: Colors.red,
+        SnackBar(
+          behavior: SnackBarBehavior.floating,
+          margin: EdgeInsets.all(16),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+          ),
+          backgroundColor: AppColors.error,
+          content: Row(
+            children: [
+              Icon(Icons.error, color: Colors.white),
+              SizedBox(width: 10),
+              Expanded(child: Text('Some records failed to save')),
+            ],
+          ),
         ),
       );
     }
@@ -278,7 +315,10 @@ class _MarkAttendancePageState extends State<MarkAttendancePage> {
         elevation: 0,
         centerTitle: true,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios_new, color: AppColors.textPrimary),
+          icon: const Icon(
+            Icons.arrow_back_ios_new,
+            color: AppColors.textPrimary,
+          ),
           onPressed: () => Navigator.pop(context),
         ),
       ),
@@ -341,8 +381,11 @@ class _MarkAttendancePageState extends State<MarkAttendancePage> {
           // Date picker
           GestureDetector(
             onTap: _pickDate,
-            child: _buildHeaderChip(Icons.calendar_today, _formattedDate,
-                trailing: const Icon(Icons.edit, color: Colors.white70, size: 16)),
+            child: _buildHeaderChip(
+              Icons.calendar_today,
+              _formattedDate,
+              trailing: const Icon(Icons.edit, color: Colors.white70, size: 16),
+            ),
           ),
         ],
       ),
@@ -381,11 +424,19 @@ class _MarkAttendancePageState extends State<MarkAttendancePage> {
   Widget _buildStatsRow() {
     return Row(
       children: [
-        _buildStatCard('Total', '${_enrolledStudents.length}',
-            Icons.people_alt, AppColors.primary),
+        _buildStatCard(
+          'Total',
+          '${_enrolledStudents.length}',
+          Icons.people_alt,
+          AppColors.primary,
+        ),
         const SizedBox(width: 12),
         _buildStatCard(
-            'Present', '$_presentCount', Icons.check_circle, Colors.green),
+          'Present',
+          '$_presentCount',
+          Icons.check_circle,
+          Colors.green,
+        ),
         const SizedBox(width: 12),
         _buildStatCard('Absent', '$_absentCount', Icons.cancel, Colors.red),
       ],
@@ -393,7 +444,11 @@ class _MarkAttendancePageState extends State<MarkAttendancePage> {
   }
 
   Widget _buildStatCard(
-      String label, String value, IconData icon, Color color) {
+    String label,
+    String value,
+    IconData icon,
+    Color color,
+  ) {
     return Expanded(
       child: Container(
         padding: const EdgeInsets.all(14),
@@ -415,12 +470,19 @@ class _MarkAttendancePageState extends State<MarkAttendancePage> {
             Text(
               value,
               style: TextStyle(
-                  fontSize: 18, fontWeight: FontWeight.bold, color: color),
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+                color: color,
+              ),
             ),
             const SizedBox(height: 2),
-            Text(label,
-                style: const TextStyle(
-                    fontSize: 11, color: AppColors.textSecondary)),
+            Text(
+              label,
+              style: const TextStyle(
+                fontSize: 11,
+                color: AppColors.textSecondary,
+              ),
+            ),
           ],
         ),
       ),
@@ -444,8 +506,7 @@ class _MarkAttendancePageState extends State<MarkAttendancePage> {
         controller: _searchController,
         decoration: InputDecoration(
           hintText: 'Search by name...',
-          prefixIcon:
-              const Icon(Icons.search, color: AppColors.textSecondary),
+          prefixIcon: const Icon(Icons.search, color: AppColors.textSecondary),
           suffixIcon: _searchController.text.isNotEmpty
               ? IconButton(
                   icon: const Icon(Icons.clear, size: 20),
@@ -468,9 +529,11 @@ class _MarkAttendancePageState extends State<MarkAttendancePage> {
   }
 
   Widget _buildSelectAllRow() {
-    final allPresent = _filteredStudents.isNotEmpty &&
-        _filteredStudents.every((s) =>
-            _attendanceMap[s['student_id']?.toString()] == 'PRESENT');
+    final allPresent =
+        _filteredStudents.isNotEmpty &&
+        _filteredStudents.every(
+          (s) => _attendanceMap[s['student_id']?.toString()] == 'PRESENT',
+        );
 
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -481,9 +544,10 @@ class _MarkAttendancePageState extends State<MarkAttendancePage> {
         ),
         Row(
           children: [
-            const Text('Mark All Present',
-                style:
-                    TextStyle(fontSize: 13, color: AppColors.textSecondary)),
+            const Text(
+              'Mark All Present',
+              style: TextStyle(fontSize: 13, color: AppColors.textSecondary),
+            ),
             const SizedBox(width: 8),
             GestureDetector(
               onTap: () => _toggleAll(!allPresent),
@@ -520,9 +584,10 @@ class _MarkAttendancePageState extends State<MarkAttendancePage> {
           borderRadius: BorderRadius.circular(16),
         ),
         child: const Center(
-          child: Text('No students found',
-              style:
-                  TextStyle(color: AppColors.textSecondary, fontSize: 15)),
+          child: Text(
+            'No students found',
+            style: TextStyle(color: AppColors.textSecondary, fontSize: 15),
+          ),
         ),
       );
     }
@@ -545,26 +610,40 @@ class _MarkAttendancePageState extends State<MarkAttendancePage> {
           children: [
             // Header
             Container(
-              padding:
-                  const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
               color: AppColors.primary.withOpacity(0.06),
               child: const Row(
                 children: [
                   Expanded(
-                      flex: 3,
-                      child: Text('Name',
-                          style: TextStyle(
-                              fontWeight: FontWeight.w600, fontSize: 13))),
+                    flex: 3,
+                    child: Text(
+                      'Name',
+                      style: TextStyle(
+                        fontWeight: FontWeight.w600,
+                        fontSize: 13,
+                      ),
+                    ),
+                  ),
                   Expanded(
-                      flex: 2,
-                      child: Text('Grade',
-                          style: TextStyle(
-                              fontWeight: FontWeight.w600, fontSize: 13))),
+                    flex: 2,
+                    child: Text(
+                      'Grade',
+                      style: TextStyle(
+                        fontWeight: FontWeight.w600,
+                        fontSize: 13,
+                      ),
+                    ),
+                  ),
                   Expanded(
-                      flex: 2,
-                      child: Text('Status',
-                          style: TextStyle(
-                              fontWeight: FontWeight.w600, fontSize: 13))),
+                    flex: 2,
+                    child: Text(
+                      'Status',
+                      style: TextStyle(
+                        fontWeight: FontWeight.w600,
+                        fontSize: 13,
+                      ),
+                    ),
+                  ),
                   SizedBox(width: 40),
                 ],
               ),
@@ -584,7 +663,9 @@ class _MarkAttendancePageState extends State<MarkAttendancePage> {
 
                 return Container(
                   padding: const EdgeInsets.symmetric(
-                      horizontal: 14, vertical: 12),
+                    horizontal: 14,
+                    vertical: 12,
+                  ),
                   color: isEven
                       ? Colors.white
                       : AppColors.background.withOpacity(0.4),
@@ -596,7 +677,9 @@ class _MarkAttendancePageState extends State<MarkAttendancePage> {
                         child: Text(
                           student['student_full_name'] ?? '',
                           style: const TextStyle(
-                              fontSize: 13, fontWeight: FontWeight.w500),
+                            fontSize: 13,
+                            fontWeight: FontWeight.w500,
+                          ),
                           overflow: TextOverflow.ellipsis,
                         ),
                       ),
@@ -619,8 +702,7 @@ class _MarkAttendancePageState extends State<MarkAttendancePage> {
                               width: 8,
                               height: 8,
                               decoration: BoxDecoration(
-                                color:
-                                    isPresent ? Colors.green : Colors.red,
+                                color: isPresent ? Colors.green : Colors.red,
                                 shape: BoxShape.circle,
                               ),
                             ),
@@ -630,8 +712,7 @@ class _MarkAttendancePageState extends State<MarkAttendancePage> {
                               style: TextStyle(
                                 fontSize: 12,
                                 fontWeight: FontWeight.w500,
-                                color:
-                                    isPresent ? Colors.green : Colors.red,
+                                color: isPresent ? Colors.green : Colors.red,
                               ),
                             ),
                           ],
@@ -659,8 +740,11 @@ class _MarkAttendancePageState extends State<MarkAttendancePage> {
                               ),
                             ),
                             child: isPresent
-                                ? const Icon(Icons.check,
-                                    color: Colors.green, size: 16)
+                                ? const Icon(
+                                    Icons.check,
+                                    color: Colors.green,
+                                    size: 16,
+                                  )
                                 : null,
                           ),
                         ),
@@ -696,11 +780,14 @@ class _MarkAttendancePageState extends State<MarkAttendancePage> {
                 height: 20,
                 width: 20,
                 child: CircularProgressIndicator(
-                    color: Colors.white, strokeWidth: 2),
+                  color: Colors.white,
+                  strokeWidth: 2,
+                ),
               )
-            : const Text('Save Attendance',
-                style: TextStyle(
-                    fontSize: 16, fontWeight: FontWeight.w600)),
+            : const Text(
+                'Save Attendance',
+                style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+              ),
       ),
     );
   }

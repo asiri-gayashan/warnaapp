@@ -160,13 +160,13 @@ class RouterClass {
       //   },
       // ),
 
-      GoRoute(
-        path: "/institute/classes/payment",
-        name: InstituteRouteNames.markPayment,
-        builder: (context, state) {
-          return MarkPaymentPage();
-        },
-      ),
+      // GoRoute(
+      //   path: "/institute/classes/payment",
+      //   name: InstituteRouteNames.markPayment,
+      //   builder: (context, state) {
+      //     return MarkPaymentPage();
+      //   },
+      // ),
 
       GoRoute(
         path: "/institute/tutors/payment/:id",
