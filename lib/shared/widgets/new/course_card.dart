@@ -18,6 +18,7 @@ class CourseCard extends StatelessWidget {
   final String title;
   final String subject;
   final String grade;
+  final String tutorName;
   final String location;
   final String day;
   final String time;
@@ -32,6 +33,7 @@ class CourseCard extends StatelessWidget {
     required this.title,
     required this.subject,
     required this.grade,
+    required this.tutorName,
     required this.location,
     required this.day,
     required this.time,
@@ -85,7 +87,7 @@ class CourseCard extends StatelessWidget {
 
                 // Subtitle
                 Text(
-                  '$grade · Advanced Level',
+                  '$grade · $tutorName',
                   style: const TextStyle(
                     fontSize: 13,
                     color: AppColors.textSecondary,

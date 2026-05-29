@@ -174,7 +174,7 @@ class _InstituteTutorsPageState extends State<InstituteTutorsPage> {
       backgroundColor: AppColors.background,
       appBar: AppBar(
         title: const Text(
-          'My Tutors',
+          'My Tutors',  
           style: TextStyle(
             fontWeight: FontWeight.w600,
             color: AppColors.textPrimary,

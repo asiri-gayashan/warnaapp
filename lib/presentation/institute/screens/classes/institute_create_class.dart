@@ -1,7 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:warna_app/core/constants/app_colors.dart';
-import 'package:warna_app/shared/widgets/new/custom_select.dart';
+import 'package:warna_app/core/constants/select_options.dart';
+import 'package:warna_app/data/repositories/metadata_repository.dart';
+import 'package:warna_app/presentation/institute/controllers/create_class_controller.dart';
+import 'package:warna_app/shared/widgets/custom_button.dart';
+import 'package:warna_app/shared/widgets/field_error_text.dart';
+import 'package:warna_app/shared/widgets/modals/teacher_search_dialog.dart';
 import 'package:warna_app/shared/widgets/new/custom_textfield.dart';
+import 'package:warna_app/shared/widgets/new/new_select_options.dart';
 
 class InstituteCreateClassPage extends StatefulWidget {
   const InstituteCreateClassPage({Key? key}) : super(key: key);
@@ -13,62 +19,42 @@ class InstituteCreateClassPage extends StatefulWidget {
 
 class _InstituteCreateClassPageState extends State<InstituteCreateClassPage> {
   final _formKey = GlobalKey<FormState>();
+  late CreateClassController controller;
+  List<Map<String, String>> subjectsList = [];
 
-  // Controllers for text fields
-  final TextEditingController _classNameController = TextEditingController();
-  final TextEditingController _classFeesController = TextEditingController();
-  final TextEditingController _commissionController = TextEditingController();
-  final TextEditingController _descriptionController = TextEditingController();
-
-  // Selected values for dropdowns and time pickers
-  String? _selectedTeacher;
-  String? _selectedGrade;
-  String? _selectedSubject;
-  String? _selectedDay;
-  String? _selectedHall;
-  TimeOfDay? _startTime;
-  TimeOfDay? _endTime;
-
-  // Dummy data for dropdowns
-  final List<String> _teachers = [
-    'Dr. Sarah Johnson',
-    'Prof. Alan Smith',
-    'Mr. David Wilson',
-  ];
-  final List<String> _grades = [
-    'Grade 9',
-    'Grade 10',
-    'Grade 11',
-    'Grade 12',
-    'A/L',
-  ];
-  final List<String> _subjects = [
-    'Mathematics',
-    'Science',
-    'English',
-    'Physics',
-    'Chemistry',
-  ];
-  final List<String> _days = [
-    'Monday',
-    'Tuesday',
-    'Wednesday',
-    'Thursday',
-    'Friday',
-    'Saturday',
-    'Sunday',
-  ];
-  final List<String> _halls = ['Hall A', 'Hall B', 'Hall C', 'Main Lab'];
+   
+  @override
+  void initState() {
+    super.initState();
+    controller = CreateClassController();
+    loadSubjectData();
+  }
 
   @override
   void dispose() {
-    _classNameController.dispose();
-    _classFeesController.dispose();
-    _commissionController.dispose();
-    _descriptionController.dispose();
+    controller.dispose();
     super.dispose();
   }
 
+  Future<void> loadSubjectData() async {
+    final rawSubjects = await MetadataRepository().getSubjects();
+    if (rawSubjects != null) {
+      setState(() {
+        subjectsList = rawSubjects
+            .map(
+              (s) => {"id": s["id"].toString(), "name": s["name"].toString()},
+            )
+            .toList();
+      });
+    } else {
+      print("Failed to load subject data");
+    }
+  }
+ 
+
+  // -----------------------------------------------------------------------
+  // Time Picker
+  // -----------------------------------------------------------------------
   Future<void> _selectTime(BuildContext context, bool isStart) async {
     final TimeOfDay? picked = await showTimePicker(
       context: context,
@@ -90,28 +76,73 @@ class _InstituteCreateClassPageState extends State<InstituteCreateClassPage> {
     if (picked != null) {
       setState(() {
         if (isStart) {
-          _startTime = picked;
+          controller.setStartTime(picked);
         } else {
-          _endTime = picked;
+          controller.setEndTime(picked);
         }
       });
     }
   }
 
-  Widget _buildLabel(String text) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 8),
-      child: Text(
-        text,
-        style: const TextStyle(
-          fontSize: 14,
-          fontWeight: FontWeight.w600,
-          color: AppColors.textPrimary,
+  // -----------------------------------------------------------------------
+  // Time Picker Widget
+  // -----------------------------------------------------------------------
+  Widget _buildTimePicker({
+    required String label,
+    required TimeOfDay? selectedTime,
+    required VoidCallback onTap,
+  }) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Padding(
+          padding: const EdgeInsets.only(bottom: 8),
+          child: Text(
+            label,
+            style: const TextStyle(
+              fontSize: 14,
+              fontWeight: FontWeight.w600,
+              color: AppColors.textPrimary,
+            ),
+          ),
         ),
-      ),
+        GestureDetector(
+          onTap: onTap,
+          child: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(color: Colors.grey.shade200),
+            ),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  selectedTime?.format(context) ?? 'Select Time',
+                  style: TextStyle(
+                    color: selectedTime != null
+                        ? AppColors.textPrimary
+                        : AppColors.textSecondary,
+                    fontSize: 14,
+                  ),
+                ),
+                const Icon(
+                  Icons.access_time,
+                  color: AppColors.textSecondary,
+                  size: 20,
+                ),
+              ],
+            ),
+          ),
+        ),
+      ],
     );
   }
 
+  // -----------------------------------------------------------------------
+  // Build
+  // -----------------------------------------------------------------------
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -142,141 +173,194 @@ class _InstituteCreateClassPageState extends State<InstituteCreateClassPage> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              const SizedBox(height: 20),
+
+              // -------------------------------------------------------
               // Class Name
-              const SizedBox(height: 20),
-
+              // -------------------------------------------------------
               CustomTextField(
-                label: 'Class Name',
-                hintText: 'E.g. Advanced Mathematics 2024',
-                controller: _classNameController,
-                validator: (value) =>
-                    value == null || value.isEmpty ? 'Required field' : null,
+                label: 'Class Name*',
+                hintText: 'E.g. Mathematics 2024',
+                controller: controller.classNameController,
                 isRequired: true,
+                onChanged: (value) {
+                  setState(() => controller.validateClassName(value));
+                },
               ),
+              FieldErrorText(message: controller.classNameError),
               const SizedBox(height: 20),
 
-              CustomSelect(
-                label: 'Teacher',
-                hintText: 'Select Teacher',
-                value: _selectedTeacher,
-                options: _teachers
-                    .map((t) => SelectOption(value: t, label: t))
-                    .toList(),
-                onChanged: (val) => setState(() => _selectedTeacher = val),
-                validator: (value) =>
-                    value == null || value.isEmpty ? 'Required' : null,
-                isRequired: true,
-              ),
-              const SizedBox(height: 20),
-
-
-              CustomSelect(
-                label: 'Subject',
-                hintText: 'Select Subject',
-                value: _selectedSubject,
-                options: _subjects
-                    .map((s) => SelectOption(value: s, label: s))
-                    .toList(),
-                onChanged: (val) => setState(() => _selectedSubject = val),
-                validator: (value) =>
-                    value == null || value.isEmpty ? 'Required' : null,
-                isRequired: true,
+              // -------------------------------------------------------
+              // Subject
+              // -------------------------------------------------------
+              NewSelectOptions(
+                label: "Major Subject*",
+                value: controller.selectedSubject,
+                items: subjectsList,
+                onChanged: (id) {
+                  setState(() => controller.setSubject(id)); // saves ID
+                  print("Selected ID: $id"); // prints the UUID
+                },
               ),
 
-              // Teacher and Subject
+              FieldErrorText(message: controller.subjectError),
               const SizedBox(height: 20),
 
-              // Grade and Hall
-              Row(
+              // -------------------------------------------------------
+              // Grade
+              // -------------------------------------------------------
+              NewSelectOptions(
+                label: "Grade*",
+                value: controller.selectedGrade,
+                items: SelectOptions.newgradesList,
+                onChanged: (id) {
+                  setState(() => controller.setGrade(id));
+                  print("Selected ID: $id");
+                },
+              ),
+              FieldErrorText(message: controller.gradeError),
+              const SizedBox(height: 20),
+
+              // -------------------------------------------------------
+              // Teacher
+              // -------------------------------------------------------
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Expanded(
-                    child: CustomSelect(
-                      label: 'Grade',
-                      hintText: 'Select Grade',
-                      value: _selectedGrade,
-                      options: _grades
-                          .map((g) => SelectOption(value: g, label: g))
-                          .toList(),
-                      onChanged: (val) => setState(() => _selectedGrade = val),
-                      validator: (value) =>
-                          value == null || value.isEmpty ? 'Required' : null,
-                      isRequired: true,
+                  Padding(
+                    padding: const EdgeInsets.only(bottom: 8),
+                    child: Text(
+                      'Teacher*',
+                      style: const TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w600,
+                        color: AppColors.textPrimary,
+                      ),
                     ),
                   ),
-                  const SizedBox(width: 16),
-                  Expanded(
-                    child: CustomSelect(
-                      label: 'Hall',
-                      hintText: 'Select Hall',
-                      value: _selectedHall,
-                      options: _halls
-                          .map((h) => SelectOption(value: h, label: h))
-                          .toList(),
-                      onChanged: (val) => setState(() => _selectedHall = val),
-                      validator: (value) =>
-                          value == null || value.isEmpty ? 'Required' : null,
-                      isRequired: true,
+                  GestureDetector(
+                    onTap: () => showDialog(
+                      context: context,
+                      builder: (context) {
+                        return TeacherSearchDialog(
+                          onSearch: (email) async {
+                            return await controller.searchTeacherByEmail(email);
+                          },
+
+                          onTeacherSelected: (teacher) {
+                            setState(() {
+                              controller.setTeacherWithName(
+                                teacher['users']['id']?.toString(),
+                                teacher['users']['email'],
+                              );
+                            });
+                          },
+                        );
+                      },
+                    ),
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 16,
+                        vertical: 16,
+                      ),
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(12),
+                        border: Border.all(
+                          color: controller.selectedTeacher != null
+                              ? Colors.grey.shade300
+                              : Colors.grey.shade200,
+                        ),
+                      ),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Expanded(
+                            child: Text(
+                              controller.selectedTeacherEmail ??
+                                  'Select Teacher by Email',
+                              style: TextStyle(
+                                color: controller.selectedTeacher != null
+                                    ? AppColors.textPrimary
+                                    : AppColors.textSecondary,
+                                fontSize: 14,
+                              ),
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ),
+                          const Icon(
+                            Icons.search,
+                            color: AppColors.textSecondary,
+                            size: 20,
+                          ),
+                        ],
+                      ),
                     ),
                   ),
                 ],
               ),
+              FieldErrorText(message: controller.teacherError),
               const SizedBox(height: 20),
 
+              // -------------------------------------------------------
+              // Start & End Time
+              // -------------------------------------------------------
+              Row(
+                children: [
+                  Expanded(
+                    child: _buildTimePicker(
+                      label: 'Start Time*',
+                      selectedTime: controller.startTime,
+                      onTap: () => _selectTime(context, true),
+                    ),
+                  ),
+                  const SizedBox(width: 16),
+                  Expanded(
+                    child: _buildTimePicker(
+                      label: 'End Time*',
+                      selectedTime: controller.endTime,
+                      onTap: () => _selectTime(context, false),
+                    ),
+                  ),
+                ],
+              ),
+              // Time error message
+              if (controller.timeError != null)
+                FieldErrorText(message: controller.timeError),
+              const SizedBox(height: 20),
+
+              // -------------------------------------------------------
               // Day
-              CustomSelect(
-                label: 'Day',
-                hintText: 'Select Day',
-                value: _selectedDay,
-                options: _days
-                    .map((d) => SelectOption(value: d, label: d))
-                    .toList(),
-                onChanged: (val) => setState(() => _selectedDay = val),
-                validator: (value) =>
-                    value == null || value.isEmpty ? 'Required' : null,
-                isRequired: true,
+              // -------------------------------------------------------
+              NewSelectOptions(
+                label: "Day*",
+                value: controller.selectedDay,
+                items: SelectOptions.days,
+                onChanged: (id) {
+                  setState(() => controller.setDay(id));
+                  print("Selected ID: $id");
+                },
               ),
+              FieldErrorText(message: controller.dayError),
               const SizedBox(height: 20),
 
-              // Time
+              // -------------------------------------------------------
+              // Fees & Commission
+              // -------------------------------------------------------
               Row(
                 children: [
                   Expanded(
                     child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        _buildLabel('Start Time'),
-                        GestureDetector(
-                          onTap: () => _selectTime(context, true),
-                          child: Container(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 16,
-                              vertical: 16,
-                            ),
-                            decoration: BoxDecoration(
-                              color: Colors.white,
-                              borderRadius: BorderRadius.circular(12),
-                              border: Border.all(color: Colors.grey.shade200),
-                            ),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                Text(
-                                  _startTime?.format(context) ?? 'Select Time',
-                                  style: TextStyle(
-                                    color: _startTime != null
-                                        ? AppColors.textPrimary
-                                        : AppColors.textSecondary,
-                                    fontSize: 14,
-                                  ),
-                                ),
-                                const Icon(
-                                  Icons.access_time,
-                                  color: AppColors.textSecondary,
-                                  size: 20,
-                                ),
-                              ],
-                            ),
-                          ),
+                        CustomTextField(
+                          label: 'Class Fees (LKR)*',
+                          hintText: 'E.g. 2500',
+                          controller: controller.classFeesController,
+                          keyboardType: TextInputType.number,
+                          isRequired: true,
+                          onChanged: (value) {
+                            setState(() => controller.validateClassFees(value));
+                          },
                         ),
                       ],
                     ),
@@ -284,139 +368,106 @@ class _InstituteCreateClassPageState extends State<InstituteCreateClassPage> {
                   const SizedBox(width: 16),
                   Expanded(
                     child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        _buildLabel('End Time'),
-                        GestureDetector(
-                          onTap: () => _selectTime(context, false),
-                          child: Container(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 16,
-                              vertical: 16,
-                            ),
-                            decoration: BoxDecoration(
-                              color: Colors.white,
-                              borderRadius: BorderRadius.circular(12),
-                              border: Border.all(color: Colors.grey.shade200),
-                            ),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                Text(
-                                  _endTime?.format(context) ?? 'Select Time',
-                                  style: TextStyle(
-                                    color: _endTime != null
-                                        ? AppColors.textPrimary
-                                        : AppColors.textSecondary,
-                                    fontSize: 14,
-                                  ),
-                                ),
-                                const Icon(
-                                  Icons.access_time,
-                                  color: AppColors.textSecondary,
-                                  size: 20,
-                                ),
-                              ],
-                            ),
-                          ),
+                        CustomTextField(
+                          label: 'Commission (%)*',
+                          hintText: 'E.g. 20',
+                          controller: controller.commissionController,
+                          keyboardType: TextInputType.number,
+                          isRequired: true,
+                          onChanged: (value) {
+                            setState(
+                              () => controller.validateCommission(value),
+                            );
+                          },
                         ),
                       ],
                     ),
                   ),
                 ],
               ),
+
+              FieldErrorText(message: controller.classFeesError),
+              FieldErrorText(message: controller.commissionError),
+
               const SizedBox(height: 20),
 
-              // Fees and Commission
-              Row(
-                children: [
-                  Expanded(
-                    child: CustomTextField(
-                      
-                      label: 'Class Fees (LKR)',
-                      hintText: 'E.g. 2500',
-                      controller: _classFeesController,
-                      keyboardType: TextInputType.number,
-                      validator: (value) =>
-                          value == null || value.isEmpty ? 'Required' : null,
-                      isRequired: true,
-                    ),
-                  ),
-                  const SizedBox(width: 16),
-                  Expanded(
-                    child: CustomTextField(
-                      label: 'Institute Commission (%)',
-                      hintText: 'E.g. 20',
-                      controller: _commissionController,
-                      keyboardType: TextInputType.number,
-                      validator: (value) =>
-                          value == null || value.isEmpty ? 'Required' : null,
-                      isRequired: true,
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 20),
-
+              // -------------------------------------------------------
               // Description
+              // -------------------------------------------------------
               CustomTextField(
                 label: 'Description',
                 hintText: 'Add optional class description or notes...',
-                controller: _descriptionController,
+                controller: controller.descriptionController,
                 maxLines: 4,
+                onChanged: (value) {
+                  setState(() => controller.validateDescription(value));
+                },
               ),
+              FieldErrorText(message: controller.descriptionError),
               const SizedBox(height: 32),
 
+              // -------------------------------------------------------
               // Submit Button
-              SizedBox(
-                width: double.infinity,
-                child: ElevatedButton(
-                  onPressed: () {
-                    if (_formKey.currentState!.validate() &&
-                        _startTime != null &&
-                        _endTime != null) {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(
-                          content: const Text('Class Created Successfully!'),
-                          backgroundColor: AppColors.success,
-                          behavior: SnackBarBehavior.floating,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(10),
-                          ),
-                        ),
-                      );
-                      Navigator.pop(context);
-                    } else if (_startTime == null || _endTime == null) {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(
-                          content: const Text(
-                            'Please select valid start and end times',
-                          ),
-                          backgroundColor: Colors.red.shade400,
-                          behavior: SnackBarBehavior.floating,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(10),
-                          ),
-                        ),
-                      );
-                    }
-                  },
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: AppColors.primary,
-                    foregroundColor: Colors.white,
-                    padding: const EdgeInsets.symmetric(vertical: 16),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(16),
-                    ),
-                    elevation: 0,
-                  ),
-                  child: const Text(
-                    'Create Class',
-                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
-                  ),
-                ),
+              // -------------------------------------------------------
+              CustomButton(
+                text: "Create Class",
+                onPressed: controller.isFormValid()
+                    ? () async {
+                        final response = await controller
+                            .createClass(); // returns null on error, otherwise returns API response map
+                        if (response != null && response["status"] == true) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              behavior: SnackBarBehavior.floating,
+                              margin: EdgeInsets.all(16),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              backgroundColor: AppColors.success,
+                              content: Row(
+                                children: [
+                                  Icon(Icons.check_circle, color: Colors.white),
+                                  SizedBox(width: 10),
+                                  Expanded(child: Text(response["message"])),
+                                ],
+                              ),
+                            ),
+                          );
+
+                          Navigator.pop(context);
+                        } else {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              behavior: SnackBarBehavior.floating,
+                              margin: EdgeInsets.all(16),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              backgroundColor: AppColors.error,
+                              content: Row(
+                                children: [
+                                  Icon(Icons.error, color: Colors.white),
+                                  SizedBox(width: 10),
+                                  Expanded(
+                                    child: Text(
+                                      response == null
+                                          ? "An error occurred"
+                                          : response["message"],
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          );
+                        }
+                      }
+                    : null,
+                // onPressed: _buildTeacherForm.,
+                isDisabled: !controller.isFormValid(),
+                hasShadow: true,
               ),
-              const SizedBox(height: 20),
+              const SizedBox(height: 40),
             ],
           ),
         ),

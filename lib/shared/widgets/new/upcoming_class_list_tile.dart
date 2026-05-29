@@ -6,7 +6,7 @@ class UpcomingClassListTile extends StatelessWidget {
   final String grade;
   final String time;
   final String teacher;
-  final String room;
+  final String day;
   final Color? iconColor;
 
   const UpcomingClassListTile({
@@ -15,7 +15,7 @@ class UpcomingClassListTile extends StatelessWidget {
     required this.grade,
     required this.time,
     required this.teacher,
-    required this.room,
+    required this.day,
     this.iconColor,
   }) : super(key: key);
 
@@ -82,7 +82,7 @@ class UpcomingClassListTile extends StatelessWidget {
               ),
               const SizedBox(height: 2),
               Text(
-                room,
+                day,
                 style: TextStyle(color: AppColors.textSecondary, fontSize: 10),
               ),
             ],

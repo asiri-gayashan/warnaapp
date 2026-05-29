@@ -90,21 +90,21 @@ class RouterClass {
         builder: (context, state) => InstituteCreateClassPage(),
       ),
 
-      GoRoute(
-        path: "/institute/classes/edit",
-        name: InstituteRouteNames.editClass,
-        builder: (context, state) {
-          return InstituteEditClassPage();
-        },
-      ),
+      // GoRoute(
+      //   path: "/institute/classes/edit",
+      //   name: InstituteRouteNames.editClass,
+      //   builder: (context, state) {
+      //     return InstituteEditClassPage();
+      //   },
+      // ),
 
-      GoRoute(
-        path: "/institute/classes/details",
-        name: InstituteRouteNames.classDetail,
-        builder: (context, state) {
-          return ClassDetailPage();
-        },
-      ),
+      // GoRoute(
+      //   path: "/institute/classes/details",
+      //   name: InstituteRouteNames.classDetail,
+      //   builder: (context, state) {
+      //     return ClassDetailPage( classItem: {});
+      //   },
+      // ),
 
       GoRoute(
         path: "/institute/students",
@@ -112,11 +112,11 @@ class RouterClass {
         builder: (context, state) => InstituteStudentsPage(),
       ),
 
-      GoRoute(
-        path: "/institute/students/enroll",
-        name: InstituteRouteNames.enrollStudent,
-        builder: (context, state) => const EnrollStudentPage(),
-      ),
+      // GoRoute(
+      //   path: "/institute/students/enroll",
+      //   name: InstituteRouteNames.enrollStudent,
+      //   builder: (context, state) => const EnrollStudentPage(),
+      // ),
 
       GoRoute(
         path: "/institute/students/:id",
@@ -152,21 +152,21 @@ class RouterClass {
         builder: (context, state) => FeesAttendancePage(),
       ),
 
-      GoRoute(
-        path: "/institute/classes/attendance/:id",
-        name: InstituteRouteNames.markAttendance,
-        builder: (context, state) {
-          return MarkAttendancePage();
-        },
-      ),
+      // GoRoute(
+      //   path: "/institute/classes/attendance/:id",
+      //   name: InstituteRouteNames.markAttendance,
+      //   builder: (context, state) {
+      //     return MarkAttendancePage();
+      //   },
+      // ),
 
-      GoRoute(
-        path: "/institute/classes/payment",
-        name: InstituteRouteNames.markPayment,
-        builder: (context, state) {
-          return MarkPaymentPage();
-        },
-      ),
+      // GoRoute(
+      //   path: "/institute/classes/payment",
+      //   name: InstituteRouteNames.markPayment,
+      //   builder: (context, state) {
+      //     return MarkPaymentPage();
+      //   },
+      // ),
 
       GoRoute(
         path: "/institute/tutors/payment/:id",

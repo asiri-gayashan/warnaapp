@@ -333,12 +333,12 @@ class _FeesAttendancePageState extends State<FeesAttendancePage> {
                 Expanded(
                   child: ElevatedButton(
                     onPressed: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => const MarkAttendancePage(),
-                        ),
-                      );
+                      // Navigator.push(
+                      //   context,
+                      //   MaterialPageRoute(
+                      //     builder: (context) => const MarkAttendancePage(),
+                      //   ),
+                      // );
                     },
                     style: ElevatedButton.styleFrom(
                       backgroundColor: AppColors.primary,
@@ -356,12 +356,12 @@ class _FeesAttendancePageState extends State<FeesAttendancePage> {
                 Expanded(
                   child: OutlinedButton(
                     onPressed: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => const MarkPaymentPage(),
-                        ),
-                      );
+                      // Navigator.push(
+                      //   context,
+                      //   MaterialPageRoute(
+                      //     builder: (context) => const MarkPaymentPage(),
+                      //   ),
+                      // );
                     },
                     style: OutlinedButton.styleFrom(
                       foregroundColor: AppColors.primary,
