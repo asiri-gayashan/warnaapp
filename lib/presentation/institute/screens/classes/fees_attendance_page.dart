@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:warna_app/core/constants/app_colors.dart';
-import 'package:warna_app/presentation/institute/screens/student/mark_payment_page.dart';
-import 'package:warna_app/presentation/institute/screens/student/mark_attendance_page.dart';
+// import 'package:warna_app/presentation/institute/screens/student/mark_payment_page.dart';
+// import 'package:warna_app/presentation/institute/screens/student/mark_attendance_page.dart';
 import 'package:warna_app/shared/widgets/new/fees_class_details_card.dart';
 import 'package:warna_app/shared/widgets/new/attendance_month_schedule_card.dart';
 import 'package:warna_app/shared/widgets/new/stats_overview_row.dart';

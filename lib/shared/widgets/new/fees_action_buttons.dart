@@ -36,12 +36,12 @@ class FeesActionButtons extends StatelessWidget {
         Expanded(
           child: OutlinedButton(
             onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => const MarkPaymentPage(),
-                ),
-              );
+              // Navigator.push(
+              //   context,
+              //   MaterialPageRoute(
+              //     builder: (context) => const MarkPaymentPage(),
+              //   ),
+              // );
             },
             style: OutlinedButton.styleFrom(
               foregroundColor: AppColors.primary,

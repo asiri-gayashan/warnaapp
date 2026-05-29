@@ -3,12 +3,9 @@ import 'package:warna_app/core/constants/app_colors.dart';
 import 'package:warna_app/core/constants/select_options.dart';
 import 'package:warna_app/data/models/class_model.dart';
 import 'package:warna_app/data/repositories/class_repository.dart';
-import 'package:warna_app/features/institute/ui/screens/fees_attendance_page.dart';
 import 'package:warna_app/presentation/institute/screens/classes/enroll_student_page.dart';
 import 'package:warna_app/presentation/institute/screens/classes/institute_edit_class.dart';
 import 'package:warna_app/shared/widgets/new/schedule_info_card.dart';
-import 'package:warna_app/shared/widgets/new/student_payment_overview_card.dart';
-
 import 'package:warna_app/presentation/institute/screens/student/mark_payment_page.dart';
 import 'package:warna_app/presentation/institute/screens/student/mark_attendance_page.dart';
 
@@ -43,7 +40,7 @@ class _ClassDetailPageState extends State<ClassDetailPage> {
 
       
       setState(() {
-        classesData = ClassModel.fromJson(rawClassesData);
+        classesData = ClassModel.fromJson(rawClassesData); 
         isLoading = false;
       });
     } else {
@@ -350,13 +347,6 @@ class _ClassDetailPageState extends State<ClassDetailPage> {
 
             const SizedBox(height: 24),
 
-            // Student Payment Status Card
-            const StudentPaymentOverviewCard(
-              paidStudents: 10,
-              nonPaidStudents: 20,
-            ),
-
-            const SizedBox(height: 16),
 
             // Tutor Payment Status Card
             Container(

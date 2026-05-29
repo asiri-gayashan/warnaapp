@@ -207,7 +207,7 @@ class _TutorDetailPageState extends State<TutorDetailPage> {
                     grade: 'Grade 10',
                     time: '9:00 AM - 10:30 AM',
                     teacher: 'Mr. Kumar',
-                    room: 'Room 101',
+                    day: 'Monday',
                     iconColor: AppColors.secondary,
                   ),
                   UpcomingClassListTile(
@@ -215,7 +215,7 @@ class _TutorDetailPageState extends State<TutorDetailPage> {
                     grade: 'Grade 11',
                     time: '10:45 AM - 12:15 PM',
                     teacher: 'Ms. Sharma',
-                    room: 'Lab 3',
+                    day: 'Tuesday',
                     iconColor: AppColors.secondary,
                   ),
                   UpcomingClassListTile(
@@ -223,7 +223,7 @@ class _TutorDetailPageState extends State<TutorDetailPage> {
                     grade: 'Grade 9',
                     time: '1:00 PM - 2:30 PM',
                     teacher: 'Mrs. Singh',
-                    room: 'Room 205',
+                    day: 'Wednesday',
                     iconColor: AppColors.secondary,
                   ),
                   UpcomingClassListTile(
@@ -231,7 +231,7 @@ class _TutorDetailPageState extends State<TutorDetailPage> {
                     grade: 'Grade 10',
                     time: '2:45 PM - 4:15 PM',
                     teacher: 'Dr. Verma',
-                    room: 'Lab 1',
+                    day: 'Thursday',
                     iconColor: AppColors.secondary,
                   ),
                   UpcomingClassListTile(
@@ -239,7 +239,7 @@ class _TutorDetailPageState extends State<TutorDetailPage> {
                     grade: 'Grade 11',
                     time: '4:30 PM - 6:00 PM',
                     teacher: 'Mr. Patil',
-                    room: 'Computer Lab',
+                    day: 'Friday',
                     iconColor: AppColors.secondary,
                   ),
                 ],

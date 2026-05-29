@@ -28,7 +28,7 @@ class _TutorDetailPageState extends State<TutorDetailPage> {
           onPressed: () => Navigator.pop(context),
         ),
         title: const Text(
-          'Tutor Details',
+          'Institute Tutor Details',
           style: TextStyle(
             fontWeight: FontWeight.w600,
             color: AppColors.textPrimary,
@@ -120,6 +120,26 @@ class _TutorDetailPageState extends State<TutorDetailPage> {
             const SizedBox(height: 24),
 
             // Contact Information
+
+ const Text(
+              'Description',
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
+            ),
+            const SizedBox(height: 12),
+            Padding(
+              padding: const EdgeInsets.only(bottom: 10),
+              child: Text(
+                "description of the tutor goes here. This can include their teaching philosophy, areas of expertise, and any other relevant information that would help students and parents understand more about the tutor's background and approach to teaching.",
+                style: const TextStyle(
+                  color: AppColors.textSecondary,
+                  fontSize: 15,
+                  height: 1.5,
+                ),
+              ),
+            ),
+
+            const SizedBox(height: 24),
+
             const Text(
               'Contact Information',
               style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
@@ -145,19 +165,20 @@ class _TutorDetailPageState extends State<TutorDetailPage> {
             ),
             const SizedBox(height: 12),
             InfoTile(
+              icon: Icons.calendar_today_outlined,
+              label: 'Age',
+              value: "40",
+            ),
+            InfoTile(
               icon: Icons.location_on_outlined,
               label: 'District',
               value: widget.tutor['district'] ?? 'Colombo',
             ),
-            InfoTile(
-              icon: Icons.route,
-              label: 'Postal Code',
-              value: widget.tutor['postCode'] ?? '00000',
-            ),
+            
             InfoTile(
               icon: Icons.home_outlined,
               label: 'Address',
-              value: widget.tutor['address'] ?? 'Colombo, Sri Lanka',
+              value: "Address Line One",
             ),
 
             const SizedBox(height: 24),
@@ -207,7 +228,7 @@ class _TutorDetailPageState extends State<TutorDetailPage> {
                     grade: 'Grade 10',
                     time: '9:00 AM - 10:30 AM',
                     teacher: 'Mr. Kumar',
-                    room: 'Room 101',
+                    day: 'Monday',
                     iconColor: AppColors.secondary,
                   ),
                   UpcomingClassListTile(
@@ -215,7 +236,7 @@ class _TutorDetailPageState extends State<TutorDetailPage> {
                     grade: 'Grade 11',
                     time: '10:45 AM - 12:15 PM',
                     teacher: 'Ms. Sharma',
-                    room: 'Lab 3',
+                    day: 'Tuesday',
                     iconColor: AppColors.secondary,
                   ),
                   UpcomingClassListTile(
@@ -223,7 +244,7 @@ class _TutorDetailPageState extends State<TutorDetailPage> {
                     grade: 'Grade 9',
                     time: '1:00 PM - 2:30 PM',
                     teacher: 'Mrs. Singh',
-                    room: 'Room 205',
+                    day: 'Wednesday',
                     iconColor: AppColors.secondary,
                   ),
                   UpcomingClassListTile(
@@ -231,7 +252,7 @@ class _TutorDetailPageState extends State<TutorDetailPage> {
                     grade: 'Grade 10',
                     time: '2:45 PM - 4:15 PM',
                     teacher: 'Dr. Verma',
-                    room: 'Lab 1',
+                    day: 'Thursday',
                     iconColor: AppColors.secondary,
                   ),
                   UpcomingClassListTile(
@@ -239,41 +260,16 @@ class _TutorDetailPageState extends State<TutorDetailPage> {
                     grade: 'Grade 11',
                     time: '4:30 PM - 6:00 PM',
                     teacher: 'Mr. Patil',
-                    room: 'Computer Lab',
+                    day: 'Friday',
                     iconColor: AppColors.secondary,
                   ),
                 ],
-              ),
+              ), 
             ),
 
-            const SizedBox(height: 24),
 
             // Single Action Button (only mark payment)
-            SizedBox(
-              width: double.infinity,
-              child: ElevatedButton.icon(
-                onPressed: () {
-                  // Navigate to mark payment page
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => const InstituteMarkPaymentPage(),
-                    ),
-                  );
-                },
-                icon: const Icon(Icons.payment),
-                label: const Text('Mark Payments'),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: AppColors.primary,
-                  foregroundColor: Colors.white,
-                  padding: const EdgeInsets.symmetric(vertical: 14),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                ),
-              ),
-            ),
-
+           
             SizedBox(height: 30),
           ],
         ),
