@@ -7,14 +7,14 @@ import 'package:flutter/material.dart';
 class TutorStatsModel {
   final int totalStudents;
   final int totalClasses;
-  final int activeClasses;
+  final int instituteCount;
   final double monthlyEarnings;
   final double totalCommissionReceived;
 
   const TutorStatsModel({
     required this.totalStudents,
     required this.totalClasses,
-    required this.activeClasses,
+    required this.instituteCount,
     required this.monthlyEarnings,
     required this.totalCommissionReceived,
   });
@@ -22,7 +22,7 @@ class TutorStatsModel {
   static TutorStatsModel empty() => const TutorStatsModel(
         totalStudents: 0,
         totalClasses: 0,
-        activeClasses: 0,
+        instituteCount: 0,
         monthlyEarnings: 0,
         totalCommissionReceived: 0,
       );
@@ -111,7 +111,7 @@ class TutorDashboardController extends ChangeNotifier {
       stats = const TutorStatsModel(
         totalStudents: 48,
         totalClasses: 6,
-        activeClasses: 5,
+        instituteCount: 3,
         monthlyEarnings: 72000,
         totalCommissionReceived: 18000,
       );

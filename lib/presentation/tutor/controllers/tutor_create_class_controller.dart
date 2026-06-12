@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:warna_app/core/utils/user_service.dart';
+
 
 class TutorCreateClassController extends ChangeNotifier {
   // -----------------------------------------------------------------------
@@ -6,16 +8,11 @@ class TutorCreateClassController extends ChangeNotifier {
   // -----------------------------------------------------------------------
   final TextEditingController classNameController = TextEditingController();
   final TextEditingController classFeesController = TextEditingController();
-  final TextEditingController commissionController = TextEditingController();
   final TextEditingController descriptionController = TextEditingController();
 
   // -----------------------------------------------------------------------
   // Dropdown / Picker State
   // -----------------------------------------------------------------------
-  String? _selectedInstitute;
-  String? get selectedInstitute => _selectedInstitute;
-  String? _selectedInstituteName;
-  String? get selectedInstituteName => _selectedInstituteName;
 
   String? _selectedGrade;
   String? get selectedGrade => _selectedGrade;
@@ -97,35 +94,6 @@ class TutorCreateClassController extends ChangeNotifier {
   }
 
   // -----------------------------------------------------------------------
-  // Commission Validation
-  // -----------------------------------------------------------------------
-  bool _commissionValidated = false;
-  bool get commissionValidated => _commissionValidated;
-  String? _commissionError;
-  String? get commissionError => _commissionError;
-
-  void validateCommission(String value) {
-    final commission = value.trim();
-    final numValue = double.tryParse(commission);
-
-    if (commission.isEmpty) {
-      _commissionValidated = false;
-      _commissionError = "Commission is required";
-    } else if (numValue == null) {
-      _commissionValidated = false;
-      _commissionError = "Please enter a valid percentage";
-    } else if (numValue < 0 || numValue > 100) {
-      _commissionValidated = false;
-      _commissionError = "Commission must be between 0 and 100";
-    } else {
-      _commissionValidated = true;
-      _commissionError = null;
-    }
-
-    notifyListeners();
-  }
-
-  // -----------------------------------------------------------------------
   // Description Validation
   // -----------------------------------------------------------------------
   bool _descriptionValidated = true; // optional field
@@ -153,39 +121,6 @@ class TutorCreateClassController extends ChangeNotifier {
   // -----------------------------------------------------------------------
   // Institute Selection Validation
   // -----------------------------------------------------------------------
-  bool _instituteValidated = false;
-  bool get instituteValidated => _instituteValidated;
-  String? _instituteError;
-  String? get instituteError => _instituteError;
-
-  void setInstitute(String? value) {
-    _selectedInstitute = value;
-
-    if (value == null || value.isEmpty) {
-      _instituteValidated = false;
-      _instituteError = "Please select an institute";
-    } else {
-      _instituteValidated = true;
-      _instituteError = null;
-    }
-
-    notifyListeners();
-  }
-
-  void setInstituteWithName(String? id, String? name) {
-    _selectedInstitute = id;
-    _selectedInstituteName = name;
-
-    if (id == null || id.isEmpty) {
-      _instituteValidated = false;
-      _instituteError = "Please select an institute";
-    } else {
-      _instituteValidated = true;
-      _instituteError = null;
-    }
-
-    notifyListeners();
-  }
 
   // -----------------------------------------------------------------------
   // Grade Selection Validation
@@ -296,9 +231,7 @@ class TutorCreateClassController extends ChangeNotifier {
   bool isFormValid() {
     return _classNameValidated &&
         _classFeesValidated &&
-        _commissionValidated &&
         _descriptionValidated &&
-        _instituteValidated &&
         _gradeValidated &&
         _subjectValidated &&
         _dayValidated &&
@@ -316,11 +249,13 @@ class TutorCreateClassController extends ChangeNotifier {
       notifyListeners();
 
       await Future.delayed(const Duration(milliseconds: 600));
+    final user = await UserService.getUser();
 
       final data = {
         "name": classNameController.text.trim(),
         "subject_id": _selectedSubject,
-        "institute_id": _selectedInstitute,
+        "tutor_id": user?["id"],
+        "institute_id": null, // TODO - get from user profile
         "start_time": _startTime != null
             ? "${_startTime!.hour.toString().padLeft(2, '0')}:${_startTime!.minute.toString().padLeft(2, '0')}:00"
             : null,
@@ -330,9 +265,8 @@ class TutorCreateClassController extends ChangeNotifier {
         "day": int.parse(_selectedDay.toString()),
         "description": descriptionController.text.trim(),
         "amount": double.tryParse(classFeesController.text.trim()),
-        "institute_commission": double.tryParse(
-          commissionController.text.trim(),
-        ),
+        "institute_commission": null,
+        "location": "full_name", //todo: add location field
         "grade": int.parse(_selectedGrade.toString()),
       };
 
@@ -377,7 +311,6 @@ class TutorCreateClassController extends ChangeNotifier {
   void dispose() {
     classNameController.dispose();
     classFeesController.dispose();
-    commissionController.dispose();
     descriptionController.dispose();
     super.dispose();
   }

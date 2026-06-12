@@ -4,7 +4,7 @@ import 'package:warna_app/presentation/tutor/screens/tutor_dashboard_page.dart';
 import 'package:warna_app/presentation/tutor/screens/classes/tutor_classes_page.dart';
 import 'package:warna_app/presentation/tutor/screens/student/tutor_students_page.dart';
 import 'package:warna_app/presentation/tutor/screens/tutor_finance_page.dart';
-import 'package:warna_app/presentation/tutor/screens/notifications_page.dart';
+import 'package:warna_app/presentation/tutor/screens/institute/tutor_institutes_page.dart';
 
 class TutorNavigation extends StatefulWidget {
   const TutorNavigation({Key? key}) : super(key: key);
@@ -20,8 +20,8 @@ class _TutorNavigationState extends State<TutorNavigation> {
     TutorDashboardPage(),
     TutorClassesPage(),
     TutorStudentsPage(),
+    TutorInstitutesPage(),
     TutorFinancePage(),
-    NotificationsPage(),
   ];
 
   void _onItemTapped(int index) {

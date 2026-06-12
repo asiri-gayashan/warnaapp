@@ -52,17 +52,18 @@ class TutorTabContainer extends StatelessWidget {
                 activeIcon: Icons.school,
                 label: 'Students',
               ),
+            
               _buildTabItem(
                 index: 3,
+                icon: Icons.apartment_outlined,
+                activeIcon: Icons.apartment,
+                label: 'Institutes',
+              ),
+                _buildTabItem(
+                index: 4,
                 icon: Icons.analytics_outlined,
                 activeIcon: Icons.analytics,
                 label: 'Finance',
-              ),
-              _buildTabItem(
-                index: 4,
-                icon: Icons.notifications_outlined,
-                activeIcon: Icons.notifications,
-                label: 'Alerts',
               ),
             ],
           ),

@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:warna_app/core/constants/app_colors.dart';
-import 'package:warna_app/features/auth/logic/auth_service.dart';
 import 'package:warna_app/presentation/tutor/controllers/tutor_dashboard_controller.dart';
+import 'package:warna_app/presentation/tutor/screens/notifications_page.dart';
+import 'package:warna_app/presentation/tutor/screens/tutor_profile_page.dart';
 import 'package:warna_app/shared/widgets/new/metric_overview_card.dart';
 import 'package:warna_app/shared/widgets/new/performance_row_item.dart';
 import 'package:warna_app/shared/widgets/new/quick_stat_row_item.dart';
@@ -50,8 +51,28 @@ class _TutorDashboardPageState extends State<TutorDashboardPage> {
       appBar: AppBar(
         actions: [
           IconButton(
-            icon: const Icon(Icons.logout, color: AppColors.textPrimary),
-            onPressed: () => AuthService.logoutUser(context: context),
+            icon: const Icon(
+              Icons.notifications_outlined,
+              color: AppColors.textPrimary,
+            ),
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (_) => const NotificationsPage()),
+              );
+            },
+          ),
+          IconButton(
+            icon: const Icon(
+              Icons.person_outline,
+              color: AppColors.textPrimary,
+            ),
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (_) => const TutorProfilePage()),
+              );
+            },
           ),
         ],
         title: const Text(
@@ -60,7 +81,7 @@ class _TutorDashboardPageState extends State<TutorDashboardPage> {
             fontWeight: FontWeight.w600,
             color: AppColors.textPrimary,
           ),
-        ), 
+        ),
         backgroundColor: Colors.white,
         elevation: 0,
         centerTitle: true,
@@ -123,13 +144,14 @@ class _TutorDashboardPageState extends State<TutorDashboardPage> {
                               ),
                             ),
                             const SizedBox(width: 12),
-                            Expanded(
-                              child: MetricOverviewCard(
-                                label: 'Active Classes',
-                                value: '${s.activeClasses}',
-                                icon: Icons.play_circle_outline,
+                            if (s.instituteCount > 0)
+                              Expanded(
+                                child: MetricOverviewCard(
+                                  label: 'Institute Count',
+                                  value: '${s.instituteCount}',
+                                  icon: Icons.apartment,
+                                ),
                               ),
-                            ),
                           ],
                         ),
                         const SizedBox(height: 16),
@@ -143,15 +165,19 @@ class _TutorDashboardPageState extends State<TutorDashboardPage> {
                                 icon: Icons.trending_up,
                               ),
                             ),
+
                             const SizedBox(width: 12),
-                            Expanded(
-                              child: MetricOverviewCard(
-                                label: 'Institute Commission',
-                                value:
-                                    'Rs ${s.totalCommissionReceived.toStringAsFixed(0)}',
-                                icon: Icons.percent,
-                              ),
-                            ),
+
+                            s.instituteCount > 0
+                                ? Expanded(
+                                    child: MetricOverviewCard(
+                                      label: 'Institute Commission',
+                                      value:
+                                          'Rs ${s.totalCommissionReceived.toStringAsFixed(0)}',
+                                      icon: Icons.percent,
+                                    ),
+                                  )
+                                : const SizedBox.shrink(),
                           ],
                         ),
                       ],
@@ -230,8 +256,9 @@ class _TutorDashboardPageState extends State<TutorDashboardPage> {
                               padding: EdgeInsets.all(16),
                               child: Text(
                                 'No upcoming classes',
-                                style:
-                                    TextStyle(color: AppColors.textSecondary),
+                                style: TextStyle(
+                                  color: AppColors.textSecondary,
+                                ),
                               ),
                             ),
                           )
@@ -284,19 +311,27 @@ class _TutorDashboardPageState extends State<TutorDashboardPage> {
                         QuickStatRowItem(
                           label: 'Total Classes',
                           value: '${s.totalClasses}',
-                          change: '${s.activeClasses} active',
+                          change: '',
                         ),
                         QuickStatRowItem(
                           label: 'Monthly Earnings',
                           value: 'Rs ${s.monthlyEarnings.toStringAsFixed(0)}',
                           change: '',
                         ),
+                        s.instituteCount > 0 ?
+                        QuickStatRowItem(
+                          label: 'Institute Count',
+                          value: '${s.instituteCount}',
+                          change: '',
+                        ): const SizedBox.shrink(),
+                          s.instituteCount > 0 ?
                         QuickStatRowItem(
                           label: 'Institute Commission',
                           value:
                               'Rs ${s.totalCommissionReceived.toStringAsFixed(0)}',
                           change: '',
-                        ),
+                        ) : const SizedBox.shrink(),
+                        
                       ],
                     ),
                   ),
@@ -360,8 +395,10 @@ class _PerformanceCard extends StatelessWidget {
               const SizedBox(width: 12),
               Text(
                 title,
-                style:
-                    const TextStyle(fontWeight: FontWeight.w600, fontSize: 16),
+                style: const TextStyle(
+                  fontWeight: FontWeight.w600,
+                  fontSize: 16,
+                ),
               ),
             ],
           ),

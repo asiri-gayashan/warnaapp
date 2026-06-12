@@ -324,7 +324,7 @@ class _TutorClassDetailPageState extends State<TutorClassDetailPage> {
                         ),
                         const SizedBox(height: 4),
                         const Text(
-                          'Institute Commission Payment Status',
+                          'Institute Payment Status',
                           style: TextStyle(
                             fontSize: 13,
                             color: AppColors.textSecondary,
@@ -353,7 +353,7 @@ class _TutorClassDetailPageState extends State<TutorClassDetailPage> {
                         ),
                         const SizedBox(width: 4),
                         Text(
-                          isReceived ? 'Paid' : 'Pending',
+                          isReceived ? 'Received' : 'Pending',
                           style: TextStyle(
                             color: isReceived ? Colors.green : Colors.orange,
                             fontSize: 12,

@@ -200,88 +200,6 @@ class _TutorCreateClassPageState extends State<TutorCreateClassPage> {
               const SizedBox(height: 20),
 
               // -------------------------------------------------------
-              // Institute
-              // -------------------------------------------------------
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const Padding(
-                    padding: EdgeInsets.only(bottom: 8),
-                    child: Text(
-                      'Institute*',
-                      style: TextStyle(
-                        fontSize: 14,
-                        fontWeight: FontWeight.w600,
-                        color: AppColors.textPrimary,
-                      ),
-                    ),
-                  ),
-                  GestureDetector(
-                    onTap: () => showDialog(
-                      context: context,
-                      builder: (context) {
-                        return InstituteSearchDialog(
-                          onSearch: (email) async {
-                            return await controller.searchInstituteByEmail(
-                              email,
-                            );
-                          },
-                          onInstituteSelected: (institute) {
-                            setState(() {
-                              controller.setInstituteWithName(
-                                institute['id']?.toString(),
-                                institute['name'],
-                              );
-                            });
-                          },
-                        );
-                      },
-                    ),
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 16,
-                        vertical: 16,
-                      ),
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(12),
-                        border: Border.all(
-                          color: controller.selectedInstitute != null
-                              ? Colors.grey.shade300
-                              : Colors.grey.shade200,
-                        ),
-                      ),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Expanded(
-                            child: Text(
-                              controller.selectedInstituteName ??
-                                  'Select Institute by Email',
-                              style: TextStyle(
-                                color: controller.selectedInstitute != null
-                                    ? AppColors.textPrimary
-                                    : AppColors.textSecondary,
-                                fontSize: 14,
-                              ),
-                              overflow: TextOverflow.ellipsis,
-                            ),
-                          ),
-                          const Icon(
-                            Icons.search,
-                            color: AppColors.textSecondary,
-                            size: 20,
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-              FieldErrorText(message: controller.instituteError),
-              const SizedBox(height: 20),
-
-              // -------------------------------------------------------
               // Start & End Time
               // -------------------------------------------------------
               Row(
@@ -322,7 +240,7 @@ class _TutorCreateClassPageState extends State<TutorCreateClassPage> {
               const SizedBox(height: 20),
 
               // -------------------------------------------------------
-              // Fees & Commission
+              // Fees &
               // -------------------------------------------------------
               Row(
                 children: [
@@ -338,24 +256,24 @@ class _TutorCreateClassPageState extends State<TutorCreateClassPage> {
                       },
                     ),
                   ),
-                  const SizedBox(width: 16),
-                  Expanded(
-                    child: CustomTextField(
-                      label: 'Institute Commission (%)*',
-                      hintText: 'E.g. 20',
-                      controller: controller.commissionController,
-                      keyboardType: TextInputType.number,
-                      isRequired: true,
-                      onChanged: (value) {
-                        setState(() => controller.validateCommission(value));
-                      },
-                    ),
-                  ),
                 ],
               ),
               FieldErrorText(message: controller.classFeesError),
-              FieldErrorText(message: controller.commissionError),
               const SizedBox(height: 20),
+
+              CustomTextField(
+                label: 'Location*',
+                hintText: 'Kururnegala',
+                controller: controller.classFeesController,
+                keyboardType: TextInputType.number,
+                isRequired: true,
+                onChanged: (value) {
+                  setState(() => controller.validateClassFees(value));
+                },
+              ),
+              const SizedBox(height: 20),
+
+              //todo - add this location fileed data to the controller. location should have 10 charachters maximum and should not be empty. also add the error message to the controller and show it in the UI using FieldErrorText widget.
 
               // -------------------------------------------------------
               // Description
@@ -414,10 +332,7 @@ class _TutorCreateClassPageState extends State<TutorCreateClassPage> {
                               backgroundColor: AppColors.error,
                               content: Row(
                                 children: [
-                                  const Icon(
-                                    Icons.error,
-                                    color: Colors.white,
-                                  ),
+                                  const Icon(Icons.error, color: Colors.white),
                                   const SizedBox(width: 10),
                                   Expanded(
                                     child: Text(
