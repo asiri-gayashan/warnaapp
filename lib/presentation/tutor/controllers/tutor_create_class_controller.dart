@@ -1,4 +1,6 @@
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
+import 'package:warna_app/core/utils/api_client.dart';
 import 'package:warna_app/core/utils/user_service.dart';
 
 
@@ -9,6 +11,7 @@ class TutorCreateClassController extends ChangeNotifier {
   final TextEditingController classNameController = TextEditingController();
   final TextEditingController classFeesController = TextEditingController();
   final TextEditingController descriptionController = TextEditingController();
+  final TextEditingController locationController = TextEditingController();
 
   // -----------------------------------------------------------------------
   // Dropdown / Picker State
@@ -94,6 +97,31 @@ class TutorCreateClassController extends ChangeNotifier {
   }
 
   // -----------------------------------------------------------------------
+  // Location Validation
+  // -----------------------------------------------------------------------
+  bool _locationValidated = false;
+  bool get locationValidated => _locationValidated;
+  String? _locationError;
+  String? get locationError => _locationError;
+
+  void validateLocation(String value) {
+    final location = value.trim();
+
+    if (location.isEmpty) {
+      _locationValidated = false;
+      _locationError = "Location is required";
+    } else if (location.length > 15) {
+      _locationValidated = false;
+      _locationError = "Location must not exceed 15 characters";
+    } else {
+      _locationValidated = true;
+      _locationError = null;
+    }
+
+    notifyListeners();
+  }
+
+  // -----------------------------------------------------------------------
   // Description Validation
   // -----------------------------------------------------------------------
   bool _descriptionValidated = true; // optional field
@@ -117,10 +145,6 @@ class TutorCreateClassController extends ChangeNotifier {
 
     notifyListeners();
   }
-
-  // -----------------------------------------------------------------------
-  // Institute Selection Validation
-  // -----------------------------------------------------------------------
 
   // -----------------------------------------------------------------------
   // Grade Selection Validation
@@ -231,6 +255,7 @@ class TutorCreateClassController extends ChangeNotifier {
   bool isFormValid() {
     return _classNameValidated &&
         _classFeesValidated &&
+        _locationValidated &&
         _descriptionValidated &&
         _gradeValidated &&
         _subjectValidated &&
@@ -239,7 +264,7 @@ class TutorCreateClassController extends ChangeNotifier {
   }
 
   // -----------------------------------------------------------------------
-  // Create Class (dummy)
+  // Create Class — real API call
   // -----------------------------------------------------------------------
   bool isLoading = false;
 
@@ -248,60 +273,47 @@ class TutorCreateClassController extends ChangeNotifier {
       isLoading = true;
       notifyListeners();
 
-      await Future.delayed(const Duration(milliseconds: 600));
-    final user = await UserService.getUser();
+      final user = await UserService.getUser();
 
       final data = {
         "name": classNameController.text.trim(),
         "subject_id": _selectedSubject,
         "tutor_id": user?["id"],
-        "institute_id": null, // TODO - get from user profile
-        "start_time": _startTime != null
-            ? "${_startTime!.hour.toString().padLeft(2, '0')}:${_startTime!.minute.toString().padLeft(2, '0')}:00"
-            : null,
-        "end_time": _endTime != null
-            ? "${_endTime!.hour.toString().padLeft(2, '0')}:${_endTime!.minute.toString().padLeft(2, '0')}:00"
-            : null,
-        "day": int.parse(_selectedDay.toString()),
+        "start_time":
+            "${_startTime!.hour.toString().padLeft(2, '0')}:${_startTime!.minute.toString().padLeft(2, '0')}:00",
+        "end_time":
+            "${_endTime!.hour.toString().padLeft(2, '0')}:${_endTime!.minute.toString().padLeft(2, '0')}:00",
+        "day": int.parse(_selectedDay!),
         "description": descriptionController.text.trim(),
-        "amount": double.tryParse(classFeesController.text.trim()),
-        "institute_commission": null,
-        "location": "full_name", //todo: add location field
-        "grade": int.parse(_selectedGrade.toString()),
+        "amount": double.tryParse(classFeesController.text.trim()) ?? 0,
+        "location": locationController.text.trim(),
+        "grade": int.parse(_selectedGrade!),
       };
 
-      debugPrint("Create Class Payload (dummy): $data");
+      final response = await ApiClient.instance.post(
+        '/classes/create',
+        data: data,
+      );
 
       isLoading = false;
       notifyListeners();
-      return {"status": true, "message": "Class created successfully"};
+
+      if (response.statusCode == 201) {
+        return {"status": true, "message": "Class created successfully"};
+      }
+
+      return {"status": false, "message": "Something went wrong"};
+    } on DioException catch (e) {
+      isLoading = false;
+      notifyListeners();
+      final message =
+          e.response?.data?["message"] ?? "Failed to create class";
+      return {"status": false, "message": message};
     } catch (e) {
       isLoading = false;
       notifyListeners();
-      debugPrint("Create class error: $e");
       return {"status": false, "message": "An error occurred"};
     }
-  }
-
-  // -----------------------------------------------------------------------
-  // Search Institute by Email (dummy)
-  // -----------------------------------------------------------------------
-  Future<Map<String, dynamic>?> searchInstituteByEmail(String email) async {
-    await Future.delayed(const Duration(milliseconds: 500));
-
-    if (email.trim().isEmpty) {
-      return {"status": false, "message": "Institute not found"};
-    }
-
-    return {
-      "status": true,
-      "data": {
-        "id": "inst-1",
-        "name": "Bright Future Institute",
-        "email": email,
-        "phone": "+94 77 123 4567",
-      },
-    };
   }
 
   // -----------------------------------------------------------------------
@@ -312,6 +324,7 @@ class TutorCreateClassController extends ChangeNotifier {
     classNameController.dispose();
     classFeesController.dispose();
     descriptionController.dispose();
+    locationController.dispose();
     super.dispose();
   }
 }

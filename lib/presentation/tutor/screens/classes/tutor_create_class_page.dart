@@ -1,9 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:warna_app/core/constants/app_colors.dart';
 import 'package:warna_app/core/constants/select_options.dart';
-import 'package:warna_app/presentation/tutor/controllers/tutor_class_page_controller.dart';
+import 'package:warna_app/data/repositories/metadata_repository.dart';
 import 'package:warna_app/presentation/tutor/controllers/tutor_create_class_controller.dart';
-import 'package:warna_app/presentation/tutor/widgets/institute_search_dialog.dart';
 import 'package:warna_app/shared/widgets/custom_button.dart';
 import 'package:warna_app/shared/widgets/field_error_text.dart';
 import 'package:warna_app/shared/widgets/new/custom_textfield.dart';
@@ -19,18 +18,32 @@ class TutorCreateClassPage extends StatefulWidget {
 class _TutorCreateClassPageState extends State<TutorCreateClassPage> {
   final _formKey = GlobalKey<FormState>();
   late TutorCreateClassController controller;
-  final List<Map<String, String>> subjectsList = tutorSubjectsList;
+  List<Map<String, String>> subjectsList = [];
 
   @override
   void initState() {
     super.initState();
     controller = TutorCreateClassController();
+    loadSubjectData();
   }
 
   @override
   void dispose() {
     controller.dispose();
     super.dispose();
+  }
+
+  Future<void> loadSubjectData() async {
+    final rawSubjects = await MetadataRepository().getSubjects();
+    if (rawSubjects != null) {
+      setState(() {
+        subjectsList = rawSubjects
+            .map(
+              (s) => {"id": s["id"].toString(), "name": s["name"].toString()},
+            )
+            .toList();
+      });
+    }
   }
 
   // -----------------------------------------------------------------------
@@ -172,7 +185,7 @@ class _TutorCreateClassPageState extends State<TutorCreateClassPage> {
               const SizedBox(height: 20),
 
               // -------------------------------------------------------
-              // Subject
+              // Subject — loaded from backend
               // -------------------------------------------------------
               NewSelectOptions(
                 label: "Major Subject*",
@@ -240,30 +253,11 @@ class _TutorCreateClassPageState extends State<TutorCreateClassPage> {
               const SizedBox(height: 20),
 
               // -------------------------------------------------------
-              // Fees &
+              // Class Fees
               // -------------------------------------------------------
-              Row(
-                children: [
-                  Expanded(
-                    child: CustomTextField(
-                      label: 'Class Fees (LKR)*',
-                      hintText: 'E.g. 2500',
-                      controller: controller.classFeesController,
-                      keyboardType: TextInputType.number,
-                      isRequired: true,
-                      onChanged: (value) {
-                        setState(() => controller.validateClassFees(value));
-                      },
-                    ),
-                  ),
-                ],
-              ),
-              FieldErrorText(message: controller.classFeesError),
-              const SizedBox(height: 20),
-
               CustomTextField(
-                label: 'Location*',
-                hintText: 'Kururnegala',
+                label: 'Class Fees (LKR)*',
+                hintText: 'E.g. 2500',
                 controller: controller.classFeesController,
                 keyboardType: TextInputType.number,
                 isRequired: true,
@@ -271,9 +265,23 @@ class _TutorCreateClassPageState extends State<TutorCreateClassPage> {
                   setState(() => controller.validateClassFees(value));
                 },
               ),
+              FieldErrorText(message: controller.classFeesError),
               const SizedBox(height: 20),
 
-              //todo - add this location fileed data to the controller. location should have 10 charachters maximum and should not be empty. also add the error message to the controller and show it in the UI using FieldErrorText widget.
+              // -------------------------------------------------------
+              // Location
+              // -------------------------------------------------------
+              CustomTextField(
+                label: 'Location*',
+                hintText: 'E.g. Kurunegala',
+                controller: controller.locationController,
+                isRequired: true,
+                onChanged: (value) {
+                  setState(() => controller.validateLocation(value));
+                },
+              ),
+              FieldErrorText(message: controller.locationError),
+              const SizedBox(height: 20),
 
               // -------------------------------------------------------
               // Description
@@ -294,10 +302,11 @@ class _TutorCreateClassPageState extends State<TutorCreateClassPage> {
               // Submit Button
               // -------------------------------------------------------
               CustomButton(
-                text: "Create Class",
-                onPressed: controller.isFormValid()
+                text: controller.isLoading ? "Creating..." : "Create Class",
+                onPressed: controller.isFormValid() && !controller.isLoading
                     ? () async {
                         final response = await controller.createClass();
+                        if (!context.mounted) return;
                         if (response != null && response["status"] == true) {
                           ScaffoldMessenger.of(context).showSnackBar(
                             SnackBar(
@@ -319,7 +328,6 @@ class _TutorCreateClassPageState extends State<TutorCreateClassPage> {
                               ),
                             ),
                           );
-
                           Navigator.pop(context);
                         } else {
                           ScaffoldMessenger.of(context).showSnackBar(
@@ -348,7 +356,7 @@ class _TutorCreateClassPageState extends State<TutorCreateClassPage> {
                         }
                       }
                     : null,
-                isDisabled: !controller.isFormValid(),
+                isDisabled: !controller.isFormValid() || controller.isLoading,
                 hasShadow: true,
               ),
               const SizedBox(height: 40),
