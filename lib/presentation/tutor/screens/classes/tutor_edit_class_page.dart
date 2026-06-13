@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:warna_app/core/constants/app_colors.dart';
 import 'package:warna_app/core/constants/select_options.dart';
+import 'package:warna_app/data/repositories/metadata_repository.dart';
 import 'package:warna_app/presentation/tutor/controllers/tutor_class_page_controller.dart';
 import 'package:warna_app/presentation/tutor/controllers/tutor_edit_class_controller.dart';
 import 'package:warna_app/shared/widgets/custom_button.dart';
@@ -12,7 +13,7 @@ class TutorEditClassPage extends StatefulWidget {
   final ClassModel classModel;
 
   const TutorEditClassPage({Key? key, required this.classModel})
-    : super(key: key);
+      : super(key: key);
 
   @override
   State<TutorEditClassPage> createState() => _TutorEditClassPageState();
@@ -21,19 +22,34 @@ class TutorEditClassPage extends StatefulWidget {
 class _TutorEditClassPageState extends State<TutorEditClassPage> {
   final _formKey = GlobalKey<FormState>();
   late TutorEditClassController controller;
-  final List<Map<String, String>> subjectsList = tutorSubjectsList;
+  List<Map<String, String>> subjectsList = [];
 
   @override
   void initState() {
     super.initState();
     controller = TutorEditClassController();
     controller.loadFromModel(widget.classModel);
+    loadSubjectData();
   }
 
   @override
   void dispose() {
     controller.dispose();
     super.dispose();
+  }
+
+  Future<void> loadSubjectData() async {
+    final rawSubjects = await MetadataRepository().getSubjects();
+    if (rawSubjects != null && mounted) {
+      setState(() {
+        subjectsList = rawSubjects
+            .map((s) => {
+                  "id": s["id"].toString(),
+                  "name": s["name"].toString(),
+                })
+            .toList();
+      });
+    }
   }
 
   // -----------------------------------------------------------------------
@@ -95,7 +111,8 @@ class _TutorEditClassPageState extends State<TutorEditClassPage> {
         GestureDetector(
           onTap: onTap,
           child: Container(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+            padding:
+                const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
             decoration: BoxDecoration(
               color: Colors.white,
               borderRadius: BorderRadius.circular(12),
@@ -113,11 +130,8 @@ class _TutorEditClassPageState extends State<TutorEditClassPage> {
                     fontSize: 14,
                   ),
                 ),
-                const Icon(
-                  Icons.access_time,
-                  color: AppColors.textSecondary,
-                  size: 20,
-                ),
+                const Icon(Icons.access_time,
+                    color: AppColors.textSecondary, size: 20),
               ],
             ),
           ),
@@ -154,12 +168,10 @@ class _TutorEditClassPageState extends State<TutorEditClassPage> {
           ),
           child: Row(
             children: [
-              // ACTIVE option
               Expanded(
                 child: GestureDetector(
                   onTap: () => setState(
-                    () => controller.setStatus(TutorClassStatus.ACTIVE),
-                  ),
+                      () => controller.setStatus(TutorClassStatus.ACTIVE)),
                   child: AnimatedContainer(
                     duration: const Duration(milliseconds: 200),
                     padding: const EdgeInsets.symmetric(vertical: 14),
@@ -175,13 +187,11 @@ class _TutorEditClassPageState extends State<TutorEditClassPage> {
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Icon(
-                          Icons.check_circle_outline,
-                          size: 16,
-                          color: isActive
-                              ? Colors.white
-                              : const Color(0xff888888),
-                        ),
+                        Icon(Icons.check_circle_outline,
+                            size: 16,
+                            color: isActive
+                                ? Colors.white
+                                : const Color(0xff888888)),
                         const SizedBox(width: 6),
                         Text(
                           'ACTIVE',
@@ -199,14 +209,11 @@ class _TutorEditClassPageState extends State<TutorEditClassPage> {
                   ),
                 ),
               ),
-              // Divider
               Container(width: 1, height: 48, color: Colors.grey.shade200),
-              // INACTIVE option
               Expanded(
                 child: GestureDetector(
                   onTap: () => setState(
-                    () => controller.setStatus(TutorClassStatus.INACTIVE),
-                  ),
+                      () => controller.setStatus(TutorClassStatus.INACTIVE)),
                   child: AnimatedContainer(
                     duration: const Duration(milliseconds: 200),
                     padding: const EdgeInsets.symmetric(vertical: 14),
@@ -222,13 +229,11 @@ class _TutorEditClassPageState extends State<TutorEditClassPage> {
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Icon(
-                          Icons.pause_circle_outline,
-                          size: 16,
-                          color: !isActive
-                              ? Colors.white
-                              : const Color(0xff888888),
-                        ),
+                        Icon(Icons.pause_circle_outline,
+                            size: 16,
+                            color: !isActive
+                                ? Colors.white
+                                : const Color(0xff888888)),
                         const SizedBox(width: 6),
                         Text(
                           'INACTIVE',
@@ -273,7 +278,8 @@ class _TutorEditClassPageState extends State<TutorEditClassPage> {
       SnackBar(
         behavior: SnackBarBehavior.floating,
         margin: const EdgeInsets.all(16),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        shape:
+            RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
         backgroundColor: color,
         content: Row(
           children: [
@@ -305,10 +311,8 @@ class _TutorEditClassPageState extends State<TutorEditClassPage> {
         elevation: 0,
         centerTitle: true,
         leading: IconButton(
-          icon: const Icon(
-            Icons.arrow_back_ios_new,
-            color: AppColors.textPrimary,
-          ),
+          icon: const Icon(Icons.arrow_back_ios_new,
+              color: AppColors.textPrimary),
           onPressed: () => Navigator.pop(context),
         ),
       ),
@@ -321,9 +325,7 @@ class _TutorEditClassPageState extends State<TutorEditClassPage> {
             children: [
               const SizedBox(height: 20),
 
-              // -------------------------------------------------------
               // Class Name
-              // -------------------------------------------------------
               CustomTextField(
                 label: 'Class Name*',
                 hintText: 'E.g. Mathematics 2024',
@@ -336,9 +338,7 @@ class _TutorEditClassPageState extends State<TutorEditClassPage> {
               FieldErrorText(message: controller.classNameError),
               const SizedBox(height: 20),
 
-              // -------------------------------------------------------
-              // Subject
-              // -------------------------------------------------------
+              // Subject — loaded from backend
               NewSelectOptions(
                 label: "Major Subject*",
                 value: controller.selectedSubject,
@@ -350,9 +350,7 @@ class _TutorEditClassPageState extends State<TutorEditClassPage> {
               FieldErrorText(message: controller.subjectError),
               const SizedBox(height: 20),
 
-              // -------------------------------------------------------
               // Grade
-              // -------------------------------------------------------
               NewSelectOptions(
                 label: "Grade*",
                 value: controller.selectedGrade,
@@ -364,19 +362,7 @@ class _TutorEditClassPageState extends State<TutorEditClassPage> {
               FieldErrorText(message: controller.gradeError),
               const SizedBox(height: 20),
 
-              // -------------------------------------------------------
-              // Institute (read-only)
-              // -------------------------------------------------------
-              CustomTextField(
-                label: 'Institute',
-                hintText: controller.instituteNameController.text,
-                readOnly: true,
-              ),
-              const SizedBox(height: 20),
-
-              // -------------------------------------------------------
               // Start & End Time
-              // -------------------------------------------------------
               Row(
                 children: [
                   Expanded(
@@ -400,9 +386,7 @@ class _TutorEditClassPageState extends State<TutorEditClassPage> {
                 FieldErrorText(message: controller.timeError),
               const SizedBox(height: 20),
 
-              // -------------------------------------------------------
               // Day
-              // -------------------------------------------------------
               NewSelectOptions(
                 label: "Day*",
                 value: controller.selectedDay,
@@ -414,45 +398,34 @@ class _TutorEditClassPageState extends State<TutorEditClassPage> {
               FieldErrorText(message: controller.dayError),
               const SizedBox(height: 20),
 
-              // -------------------------------------------------------
-              // Fees & Commission
-              // -------------------------------------------------------
-              Row(
-                children: [
-                  Expanded(
-                    child: CustomTextField(
-                      label: 'Class Fees (LKR)*',
-                      hintText: 'E.g. 2500',
-                      controller: controller.classFeesController,
-                      keyboardType: TextInputType.number,
-                      isRequired: true,
-                      onChanged: (value) {
-                        setState(() => controller.validateClassFees(value));
-                      },
-                    ),
-                  ),
-                  const SizedBox(width: 16),
-                  Expanded(
-                    child: CustomTextField(
-                      label: 'Institute Commission (%)*',
-                      hintText: 'E.g. 20',
-                      controller: controller.commissionController,
-                      keyboardType: TextInputType.number,
-                      isRequired: true,
-                      onChanged: (value) {
-                        setState(() => controller.validateCommission(value));
-                      },
-                    ),
-                  ),
-                ],
+              // Class Fees
+              CustomTextField(
+                label: 'Class Fees (LKR)*',
+                hintText: 'E.g. 2500',
+                controller: controller.classFeesController,
+                keyboardType: TextInputType.number,
+                isRequired: true,
+                onChanged: (value) {
+                  setState(() => controller.validateClassFees(value));
+                },
               ),
               FieldErrorText(message: controller.classFeesError),
-              FieldErrorText(message: controller.commissionError),
               const SizedBox(height: 20),
 
-              // -------------------------------------------------------
+              // Location
+              CustomTextField(
+                label: 'Location*',
+                hintText: 'E.g. Kurunegala',
+                controller: controller.locationController,
+                isRequired: true,
+                onChanged: (value) {
+                  setState(() => controller.validateLocation(value));
+                },
+              ),
+              FieldErrorText(message: controller.locationError),
+              const SizedBox(height: 20),
+
               // Description
-              // -------------------------------------------------------
               CustomTextField(
                 label: 'Description',
                 hintText: 'Add optional class description or notes...',
@@ -465,41 +438,43 @@ class _TutorEditClassPageState extends State<TutorEditClassPage> {
               FieldErrorText(message: controller.descriptionError),
               const SizedBox(height: 20),
 
-              // -------------------------------------------------------
               // Status Toggle
-              // -------------------------------------------------------
               _buildStatusToggle(),
               const SizedBox(height: 32),
 
-              // -------------------------------------------------------
               // Update Button
-              // -------------------------------------------------------
               CustomButton(
-                text: "Update Class",
-                isDisabled: !controller.isFormValid(),
+                text: controller.isLoading ? "Updating..." : "Update Class",
+                isDisabled:
+                    !controller.isFormValid() || controller.isLoading,
                 hasShadow: true,
-                onPressed: controller.isFormValid()
-                    ? () async {
-                        final response = await controller.updateClass();
-                        if (response != null && response["status"] == true) {
-                          _showSnackBar(
-                            response["message"] ??
-                                "Class updated successfully",
-                            AppColors.success,
-                            Icons.check_circle,
-                          );
-                          Navigator.pop(context);
-                        } else {
-                          _showSnackBar(
-                            response == null
-                                ? "An error occurred"
-                                : response["message"] ?? "Update failed",
-                            AppColors.error,
-                            Icons.error,
-                          );
-                        }
-                      }
-                    : null,
+                onPressed:
+                    controller.isFormValid() && !controller.isLoading
+                        ? () async {
+                            final response =
+                                await controller.updateClass();
+                            if (!context.mounted) return;
+                            if (response != null &&
+                                response["status"] == true) {
+                              _showSnackBar(
+                                response["message"] ??
+                                    "Class updated successfully",
+                                AppColors.success,
+                                Icons.check_circle,
+                              );
+                              Navigator.pop(context);
+                            } else {
+                              _showSnackBar(
+                                response == null
+                                    ? "An error occurred"
+                                    : response["message"] ??
+                                        "Update failed",
+                                AppColors.error,
+                                Icons.error,
+                              );
+                            }
+                          }
+                        : null,
               ),
               const SizedBox(height: 40),
             ],

@@ -1,4 +1,6 @@
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
+import 'package:warna_app/core/utils/api_client.dart';
 import 'package:warna_app/presentation/tutor/controllers/tutor_class_page_controller.dart';
 
 enum TutorClassStatus { ACTIVE, INACTIVE }
@@ -9,10 +11,8 @@ class TutorEditClassController extends ChangeNotifier {
   // -----------------------------------------------------------------------
   final TextEditingController classNameController = TextEditingController();
   final TextEditingController classFeesController = TextEditingController();
-  final TextEditingController commissionController = TextEditingController();
+  final TextEditingController locationController = TextEditingController();
   final TextEditingController descriptionController = TextEditingController();
-  final TextEditingController instituteNameController =
-      TextEditingController();
 
   // -----------------------------------------------------------------------
   // Dropdown / Picker State
@@ -36,20 +36,17 @@ class TutorEditClassController extends ChangeNotifier {
   TutorClassStatus get status => _status;
 
   String? _classId;
-  String? _instituteId;
 
   // -----------------------------------------------------------------------
   // Pre-fill from existing ClassModel
   // -----------------------------------------------------------------------
   void loadFromModel(ClassModel cls) {
     _classId = cls.id;
-    _instituteId = cls.instituteId;
 
     classNameController.text = cls.name;
-    classFeesController.text = cls.amount.toString();
-    commissionController.text = cls.instituteCommission.toString();
-    descriptionController.text = cls.description;
-    instituteNameController.text = cls.instituteName;
+    classFeesController.text = cls.amount.toStringAsFixed(0);
+    locationController.text = cls.location ?? '';
+    descriptionController.text = cls.description ?? '';
 
     _selectedSubject = cls.subjectId;
     _selectedGrade = cls.grade.toString();
@@ -59,28 +56,20 @@ class TutorEditClassController extends ChangeNotifier {
         ? TutorClassStatus.ACTIVE
         : TutorClassStatus.INACTIVE;
 
-    // Parse startTime (HH:mm:ss or HH:mm)
     try {
-      final startParts = cls.startTime.split(':');
-      _startTime = TimeOfDay(
-        hour: int.parse(startParts[0]),
-        minute: int.parse(startParts[1]),
-      );
+      final p = cls.startTime.split(':');
+      _startTime = TimeOfDay(hour: int.parse(p[0]), minute: int.parse(p[1]));
     } catch (_) {}
 
-    // Parse endTime
     try {
-      final endParts = cls.endTime.split(':');
-      _endTime = TimeOfDay(
-        hour: int.parse(endParts[0]),
-        minute: int.parse(endParts[1]),
-      );
+      final p = cls.endTime.split(':');
+      _endTime = TimeOfDay(hour: int.parse(p[0]), minute: int.parse(p[1]));
     } catch (_) {}
 
-    // Mark all fields as validated since data is pre-filled
+    // Pre-filled data is already valid
     _classNameValidated = true;
     _classFeesValidated = true;
-    _commissionValidated = true;
+    _locationValidated = true;
     _descriptionValidated = true;
     _gradeValidated = true;
     _subjectValidated = true;
@@ -105,26 +94,25 @@ class TutorEditClassController extends ChangeNotifier {
   String? get classNameError => _classNameError;
 
   void validateClassName(String value) {
-    final className = value.trim();
-    final RegExp classNameRegex = RegExp(r'^[a-zA-Z0-9 ]+$');
+    final v = value.trim();
+    final RegExp regex = RegExp(r'^[a-zA-Z0-9 ]+$');
 
-    if (className.isEmpty) {
+    if (v.isEmpty) {
       _classNameValidated = false;
       _classNameError = "Class name is required";
-    } else if (className.length < 5) {
+    } else if (v.length < 5) {
       _classNameValidated = false;
       _classNameError = "Class name must be at least 5 characters";
-    } else if (className.length > 100) {
+    } else if (v.length > 100) {
       _classNameValidated = false;
       _classNameError = "Class name must not exceed 100 characters";
-    } else if (!classNameRegex.hasMatch(className)) {
+    } else if (!regex.hasMatch(v)) {
       _classNameValidated = false;
       _classNameError = "Only letters and numbers allowed";
     } else {
       _classNameValidated = true;
       _classNameError = null;
     }
-
     notifyListeners();
   }
 
@@ -136,78 +124,68 @@ class TutorEditClassController extends ChangeNotifier {
   String? get classFeesError => _classFeesError;
 
   void validateClassFees(String value) {
-    final fees = value.trim();
-    final numValue = double.tryParse(fees);
+    final v = value.trim();
+    final num = double.tryParse(v);
 
-    if (fees.isEmpty) {
+    if (v.isEmpty) {
       _classFeesValidated = false;
       _classFeesError = "Class fees is required";
-    } else if (numValue == null) {
+    } else if (num == null) {
       _classFeesValidated = false;
       _classFeesError = "Invalid amount";
-    } else if (numValue < 0) {
+    } else if (num < 0) {
       _classFeesValidated = false;
       _classFeesError = "Fees cannot be negative";
-    } else if (numValue > 100000) {
+    } else if (num > 100000) {
       _classFeesValidated = false;
       _classFeesError = "Fees limit is 100,000";
     } else {
       _classFeesValidated = true;
       _classFeesError = null;
     }
-
     notifyListeners();
   }
 
   // -----------------------------------------------------------------------
-  // Commission Validation
+  // Location Validation
   // -----------------------------------------------------------------------
-  bool _commissionValidated = false;
-  String? _commissionError;
-  String? get commissionError => _commissionError;
+  bool _locationValidated = false;
+  String? _locationError;
+  String? get locationError => _locationError;
 
-  void validateCommission(String value) {
-    final commission = value.trim();
-    final numValue = double.tryParse(commission);
+  void validateLocation(String value) {
+    final v = value.trim();
 
-    if (commission.isEmpty) {
-      _commissionValidated = false;
-      _commissionError = "Commission is required";
-    } else if (numValue == null) {
-      _commissionValidated = false;
-      _commissionError = "Please enter a valid percentage";
-    } else if (numValue < 0 || numValue > 100) {
-      _commissionValidated = false;
-      _commissionError = "Commission must be between 0 and 100";
+    if (v.isEmpty) {
+      _locationValidated = false;
+      _locationError = "Location is required";
+    } else if (v.length > 15) {
+      _locationValidated = false;
+      _locationError = "Location must not exceed 15 characters";
     } else {
-      _commissionValidated = true;
-      _commissionError = null;
+      _locationValidated = true;
+      _locationError = null;
     }
-
     notifyListeners();
   }
 
   // -----------------------------------------------------------------------
-  // Description Validation
+  // Description Validation (optional)
   // -----------------------------------------------------------------------
   bool _descriptionValidated = true;
   String? _descriptionError;
   String? get descriptionError => _descriptionError;
 
   void validateDescription(String value) {
-    final description = value.trim();
+    final v = value.trim();
 
-    if (description.isEmpty) {
-      _descriptionValidated = true;
-      _descriptionError = null;
-    } else if (description.length > 300) {
+    if (v.length > 300) {
       _descriptionValidated = false;
       _descriptionError = "Description must not exceed 300 characters";
     } else {
       _descriptionValidated = true;
       _descriptionError = null;
     }
-
     notifyListeners();
   }
 
@@ -220,7 +198,6 @@ class TutorEditClassController extends ChangeNotifier {
 
   void setGrade(String? value) {
     _selectedGrade = value;
-
     if (value == null || value.isEmpty) {
       _gradeValidated = false;
       _gradeError = "Please select a grade";
@@ -228,7 +205,6 @@ class TutorEditClassController extends ChangeNotifier {
       _gradeValidated = true;
       _gradeError = null;
     }
-
     notifyListeners();
   }
 
@@ -241,7 +217,6 @@ class TutorEditClassController extends ChangeNotifier {
 
   void setSubject(String? value) {
     _selectedSubject = value;
-
     if (value == null || value.isEmpty) {
       _subjectValidated = false;
       _subjectError = "Please select a subject";
@@ -249,7 +224,6 @@ class TutorEditClassController extends ChangeNotifier {
       _subjectValidated = true;
       _subjectError = null;
     }
-
     notifyListeners();
   }
 
@@ -262,7 +236,6 @@ class TutorEditClassController extends ChangeNotifier {
 
   void setDay(String? value) {
     _selectedDay = value;
-
     if (value == null || value.isEmpty) {
       _dayValidated = false;
       _dayError = "Please select a day";
@@ -270,7 +243,6 @@ class TutorEditClassController extends ChangeNotifier {
       _dayValidated = true;
       _dayError = null;
     }
-
     notifyListeners();
   }
 
@@ -297,15 +269,9 @@ class TutorEditClassController extends ChangeNotifier {
       _timeError = null;
       return;
     }
-
     final start = _startTime!.hour * 60 + _startTime!.minute;
     final end = _endTime!.hour * 60 + _endTime!.minute;
-
-    if (end <= start) {
-      _timeError = "End time must be after start time";
-    } else {
-      _timeError = null;
-    }
+    _timeError = end <= start ? "End time must be after start time" : null;
   }
 
   bool get isTimeValid =>
@@ -317,7 +283,7 @@ class TutorEditClassController extends ChangeNotifier {
   bool isFormValid() {
     return _classNameValidated &&
         _classFeesValidated &&
-        _commissionValidated &&
+        _locationValidated &&
         _descriptionValidated &&
         _gradeValidated &&
         _subjectValidated &&
@@ -326,7 +292,7 @@ class TutorEditClassController extends ChangeNotifier {
   }
 
   // -----------------------------------------------------------------------
-  // Update Class (dummy)
+  // Update Class — real API call
   // -----------------------------------------------------------------------
   bool isLoading = false;
 
@@ -335,38 +301,43 @@ class TutorEditClassController extends ChangeNotifier {
       isLoading = true;
       notifyListeners();
 
-      await Future.delayed(const Duration(milliseconds: 600));
-
       final data = {
-        "id": _classId,
         "name": classNameController.text.trim(),
         "subject_id": _selectedSubject,
-        "institute_id": _instituteId,
-        "start_time": _startTime != null
-            ? "${_startTime!.hour.toString().padLeft(2, '0')}:${_startTime!.minute.toString().padLeft(2, '0')}:00"
-            : null,
-        "end_time": _endTime != null
-            ? "${_endTime!.hour.toString().padLeft(2, '0')}:${_endTime!.minute.toString().padLeft(2, '0')}:00"
-            : null,
-        "day": int.parse(_selectedDay.toString()),
+        "start_time":
+            "${_startTime!.hour.toString().padLeft(2, '0')}:${_startTime!.minute.toString().padLeft(2, '0')}:00",
+        "end_time":
+            "${_endTime!.hour.toString().padLeft(2, '0')}:${_endTime!.minute.toString().padLeft(2, '0')}:00",
+        "day": int.parse(_selectedDay!),
         "description": descriptionController.text.trim(),
-        "amount": double.tryParse(classFeesController.text.trim()),
-        "institute_commission": double.tryParse(
-          commissionController.text.trim(),
-        ),
-        "grade": int.parse(_selectedGrade.toString()),
+        "amount": double.tryParse(classFeesController.text.trim()) ?? 0,
+        "location": locationController.text.trim(),
+        "grade": int.parse(_selectedGrade!),
         "status": _status.name,
       };
 
-      debugPrint("Update Class Payload (dummy): $data");
+      final response = await ApiClient.instance.put(
+        '/classes/$_classId',
+        data: data,
+      );
 
       isLoading = false;
       notifyListeners();
-      return {"status": true, "message": "Class updated successfully"};
+
+      if (response.statusCode == 200) {
+        return {"status": true, "message": "Class updated successfully"};
+      }
+      return {"status": false, "message": "Something went wrong"};
+    } on DioException catch (e) {
+      isLoading = false;
+      notifyListeners();
+      return {
+        "status": false,
+        "message": e.response?.data?["message"] ?? "Failed to update class",
+      };
     } catch (e) {
       isLoading = false;
       notifyListeners();
-      debugPrint("Update class error: $e");
       return {"status": false, "message": "An error occurred"};
     }
   }
@@ -378,9 +349,8 @@ class TutorEditClassController extends ChangeNotifier {
   void dispose() {
     classNameController.dispose();
     classFeesController.dispose();
-    commissionController.dispose();
+    locationController.dispose();
     descriptionController.dispose();
-    instituteNameController.dispose();
     super.dispose();
   }
 }
