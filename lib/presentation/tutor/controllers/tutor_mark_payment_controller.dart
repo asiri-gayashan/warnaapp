@@ -1,88 +1,80 @@
+import 'package:dio/dio.dart';
+import 'package:warna_app/core/network/dio_client.dart';
+import 'package:warna_app/core/utils/user_service.dart';
+
 class TutorMarkPaymentController {
-  // -----------------------------------------------------------------------
-  // Dummy enrolled students per class id
-  // -----------------------------------------------------------------------
-  final Map<String, List<Map<String, dynamic>>> _enrolledStudentsByClass = {
-    '1': [
-      {
-        'student_id': 'std-1',
-        'student_full_name': 'Nimal Perera',
-        'student_grade': '12',
-      },
-      {
-        'student_id': 'std-2',
-        'student_full_name': 'Kavindi Silva',
-        'student_grade': '12',
-      },
-      {
-        'student_id': 'std-6',
-        'student_full_name': 'Ruwan Bandara',
-        'student_grade': '12',
-      },
-      {
-        'student_id': 'std-8',
-        'student_full_name': 'Chamara Silva',
-        'student_grade': '12',
-      },
-    ],
-    '2': [
-      {
-        'student_id': 'std-3',
-        'student_full_name': 'Tharindu Fernando',
-        'student_grade': '11',
-      },
-      {
-        'student_id': 'std-4',
-        'student_full_name': 'Sahan Jayasuriya',
-        'student_grade': '11',
-      },
-    ],
-  };
+  final _dio = DioClient.instance;
 
-  // -----------------------------------------------------------------------
-  // Dummy existing payment records per class id (returned regardless of the
-  // requested month/year, to keep this UI-only pass simple)
-  // -----------------------------------------------------------------------
-  final Map<String, List<Map<String, dynamic>>> _paymentsByClass = {
-    '1': [
-      {'id': 'pay-1', 'student_id': 'std-1', 'status': 'PAID'},
-      {'id': 'pay-2', 'student_id': 'std-6', 'status': 'PAID'},
-    ],
-  };
-
-  // GET enrolled students by class id (dummy)
+  // GET enrolled students by class id
   Future<List<Map<String, dynamic>>?> getEnrollStudentsByClassId(
-    String classId,
-  ) async {
-    await Future.delayed(const Duration(milliseconds: 400));
-    return _enrolledStudentsByClass[classId] ?? [];
+      String classId) async {
+    try {
+      final response = await _dio.get("/enrollstudents/$classId");
+      final data = response.data['data'] as List;
+      return data
+          .map<Map<String, dynamic>>((e) => Map<String, dynamic>.from(e))
+          .toList();
+    } on DioException catch (e) {
+      print(e.response?.data);
+      return null;
+    } catch (e) {
+      print(e);
+      return null;
+    }
   }
 
-  // GET payments by class id, month, year (dummy)
+  // GET payments by class id, month, year
   Future<List<Map<String, dynamic>>?> getPaymentsByClassAndMonth(
-    String classId,
-    int month,
-    int year,
-  ) async {
-    await Future.delayed(const Duration(milliseconds: 300));
-    return _paymentsByClass[classId] ?? [];
+      String classId, int month, int year) async {
+    try {
+      final response = await _dio.get(
+        "/student-payments/$classId",
+        queryParameters: {"month": month, "year": year},
+      );
+      final data = response.data['data'] as List;
+      return data
+          .map<Map<String, dynamic>>((e) => Map<String, dynamic>.from(e))
+          .toList();
+    } on DioException catch (e) {
+      print(e.response?.data);
+      return null;
+    } catch (e) {
+      print(e);
+      return null;
+    }
   }
 
-  // POST — insert new payment records (dummy)
+  // POST — insert new payment records (array)
   Future<bool> insertPayments(List<Map<String, dynamic>> payments) async {
-    await Future.delayed(const Duration(milliseconds: 400));
-    return true;
+    try {
+      await _dio.post("/student-payments", data: payments);
+      return true;
+    } on DioException catch (e) {
+      print(e.response?.data);
+      return false;
+    } catch (e) {
+      print(e);
+      return false;
+    }
   }
 
-  // PATCH — update single payment status (dummy)
+  // PATCH — update single payment status
   Future<bool> updatePaymentStatus(String id, String status) async {
-    await Future.delayed(const Duration(milliseconds: 300));
-    return true;
+    try {
+      await _dio.patch("/student-payments/$id", data: {"status": status});
+      return true;
+    } on DioException catch (e) {
+      print(e.response?.data);
+      return false;
+    } catch (e) {
+      print(e);
+      return false;
+    }
   }
 
-  // Get logged in user id (dummy)
+  // Get logged in user id
   Future<String?> getMarkedUserId() async {
-    await Future.delayed(const Duration(milliseconds: 100));
-    return 'tutor-user-1';
+    final user = await UserService.getUser();
+    return user?['id']?.toString();
   }
 }
