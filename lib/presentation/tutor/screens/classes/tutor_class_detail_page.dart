@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:warna_app/core/constants/app_colors.dart';
 import 'package:warna_app/core/constants/select_options.dart';
+import 'package:warna_app/data/repositories/class_repository.dart';
 import 'package:warna_app/presentation/tutor/controllers/tutor_class_page_controller.dart';
 import 'package:warna_app/presentation/tutor/screens/classes/tutor_edit_class_page.dart';
 import 'package:warna_app/presentation/tutor/screens/classes/tutor_enroll_student_page.dart';
@@ -12,32 +13,58 @@ class TutorClassDetailPage extends StatefulWidget {
   final ClassModel classItemDetails;
 
   const TutorClassDetailPage({Key? key, required this.classItemDetails})
-    : super(key: key);
+      : super(key: key);
 
   @override
   State<TutorClassDetailPage> createState() => _TutorClassDetailPageState();
 }
 
 class _TutorClassDetailPageState extends State<TutorClassDetailPage> {
-  late ClassModel classData;
+  ClassModel? classesData;
+  bool isLoading = true;
   bool isReceived = true;
 
   @override
   void initState() {
     super.initState();
-    classData = widget.classItemDetails;
+    loadClassData();
+  }
+
+  Future<void> loadClassData() async {
+    final raw = await ClassRepository().getClassesById(
+      widget.classItemDetails.id,
+    );
+    if (raw != null) {
+      setState(() {
+        classesData = ClassModel.fromJson(raw);
+        isLoading = false;
+      });
+    } else {
+      // fall back to the data passed from the list page
+      setState(() {
+        classesData = widget.classItemDetails;
+        isLoading = false;
+      });
+    }
   }
 
   @override
   Widget build(BuildContext context) {
+    if (isLoading) {
+      return const Scaffold(
+        backgroundColor: Colors.white,
+        body: Center(child: CircularProgressIndicator()),
+      );
+    }
+
+    final classData = classesData!;
+
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
         leading: IconButton(
-          icon: const Icon(
-            Icons.arrow_back_ios_new,
-            color: AppColors.textPrimary,
-          ),
+          icon: const Icon(Icons.arrow_back_ios_new,
+              color: AppColors.textPrimary),
           onPressed: () => Navigator.pop(context),
         ),
         title: const Text(
@@ -62,7 +89,8 @@ class _TutorClassDetailPageState extends State<TutorClassDetailPage> {
               ),
             ),
           ).then((_) {
-            setState(() {});
+            setState(() => isLoading = true);
+            loadClassData();
           });
         },
         child: const Icon(Icons.person_add_alt_1),
@@ -72,7 +100,7 @@ class _TutorClassDetailPageState extends State<TutorClassDetailPage> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Class Header Card
+            // ── Header Card ─────────────────────────────────────────
             Container(
               padding: const EdgeInsets.all(20),
               decoration: BoxDecoration(
@@ -97,11 +125,8 @@ class _TutorClassDetailPageState extends State<TutorClassDetailPage> {
                           color: Colors.white.withOpacity(0.2),
                           borderRadius: BorderRadius.circular(12),
                         ),
-                        child: const Icon(
-                          Icons.menu_book,
-                          color: Colors.white,
-                          size: 28,
-                        ),
+                        child: const Icon(Icons.menu_book,
+                            color: Colors.white, size: 28),
                       ),
                       const SizedBox(width: 16),
                       Expanded(
@@ -120,11 +145,9 @@ class _TutorClassDetailPageState extends State<TutorClassDetailPage> {
                             ),
                             const SizedBox(height: 4),
                             Text(
-                              '${classData.subjectName} • ${classData.instituteName}',
+                              '${classData.subjectName} • ${classData.location ?? '—'}',
                               style: const TextStyle(
-                                color: Colors.white70,
-                                fontSize: 14,
-                              ),
+                                  color: Colors.white70, fontSize: 14),
                             ),
                           ],
                         ),
@@ -134,11 +157,10 @@ class _TutorClassDetailPageState extends State<TutorClassDetailPage> {
 
                   const SizedBox(height: 20),
 
+                  // Fee row + Edit button
                   Container(
                     padding: const EdgeInsets.symmetric(
-                      horizontal: 16,
-                      vertical: 12,
-                    ),
+                        horizontal: 16, vertical: 12),
                     decoration: BoxDecoration(
                       color: Colors.white,
                       borderRadius: BorderRadius.circular(16),
@@ -161,11 +183,8 @@ class _TutorClassDetailPageState extends State<TutorClassDetailPage> {
                                 color: AppColors.primary.withOpacity(0.1),
                                 borderRadius: BorderRadius.circular(10),
                               ),
-                              child: const Icon(
-                                Icons.payments_outlined,
-                                color: AppColors.primary,
-                                size: 20,
-                              ),
+                              child: const Icon(Icons.payments_outlined,
+                                  color: AppColors.primary, size: 20),
                             ),
                             const SizedBox(width: 12),
                             Column(
@@ -174,9 +193,8 @@ class _TutorClassDetailPageState extends State<TutorClassDetailPage> {
                                 const Text(
                                   'Monthly Fee',
                                   style: TextStyle(
-                                    fontSize: 12,
-                                    color: AppColors.textSecondary,
-                                  ),
+                                      fontSize: 12,
+                                      color: AppColors.textSecondary),
                                 ),
                                 const SizedBox(height: 2),
                                 Text(
@@ -200,15 +218,14 @@ class _TutorClassDetailPageState extends State<TutorClassDetailPage> {
                                     TutorEditClassPage(classModel: classData),
                               ),
                             ).then((_) {
-                              setState(() {});
+                              setState(() => isLoading = true);
+                              loadClassData();
                             });
                           },
                           borderRadius: BorderRadius.circular(20),
                           child: Container(
                             padding: const EdgeInsets.symmetric(
-                              horizontal: 12,
-                              vertical: 6,
-                            ),
+                                horizontal: 12, vertical: 6),
                             decoration: BoxDecoration(
                               color: AppColors.primary.withOpacity(0.1),
                               borderRadius: BorderRadius.circular(20),
@@ -239,13 +256,15 @@ class _TutorClassDetailPageState extends State<TutorClassDetailPage> {
                       ],
                     ),
                   ),
+
                   const SizedBox(height: 20),
+
+                  // Info chips
                   Row(
                     children: [
                       _buildInfoChip(
                         icon: Icons.sailing,
-                        label:
-                            SelectOptions.newgradesList.firstWhere(
+                        label: SelectOptions.newgradesList.firstWhere(
                               (e) => e['id'] == classData.grade.toString(),
                             )['name'] ??
                             '',
@@ -253,7 +272,7 @@ class _TutorClassDetailPageState extends State<TutorClassDetailPage> {
                       const SizedBox(width: 12),
                       _buildInfoChip(
                         icon: Icons.people,
-                        label: '${classData.studentCount} Students',
+                        label: '${classData.studentCount ?? 0} Students',
                       ),
                       const SizedBox(width: 12),
                       _buildInfoChip(
@@ -268,15 +287,13 @@ class _TutorClassDetailPageState extends State<TutorClassDetailPage> {
 
             const SizedBox(height: 24),
 
-            // Schedule Information
-            const Text(
-              'Schedule',
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
-            ),
+            // ── Schedule ─────────────────────────────────────────────
+            const Text('Schedule',
+                style:
+                    TextStyle(fontSize: 18, fontWeight: FontWeight.w600)),
             const SizedBox(height: 12),
             ScheduleInfoCard(
-              day:
-                  SelectOptions.days.firstWhere(
+              day: SelectOptions.days.firstWhere(
                     (e) => e['id'] == classData.day.toString(),
                   )['name'] ??
                   '',
@@ -288,97 +305,99 @@ class _TutorClassDetailPageState extends State<TutorClassDetailPage> {
 
             const SizedBox(height: 24),
 
-            // Institute Payment Status Card
-            Container(
-              padding: const EdgeInsets.all(16),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(16),
-                border: Border.all(color: Colors.grey.shade200),
+            // ── Institute card (only when institute is assigned) ──────
+            if (classData.instituteId != null) ...[
+              Container(
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(16),
+                  border: Border.all(color: Colors.grey.shade200),
+                ),
+                child: Row(
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.all(10),
+                      decoration: BoxDecoration(
+                        color: AppColors.primary.withOpacity(0.1),
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: const Icon(Icons.business,
+                          color: AppColors.primary, size: 24),
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            classData.instituteName ?? '—',
+                            style: const TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                          const SizedBox(height: 4),
+                          const Text(
+                            'Institute Payment Status',
+                            style: TextStyle(
+                                fontSize: 13,
+                                color: AppColors.textSecondary),
+                          ),
+                        ],
+                      ),
+                    ),
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 12, vertical: 6),
+                      decoration: BoxDecoration(
+                        color: isReceived
+                            ? Colors.green.withOpacity(0.1)
+                            : Colors.orange.withOpacity(0.1),
+                        borderRadius: BorderRadius.circular(20),
+                      ),
+                      child: Row(
+                        children: [
+                          Icon(
+                            isReceived
+                                ? Icons.check_circle
+                                : Icons.pending,
+                            color: isReceived
+                                ? Colors.green
+                                : Colors.orange,
+                            size: 16,
+                          ),
+                          const SizedBox(width: 4),
+                          Text(
+                            isReceived ? 'Received' : 'Pending',
+                            style: TextStyle(
+                              color: isReceived
+                                  ? Colors.green
+                                  : Colors.orange,
+                              fontSize: 12,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
               ),
-              child: Row(
-                children: [
-                  Container(
-                    padding: const EdgeInsets.all(10),
-                    decoration: BoxDecoration(
-                      color: AppColors.primary.withOpacity(0.1),
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    child: const Icon(
-                      Icons.business,
-                      color: AppColors.primary,
-                      size: 24,
-                    ),
-                  ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          classData.instituteName,
-                          style: const TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
-                        const SizedBox(height: 4),
-                        const Text(
-                          'Institute Payment Status',
-                          style: TextStyle(
-                            fontSize: 13,
-                            color: AppColors.textSecondary,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 12,
-                      vertical: 6,
-                    ),
-                    decoration: BoxDecoration(
-                      color: isReceived
-                          ? Colors.green.withOpacity(0.1)
-                          : Colors.orange.withOpacity(0.1),
-                      borderRadius: BorderRadius.circular(20),
-                    ),
-                    child: Row(
-                      children: [
-                        Icon(
-                          isReceived ? Icons.check_circle : Icons.pending,
-                          color: isReceived ? Colors.green : Colors.orange,
-                          size: 16,
-                        ),
-                        const SizedBox(width: 4),
-                        Text(
-                          isReceived ? 'Received' : 'Pending',
-                          style: TextStyle(
-                            color: isReceived ? Colors.green : Colors.orange,
-                            fontSize: 12,
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-            ),
+              const SizedBox(height: 24),
+            ],
 
-            const SizedBox(height: 24),
-
-            // Description
-            const Text(
-              'Description',
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
-            ),
+            // ── Description ──────────────────────────────────────────
+            const Text('Description',
+                style:
+                    TextStyle(fontSize: 18, fontWeight: FontWeight.w600)),
             const SizedBox(height: 12),
             Padding(
               padding: const EdgeInsets.only(bottom: 10),
               child: Text(
-                classData.description,
+                classData.description?.isNotEmpty == true
+                    ? classData.description!
+                    : 'No description provided.',
                 style: const TextStyle(
                   color: AppColors.textSecondary,
                   fontSize: 15,
@@ -389,6 +408,7 @@ class _TutorClassDetailPageState extends State<TutorClassDetailPage> {
 
             const SizedBox(height: 24),
 
+            // ── Action buttons ───────────────────────────────────────
             Row(
               children: [
                 Expanded(
@@ -409,8 +429,7 @@ class _TutorClassDetailPageState extends State<TutorClassDetailPage> {
                       foregroundColor: Colors.white,
                       padding: const EdgeInsets.symmetric(vertical: 14),
                       shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
+                          borderRadius: BorderRadius.circular(12)),
                       elevation: 0,
                     ),
                     child: const Text('Mark Attendance'),
@@ -436,14 +455,14 @@ class _TutorClassDetailPageState extends State<TutorClassDetailPage> {
                       side: const BorderSide(color: AppColors.primary),
                       padding: const EdgeInsets.symmetric(vertical: 14),
                       shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
+                          borderRadius: BorderRadius.circular(12)),
                     ),
                     child: const Text('Mark Payment'),
                   ),
                 ),
               ],
             ),
+
             const SizedBox(height: 20),
           ],
         ),
@@ -463,10 +482,9 @@ class _TutorClassDetailPageState extends State<TutorClassDetailPage> {
         children: [
           Icon(icon, color: Colors.white, size: 16),
           const SizedBox(width: 4),
-          Text(
-            label,
-            style: const TextStyle(color: Colors.white, fontSize: 12),
-          ),
+          Text(label,
+              style:
+                  const TextStyle(color: Colors.white, fontSize: 12)),
         ],
       ),
     );

@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:warna_app/core/constants/app_colors.dart';
 import 'package:warna_app/core/constants/select_options.dart';
+import 'package:warna_app/core/utils/user_service.dart';
+import 'package:warna_app/data/repositories/class_repository.dart';
+import 'package:warna_app/data/repositories/metadata_repository.dart';
 import 'package:warna_app/presentation/tutor/controllers/tutor_class_page_controller.dart';
 import 'package:warna_app/presentation/tutor/screens/classes/tutor_class_detail_page.dart';
 import 'package:warna_app/presentation/tutor/screens/classes/tutor_create_class_page.dart';
@@ -32,7 +35,8 @@ class TutorClassesPage extends StatefulWidget {
 
 class _TutorClassesPageState extends State<TutorClassesPage> {
   late TutorClassPageController controller;
-  final List<Map<String, String>> subjectsList = tutorSubjectsList;
+  List<Map<String, String>> subjectsList = [];
+  bool isLoading = true;
 
   final TextEditingController _searchController = TextEditingController();
 
@@ -40,36 +44,64 @@ class _TutorClassesPageState extends State<TutorClassesPage> {
   void initState() {
     super.initState();
     controller = TutorClassPageController();
-    controller.fetchClasses();
+    loadClassData();
+    loadSubjectData();
+  }
+
+  // ── Data loaders ─────────────────────────────────────────────
+
+  Future<void> loadClassData() async {
+    setState(() => isLoading = true);
+    final user = await UserService.getUser();
+    if (user == null) {
+      setState(() => isLoading = false);
+      return;
+    }
+    final raw = await ClassRepository().getTutorClasses(user["id"]);
+    if (raw != null) {
+      final classes =
+          raw.map((e) => ClassModel.fromJson(e as Map<String, dynamic>)).toList();
+      controller.loadClasses(classes);
+    }
+    setState(() => isLoading = false);
+  }
+
+  Future<void> loadSubjectData() async {
+    final rawSubjects = await MetadataRepository().getSubjects();
+    if (rawSubjects != null && mounted) {
+      setState(() {
+        subjectsList = rawSubjects
+            .map((s) => {
+                  "id": s["id"].toString(),
+                  "name": s["name"].toString(),
+                })
+            .toList();
+      });
+    }
   }
 
   // ── Helpers ──────────────────────────────────────────────────
 
-  /// Map a day integer to a display name using SelectOptions.days.
   String _getDayName(int day) {
     try {
-      return SelectOptions.days.firstWhere(
-            (e) => e['id'] == day.toString(),
-          )['name'] ??
+      return SelectOptions.days
+              .firstWhere((e) => e['id'] == day.toString())['name'] ??
           '';
     } catch (_) {
       return '';
     }
   }
 
-  /// Map a grade integer to a display name using SelectOptions.newgradesList.
   String _getGradeName(int grade) {
     try {
-      return SelectOptions.newgradesList.firstWhere(
-            (e) => e['id'] == grade.toString(),
-          )['name'] ??
+      return SelectOptions.newgradesList
+              .firstWhere((e) => e['id'] == grade.toString())['name'] ??
           '';
     } catch (_) {
       return '';
     }
   }
 
-  /// Generate a consistent day colour pair based on day index.
   Color _getDayColor(int day) {
     const colors = [
       Color(0xff185FA5),
@@ -99,7 +131,6 @@ class _TutorClassesPageState extends State<TutorClassesPage> {
   // ── Filter sheet ─────────────────────────────────────────────
 
   void _openFilterSheet() {
-    // Temp values for the sheet (not applied until "Apply Filters" tapped)
     String? tempDay = controller.selectedDay;
     String? tempSubject = controller.selectedSubject;
     String? tempGrade = controller.selectedGrade;
@@ -122,9 +153,8 @@ class _TutorClassesPageState extends State<TutorClassesPage> {
                 return Container(
                   decoration: const BoxDecoration(
                     color: Colors.white,
-                    borderRadius: BorderRadius.vertical(
-                      top: Radius.circular(20),
-                    ),
+                    borderRadius:
+                        BorderRadius.vertical(top: Radius.circular(20)),
                   ),
                   child: Column(
                     children: [
@@ -143,9 +173,7 @@ class _TutorClassesPageState extends State<TutorClassesPage> {
                       // Header
                       Padding(
                         padding: const EdgeInsets.symmetric(
-                          horizontal: 20,
-                          vertical: 12,
-                        ),
+                            horizontal: 20, vertical: 12),
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
@@ -181,7 +209,7 @@ class _TutorClassesPageState extends State<TutorClassesPage> {
                           padding: const EdgeInsets.all(20),
                           children: [
                             NewSelectOptions(
-                              label: "Day*",
+                              label: "Day",
                               value: tempDay,
                               items: SelectOptions.days,
                               onChanged: (id) =>
@@ -189,7 +217,7 @@ class _TutorClassesPageState extends State<TutorClassesPage> {
                             ),
                             const SizedBox(height: 20),
                             NewSelectOptions(
-                              label: "Subject*",
+                              label: "Subject",
                               value: tempSubject,
                               items: subjectsList,
                               onChanged: (id) =>
@@ -197,7 +225,7 @@ class _TutorClassesPageState extends State<TutorClassesPage> {
                             ),
                             const SizedBox(height: 20),
                             NewSelectOptions(
-                              label: "Grade*",
+                              label: "Grade",
                               value: tempGrade,
                               items: SelectOptions.newgradesList,
                               onChanged: (id) =>
@@ -210,24 +238,24 @@ class _TutorClassesPageState extends State<TutorClassesPage> {
                             Wrap(
                               spacing: 8,
                               runSpacing: 8,
-                              children: tutorClassStatusOptions.map((status) {
+                              children:
+                                  tutorClassStatusOptions.map((status) {
                                 final isSelected = tempStatus == status;
                                 return GestureDetector(
-                                  onTap: () => setSheetState(
-                                    () =>
-                                        tempStatus = isSelected ? null : status,
-                                  ),
+                                  onTap: () => setSheetState(() =>
+                                      tempStatus =
+                                          isSelected ? null : status),
                                   child: AnimatedContainer(
-                                    duration: const Duration(milliseconds: 180),
+                                    duration:
+                                        const Duration(milliseconds: 180),
                                     padding: const EdgeInsets.symmetric(
-                                      horizontal: 14,
-                                      vertical: 8,
-                                    ),
+                                        horizontal: 14, vertical: 8),
                                     decoration: BoxDecoration(
                                       color: isSelected
                                           ? AppColors.primary
                                           : const Color(0xffF5F7FB),
-                                      borderRadius: BorderRadius.circular(20),
+                                      borderRadius:
+                                          BorderRadius.circular(20),
                                       border: Border.all(
                                         color: isSelected
                                             ? AppColors.primary
@@ -255,17 +283,18 @@ class _TutorClassesPageState extends State<TutorClassesPage> {
                               children: [
                                 Expanded(
                                   child: _buildTimePicker(
-                                    label: 'Start Time*',
+                                    label: 'Start Time',
                                     selectedTime: tempStart,
                                     onTap: () async {
                                       final picked = await showTimePicker(
                                         context: context,
-                                        initialTime:
-                                            tempStart ??
-                                            const TimeOfDay(hour: 8, minute: 0),
+                                        initialTime: tempStart ??
+                                            const TimeOfDay(
+                                                hour: 8, minute: 0),
                                       );
                                       if (picked != null) {
-                                        setSheetState(() => tempStart = picked);
+                                        setSheetState(
+                                            () => tempStart = picked);
                                       }
                                     },
                                   ),
@@ -273,70 +302,65 @@ class _TutorClassesPageState extends State<TutorClassesPage> {
                                 const SizedBox(width: 16),
                                 Expanded(
                                   child: _buildTimePicker(
-                                    label: 'End Time*',
+                                    label: 'End Time',
                                     selectedTime: tempEnd,
                                     onTap: () async {
                                       final picked = await showTimePicker(
                                         context: context,
-                                        initialTime:
-                                            tempEnd ??
+                                        initialTime: tempEnd ??
                                             const TimeOfDay(
-                                              hour: 10,
-                                              minute: 0,
-                                            ),
+                                                hour: 10, minute: 0),
                                       );
                                       if (picked != null) {
-                                        setSheetState(() => tempEnd = picked);
+                                        setSheetState(
+                                            () => tempEnd = picked);
                                       }
                                     },
                                   ),
                                 ),
                               ],
                             ),
-                            // Time error
                             if (tempStart != null && tempEnd != null)
-                              Builder(
-                                builder: (_) {
-                                  final s =
-                                      tempStart!.hour * 60 + tempStart!.minute;
-                                  final e =
-                                      tempEnd!.hour * 60 + tempEnd!.minute;
-                                  if (e <= s) {
-                                    return const Padding(
-                                      padding: EdgeInsets.only(top: 8),
-                                      child: FieldErrorText(
-                                        message:
-                                            "End time must be after start time",
-                                      ),
-                                    );
-                                  }
-                                  return const SizedBox.shrink();
-                                },
-                              ),
+                              Builder(builder: (_) {
+                                final s = tempStart!.hour * 60 +
+                                    tempStart!.minute;
+                                final e =
+                                    tempEnd!.hour * 60 + tempEnd!.minute;
+                                if (e <= s) {
+                                  return const Padding(
+                                    padding: EdgeInsets.only(top: 8),
+                                    child: FieldErrorText(
+                                      message:
+                                          "End time must be after start time",
+                                    ),
+                                  );
+                                }
+                                return const SizedBox.shrink();
+                              }),
                             const SizedBox(height: 30),
                           ],
                         ),
                       ),
                       // Apply button
                       Container(
-                        padding: const EdgeInsets.fromLTRB(20, 12, 20, 24),
+                        padding:
+                            const EdgeInsets.fromLTRB(20, 12, 20, 24),
                         decoration: const BoxDecoration(
                           color: Colors.white,
                           border: Border(
-                            top: BorderSide(color: Color(0xffEEEEEE)),
-                          ),
+                              top: BorderSide(color: Color(0xffEEEEEE))),
                         ),
                         child: SizedBox(
                           width: double.infinity,
                           height: 50,
                           child: ElevatedButton(
                             onPressed: () {
-                              // Validate before applying
                               if (tempStart != null && tempEnd != null) {
-                                final s =
-                                    tempStart!.hour * 60 + tempStart!.minute;
-                                final e = tempEnd!.hour * 60 + tempEnd!.minute;
-                                if (e <= s) return; // block apply
+                                final s = tempStart!.hour * 60 +
+                                    tempStart!.minute;
+                                final e = tempEnd!.hour * 60 +
+                                    tempEnd!.minute;
+                                if (e <= s) return;
                               }
                               controller.applyFilters(
                                 day: tempDay,
@@ -346,7 +370,7 @@ class _TutorClassesPageState extends State<TutorClassesPage> {
                                 startTime: tempStart,
                                 endTime: tempEnd,
                               );
-                              setState(() {}); // refresh page
+                              setState(() {});
                               Navigator.pop(context);
                             },
                             style: ElevatedButton.styleFrom(
@@ -402,7 +426,8 @@ class _TutorClassesPageState extends State<TutorClassesPage> {
         GestureDetector(
           onTap: onTap,
           child: Container(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+            padding:
+                const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
             decoration: BoxDecoration(
               color: Colors.white,
               borderRadius: BorderRadius.circular(12),
@@ -422,11 +447,8 @@ class _TutorClassesPageState extends State<TutorClassesPage> {
                     fontSize: 14,
                   ),
                 ),
-                const Icon(
-                  Icons.access_time,
-                  color: AppColors.textSecondary,
-                  size: 20,
-                ),
+                const Icon(Icons.access_time,
+                    color: AppColors.textSecondary, size: 20),
               ],
             ),
           ),
@@ -469,7 +491,7 @@ class _TutorClassesPageState extends State<TutorClassesPage> {
             elevation: 0,
             centerTitle: true,
           ),
-          body: controller.isLoading
+          body: isLoading
               ? const Center(child: CircularProgressIndicator())
               : CustomScrollView(
                   slivers: [
@@ -505,9 +527,11 @@ class _TutorClassesPageState extends State<TutorClassesPage> {
                                       width: 50,
                                       decoration: BoxDecoration(
                                         color: activeFilterCount > 0
-                                            ? AppColors.primary.withOpacity(0.1)
+                                            ? AppColors.primary
+                                                .withOpacity(0.1)
                                             : const Color(0xffF5F7FB),
-                                        borderRadius: BorderRadius.circular(10),
+                                        borderRadius:
+                                            BorderRadius.circular(10),
                                         border: Border.all(
                                           color: activeFilterCount > 0
                                               ? AppColors.primary
@@ -559,24 +583,16 @@ class _TutorClassesPageState extends State<TutorClassesPage> {
                         child: Container(
                           color: Colors.white,
                           padding: const EdgeInsets.only(
-                            left: 16,
-                            right: 16,
-                            bottom: 10,
-                          ),
+                              left: 16, right: 16, bottom: 10),
                           child: Row(
                             children: [
-                              const Icon(
-                                Icons.filter_alt_outlined,
-                                size: 14,
-                                color: Color(0xff888888),
-                              ),
+                              const Icon(Icons.filter_alt_outlined,
+                                  size: 14, color: Color(0xff888888)),
                               const SizedBox(width: 6),
                               const Text(
                                 'Filters applied:',
                                 style: TextStyle(
-                                  fontSize: 12,
-                                  color: Color(0xff888888),
-                                ),
+                                    fontSize: 12, color: Color(0xff888888)),
                               ),
                               const SizedBox(width: 6),
                               Text(
@@ -618,18 +634,13 @@ class _TutorClassesPageState extends State<TutorClassesPage> {
                           child: Column(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
-                              Icon(
-                                Icons.search_off_rounded,
-                                size: 56,
-                                color: Colors.grey.shade300,
-                              ),
+                              Icon(Icons.search_off_rounded,
+                                  size: 56, color: Colors.grey.shade300),
                               const SizedBox(height: 12),
                               const Text(
                                 'No classes found',
                                 style: TextStyle(
-                                  color: Color(0xffAAAAAA),
-                                  fontSize: 15,
-                                ),
+                                    color: Color(0xffAAAAAA), fontSize: 15),
                               ),
                             ],
                           ),
@@ -640,38 +651,37 @@ class _TutorClassesPageState extends State<TutorClassesPage> {
                       SliverPadding(
                         padding: const EdgeInsets.all(16),
                         sliver: SliverList(
-                          delegate: SliverChildBuilderDelegate((
-                            context,
-                            index,
-                          ) {
-                            final cls = pageItems[index];
-                            return CourseCard(
-                              title: cls.name,
-                              subject: cls.subjectName,
-                              grade: _getGradeName(cls.grade),
-                              tutorName: cls.instituteName,
-                              location: cls.location,
-                              day: _getDayName(cls.day),
-                              time: cls.startTime.length >= 5
-                                  ? cls.startTime.substring(0, 5)
-                                  : cls.startTime,
-                              duration: cls.duration,
-                              studentCount: cls.studentCount,
-                              dayColor: _getDayColor(cls.day),
-                              dayBg: _getDayBg(cls.day),
-                              onViewDetails: () {
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (_) =>
-                                        TutorClassDetailPage(classItemDetails: cls),
-                                  ),
-                                ).then((_) {
-                                  controller.fetchClasses();
-                                });
-                              },
-                            );
-                          }, childCount: pageItems.length),
+                          delegate: SliverChildBuilderDelegate(
+                            (context, index) {
+                              final cls = pageItems[index];
+                              return CourseCard(
+                                title: cls.name,
+                                subject: cls.subjectName,
+                                grade: _getGradeName(cls.grade),
+                                tutorName: cls.tutorName,
+                                location: cls.location ?? '—',
+                                day: _getDayName(cls.day),
+                                time: cls.startTime.length >= 5
+                                    ? cls.startTime.substring(0, 5)
+                                    : cls.startTime,
+                                duration: cls.duration,
+                                studentCount: cls.studentCount ?? 0,
+                                dayColor: _getDayColor(cls.day),
+                                dayBg: _getDayBg(cls.day),
+                                onViewDetails: () {
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (_) =>
+                                          TutorClassDetailPage(
+                                              classItemDetails: cls),
+                                    ),
+                                  ).then((_) => loadClassData());
+                                },
+                              );
+                            },
+                            childCount: pageItems.length,
+                          ),
                         ),
                       ),
 
@@ -697,11 +707,8 @@ class _TutorClassesPageState extends State<TutorClassesPage> {
               Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (_) => const TutorCreateClassPage(),
-                ),
-              ).then((_) {
-                controller.fetchClasses();
-              });
+                    builder: (_) => const TutorCreateClassPage()),
+              ).then((_) => loadClassData());
             },
             backgroundColor: AppColors.primary,
             elevation: 10,
@@ -738,6 +745,7 @@ class _FilterSectionLabel extends StatelessWidget {
 // ============================================================
 // PAGINATION BAR
 // ============================================================
+
 class _PaginationBar extends StatelessWidget {
   final int currentPage;
   final int totalPages;
@@ -750,17 +758,13 @@ class _PaginationBar extends StatelessWidget {
   });
 
   List<dynamic> _buildPageItems() {
-    if (totalPages <= 7) {
-      return List.generate(totalPages, (i) => i);
-    }
+    if (totalPages <= 7) return List.generate(totalPages, (i) => i);
     final items = <dynamic>[];
     items.add(0);
     if (currentPage > 3) items.add('...');
-    for (
-      int i = (currentPage - 1).clamp(1, totalPages - 2);
-      i <= (currentPage + 1).clamp(1, totalPages - 2);
-      i++
-    ) {
+    for (int i = (currentPage - 1).clamp(1, totalPages - 2);
+        i <= (currentPage + 1).clamp(1, totalPages - 2);
+        i++) {
       items.add(i);
     }
     if (currentPage < totalPages - 4) items.add('...');
@@ -779,10 +783,9 @@ class _PaginationBar extends StatelessWidget {
           Text(
             'Page ${currentPage + 1} of $totalPages',
             style: const TextStyle(
-              fontSize: 12,
-              color: Color(0xff999999),
-              fontWeight: FontWeight.w400,
-            ),
+                fontSize: 12,
+                color: Color(0xff999999),
+                fontWeight: FontWeight.w400),
           ),
           const SizedBox(height: 10),
           Row(
@@ -798,14 +801,11 @@ class _PaginationBar extends StatelessWidget {
                 if (item == '...') {
                   return const Padding(
                     padding: EdgeInsets.symmetric(horizontal: 4),
-                    child: Text(
-                      '···',
-                      style: TextStyle(
-                        fontSize: 16,
-                        color: Color(0xffAAAAAA),
-                        letterSpacing: 1,
-                      ),
-                    ),
+                    child: Text('···',
+                        style: TextStyle(
+                            fontSize: 16,
+                            color: Color(0xffAAAAAA),
+                            letterSpacing: 1)),
                   );
                 }
                 final page = item as int;
@@ -855,7 +855,9 @@ class _ModernNavButton extends StatelessWidget {
           color: enabled ? Colors.white : const Color(0xffF5F5F5),
           borderRadius: BorderRadius.circular(10),
           border: Border.all(
-            color: enabled ? const Color(0xffDDE3F0) : const Color(0xffEEEEEE),
+            color: enabled
+                ? const Color(0xffDDE3F0)
+                : const Color(0xffEEEEEE),
           ),
           boxShadow: enabled
               ? [
@@ -910,7 +912,9 @@ class _ModernPageButton extends StatelessWidget {
           color: isSelected ? null : Colors.white,
           borderRadius: BorderRadius.circular(10),
           border: Border.all(
-            color: isSelected ? AppColors.primary : const Color(0xffDDE3F0),
+            color: isSelected
+                ? AppColors.primary
+                : const Color(0xffDDE3F0),
           ),
           boxShadow: isSelected
               ? [
@@ -933,7 +937,8 @@ class _ModernPageButton extends StatelessWidget {
           '${page + 1}',
           style: TextStyle(
             fontSize: 13,
-            fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
+            fontWeight:
+                isSelected ? FontWeight.w700 : FontWeight.w500,
             color: isSelected ? Colors.white : const Color(0xff555555),
           ),
         ),
