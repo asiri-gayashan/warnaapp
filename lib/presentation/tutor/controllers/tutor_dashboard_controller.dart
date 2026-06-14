@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:warna_app/core/network/dio_client.dart';
+import 'package:warna_app/core/utils/user_service.dart';
 
 // ============================================================
 // MODELS
@@ -18,6 +20,17 @@ class TutorStatsModel {
     required this.monthlyEarnings,
     required this.totalCommissionReceived,
   });
+
+  factory TutorStatsModel.fromJson(Map<String, dynamic> j) {
+    return TutorStatsModel(
+      totalStudents: j['total_students'] ?? 0,
+      totalClasses: j['total_classes'] ?? 0,
+      instituteCount: j['institute_count'] ?? 0,
+      monthlyEarnings: (j['monthly_earnings'] ?? 0).toDouble(),
+      totalCommissionReceived:
+          (j['total_commission_received'] ?? 0).toDouble(),
+    );
+  }
 
   static TutorStatsModel empty() => const TutorStatsModel(
         totalStudents: 0,
@@ -46,6 +59,18 @@ class TutorClassPerformanceModel {
     required this.tutorName,
     required this.status,
   });
+
+  factory TutorClassPerformanceModel.fromJson(Map<String, dynamic> j) {
+    return TutorClassPerformanceModel(
+      id: j['id'] ?? '',
+      name: j['name'] ?? '',
+      grade: j['grade'] ?? 0,
+      studentCount: j['student_count'] ?? 0,
+      subjectName: j['subject_name'] ?? '',
+      tutorName: j['tutor_name'] ?? '',
+      status: j['status'] ?? '',
+    );
+  }
 }
 
 class TutorUpcomingClassModel {
@@ -71,6 +96,20 @@ class TutorUpcomingClassModel {
     required this.day,
   });
 
+  factory TutorUpcomingClassModel.fromJson(Map<String, dynamic> j) {
+    return TutorUpcomingClassModel(
+      id: j['id'] ?? '',
+      name: j['name'] ?? '',
+      grade: j['grade'] ?? 0,
+      subjectName: j['subject_name'] ?? '',
+      tutorName: j['tutor_name'] ?? '',
+      startTime: j['start_time'] ?? '',
+      endTime: j['end_time'] ?? '',
+      duration: j['duration'] ?? '',
+      day: j['day'] ?? 0,
+    );
+  }
+
   String get dayName {
     const days = [
       'Sunday',
@@ -90,6 +129,8 @@ class TutorUpcomingClassModel {
 // ============================================================
 
 class TutorDashboardController extends ChangeNotifier {
+  final _dio = DioClient.instance;
+
   // ── State ─────────────────────────────────────────────────
   bool isLoading = false;
   String? errorMessage;
@@ -106,102 +147,38 @@ class TutorDashboardController extends ChangeNotifier {
     notifyListeners();
 
     try {
-      await Future.delayed(const Duration(milliseconds: 600));
+      final user = await UserService.getUser();
+      final tutorId = user?["id"];
 
-      stats = const TutorStatsModel(
-        totalStudents: 48,
-        totalClasses: 6,
-        instituteCount: 3,
-        monthlyEarnings: 72000,
-        totalCommissionReceived: 18000,
-      );
+      final results = await Future.wait([
+        _dio.get("/tutor-dashboard/stats/$tutorId"),
+        _dio.get("/tutor-dashboard/performance/$tutorId"),
+        _dio.get("/tutor-dashboard/upcoming/$tutorId"),
+      ]);
 
-      topClasses = const [
-        TutorClassPerformanceModel(
-          id: '1',
-          name: 'Advanced Mathematics',
-          grade: 11,
-          studentCount: 28,
-          subjectName: 'Mathematics',
-          tutorName: 'You',
-          status: 'ACTIVE',
-        ),
-        TutorClassPerformanceModel(
-          id: '2',
-          name: 'Physics Foundations',
-          grade: 10,
-          studentCount: 24,
-          subjectName: 'Physics',
-          tutorName: 'You',
-          status: 'ACTIVE',
-        ),
-        TutorClassPerformanceModel(
-          id: '3',
-          name: 'Chemistry Basics',
-          grade: 9,
-          studentCount: 20,
-          subjectName: 'Chemistry',
-          tutorName: 'You',
-          status: 'ACTIVE',
-        ),
-      ];
+      final statsRes = results[0];
+      final perfRes = results[1];
+      final upcomingRes = results[2];
 
-      leastClasses = const [
-        TutorClassPerformanceModel(
-          id: '4',
-          name: 'Combined Maths Revision',
-          grade: 12,
-          studentCount: 6,
-          subjectName: 'Mathematics',
-          tutorName: 'You',
-          status: 'ACTIVE',
-        ),
-        TutorClassPerformanceModel(
-          id: '5',
-          name: 'ICT Basics',
-          grade: 8,
-          studentCount: 9,
-          subjectName: 'ICT',
-          tutorName: 'You',
-          status: 'INACTIVE',
-        ),
-      ];
+      if (statsRes.data['success'] == true) {
+        stats = TutorStatsModel.fromJson(statsRes.data['data']);
+      }
 
-      upcomingClasses = const [
-        TutorUpcomingClassModel(
-          id: '1',
-          name: 'Advanced Mathematics',
-          grade: 11,
-          subjectName: 'Mathematics',
-          tutorName: 'Bright Future Institute',
-          startTime: '08:00',
-          endTime: '10:00',
-          duration: '2h',
-          day: 1,
-        ),
-        TutorUpcomingClassModel(
-          id: '2',
-          name: 'Physics Foundations',
-          grade: 10,
-          subjectName: 'Physics',
-          tutorName: 'Bright Future Institute',
-          startTime: '10:30',
-          endTime: '12:00',
-          duration: '1h 30m',
-          day: 1,
-        ),
-        TutorUpcomingClassModel(
-          id: '3',
-          name: 'Chemistry Basics',
-          grade: 9,
-          subjectName: 'Chemistry',
-          tutorName: 'Star Academy',
-          startTime: '14:00',
-          endTime: '15:30',
-          duration: '1h 30m',
-          day: 3,
-        ),
-      ];
+      if (perfRes.data['success'] == true) {
+        final data = perfRes.data['data'];
+        topClasses = (data['top_classes'] as List)
+            .map((j) => TutorClassPerformanceModel.fromJson(j))
+            .toList();
+        leastClasses = (data['least_classes'] as List)
+            .map((j) => TutorClassPerformanceModel.fromJson(j))
+            .toList();
+      }
+
+      if (upcomingRes.data['success'] == true) {
+        upcomingClasses = (upcomingRes.data['data'] as List)
+            .map((j) => TutorUpcomingClassModel.fromJson(j))
+            .toList();
+      }
     } catch (e) {
       errorMessage = "Failed to load dashboard data";
       debugPrint("Tutor dashboard fetch error: $e");
