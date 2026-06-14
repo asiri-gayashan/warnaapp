@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:warna_app/core/constants/app_colors.dart';
 import 'package:warna_app/features/auth/logic/auth_service.dart';
 import 'package:warna_app/presentation/tutor/controllers/tutor_profile_controller.dart';
+import 'package:warna_app/shared/widgets/field_error_text.dart';
 import 'package:warna_app/shared/widgets/new/custom_textfield.dart';
 import 'package:warna_app/shared/widgets/new/new_select_options.dart';
 
@@ -19,11 +20,11 @@ class _TutorProfilePageState extends State<TutorProfilePage> {
   final _phoneController = TextEditingController();
   final _addressLine1Controller = TextEditingController();
   final _addressLine2Controller = TextEditingController();
+  final _experienceController = TextEditingController();
   final _descriptionController = TextEditingController();
 
   String? _districtId;
   String? _subjectId;
-  String? _experienceId;
 
   bool _initialised = false;
 
@@ -42,10 +43,10 @@ class _TutorProfilePageState extends State<TutorProfilePage> {
       _phoneController.text = profile.phone;
       _addressLine1Controller.text = profile.addressLine1;
       _addressLine2Controller.text = profile.addressLine2;
+      _experienceController.text = profile.experience;
       _descriptionController.text = profile.description;
       _districtId = profile.districtId;
       _subjectId = profile.subjectId;
-      _experienceId = profile.experienceId;
       setState(() => _initialised = true);
     }
   }
@@ -54,19 +55,14 @@ class _TutorProfilePageState extends State<TutorProfilePage> {
     final profile = _controller.profile;
     if (profile == null) return;
 
-    final districtName = tutorProfileDistricts.firstWhere(
+    final districtName = _controller.districts.firstWhere(
       (d) => d['id'] == _districtId,
       orElse: () => {'name': profile.districtName},
     )['name']!;
 
-    final subjectName = tutorProfileSubjects.firstWhere(
+    final subjectName = _controller.subjects.firstWhere(
       (s) => s['id'] == _subjectId,
       orElse: () => {'name': profile.subjectName},
-    )['name']!;
-
-    final experienceName = tutorProfileExperienceOptions.firstWhere(
-      (e) => e['id'] == _experienceId,
-      orElse: () => {'name': profile.experienceName},
     )['name']!;
 
     final updated = profile.copyWith(
@@ -78,8 +74,7 @@ class _TutorProfilePageState extends State<TutorProfilePage> {
       districtName: districtName,
       subjectId: _subjectId,
       subjectName: subjectName,
-      experienceId: _experienceId,
-      experienceName: experienceName,
+      experience: _experienceController.text.trim(),
       description: _descriptionController.text.trim(),
     );
 
@@ -154,6 +149,7 @@ class _TutorProfilePageState extends State<TutorProfilePage> {
     _phoneController.dispose();
     _addressLine1Controller.dispose();
     _addressLine2Controller.dispose();
+    _experienceController.dispose();
     _descriptionController.dispose();
     _controller.dispose();
     super.dispose();
@@ -276,7 +272,9 @@ class _TutorProfilePageState extends State<TutorProfilePage> {
                         hintText: 'Enter your full name',
                         controller: _fullNameController,
                         isRequired: true,
+                        onChanged: (v) => _controller.validateFullName(v),
                       ),
+                      FieldErrorText(message: _controller.fullNameError),
                       const SizedBox(height: 16),
 
                       CustomTextField(
@@ -294,29 +292,39 @@ class _TutorProfilePageState extends State<TutorProfilePage> {
                         controller: _phoneController,
                         keyboardType: TextInputType.phone,
                         isRequired: true,
+                        onChanged: (v) => _controller.validatePhone(v),
                       ),
+                      FieldErrorText(message: _controller.phoneError),
                       const SizedBox(height: 16),
 
                       CustomTextField(
                         label: 'Address Line 1',
                         hintText: 'Enter address line 1',
                         controller: _addressLine1Controller,
+                        onChanged: (v) => _controller.validateAddressLine1(v),
                       ),
+                      FieldErrorText(message: _controller.addressLine1Error),
                       const SizedBox(height: 16),
 
                       CustomTextField(
                         label: 'Address Line 2',
                         hintText: 'Enter address line 2',
                         controller: _addressLine2Controller,
+                        onChanged: (v) => _controller.validateAddressLine2(v),
                       ),
+                      FieldErrorText(message: _controller.addressLine2Error),
                       const SizedBox(height: 16),
 
                       NewSelectOptions(
                         label: 'District',
                         value: _districtId,
-                        items: tutorProfileDistricts,
-                        onChanged: (id) => setState(() => _districtId = id),
+                        items: _controller.districts,
+                        onChanged: (id) {
+                          setState(() => _districtId = id);
+                          _controller.setDistrict(id);
+                        },
                       ),
+                      FieldErrorText(message: _controller.districtError),
 
                       const SizedBox(height: 28),
 
@@ -333,17 +341,23 @@ class _TutorProfilePageState extends State<TutorProfilePage> {
                       NewSelectOptions(
                         label: 'Main Subject',
                         value: _subjectId,
-                        items: tutorProfileSubjects,
-                        onChanged: (id) => setState(() => _subjectId = id),
+                        items: _controller.subjects,
+                        onChanged: (id) {
+                          setState(() => _subjectId = id);
+                          _controller.setSubject(id);
+                        },
                       ),
+                      FieldErrorText(message: _controller.subjectError),
                       const SizedBox(height: 16),
 
-                      NewSelectOptions(
+                      CustomTextField(
                         label: 'Years of Experience',
-                        value: _experienceId,
-                        items: tutorProfileExperienceOptions,
-                        onChanged: (id) => setState(() => _experienceId = id),
+                        hintText: 'Enter years of experience (0 - 50)',
+                        controller: _experienceController,
+                        keyboardType: TextInputType.number,
+                        onChanged: (v) => _controller.validateExperience(v),
                       ),
+                      FieldErrorText(message: _controller.experienceError),
                       const SizedBox(height: 16),
 
                       CustomTextField(
@@ -351,7 +365,9 @@ class _TutorProfilePageState extends State<TutorProfilePage> {
                         hintText: 'Tell students a little about yourself...',
                         controller: _descriptionController,
                         maxLines: 4,
+                        onChanged: (v) => _controller.validateDescription(v),
                       ),
+                      FieldErrorText(message: _controller.descriptionError),
 
                       const SizedBox(height: 28),
 
@@ -360,7 +376,9 @@ class _TutorProfilePageState extends State<TutorProfilePage> {
                         width: double.infinity,
                         height: 50,
                         child: ElevatedButton(
-                          onPressed: _controller.isSaving ? null : _saveChanges,
+                          onPressed: (_controller.isSaving || !_controller.isFormValid)
+                              ? null
+                              : _saveChanges,
                           style: ElevatedButton.styleFrom(
                             backgroundColor: AppColors.primary,
                             shape: RoundedRectangleBorder(
