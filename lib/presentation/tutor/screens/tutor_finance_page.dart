@@ -483,10 +483,15 @@ class _TutorFinancePageState extends State<TutorFinancePage> {
 
           const SizedBox(height: 14),
 
-          // Institute commission breakdown
-          _buildCommissionBreakdown(cls),
+          // Commission breakdown — only for institute classes
+          if (cls.hasInstitute) ...[
+            _buildCommissionBreakdown(cls),
+            const SizedBox(height: 10),
+            _buildInstitutePaymentChip(cls),
+            const SizedBox(height: 4),
+          ],
 
-          const SizedBox(height: 14),
+          const SizedBox(height: 10),
 
           // Student badges
           Wrap(
@@ -539,6 +544,9 @@ class _TutorFinancePageState extends State<TutorFinancePage> {
   // ── Institute commission breakdown ─────────────────────────
 
   Widget _buildCommissionBreakdown(TutorClassFinanceModel cls) {
+    final cutLabel = cls.commissionPct > 0
+        ? 'Institute Cut (${cls.commissionPct.toStringAsFixed(0)}%)'
+        : 'Institute Cut';
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
       decoration: BoxDecoration(
@@ -558,7 +566,7 @@ class _TutorFinancePageState extends State<TutorFinancePage> {
           _opSymbol('−'),
           Expanded(
             child: _breakdownStat(
-              'Institute Cut',
+              cutLabel,
               _rs(cls.instituteCommission),
               AppColors.warning,
             ),
@@ -569,6 +577,39 @@ class _TutorFinancePageState extends State<TutorFinancePage> {
               'My Share',
               _rs(cls.myShare),
               AppColors.success,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // ── Institute payment status chip ──────────────────────────
+
+  Widget _buildInstitutePaymentChip(TutorClassFinanceModel cls) {
+    final paid = cls.tutorPaidByInstitute;
+    final label = paid ? 'Institute Payment: Received' : 'Institute Payment: Pending';
+    final color = paid ? AppColors.success : AppColors.warning;
+    final icon = paid ? Icons.check_circle_outline : Icons.schedule;
+
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+      decoration: BoxDecoration(
+        color: color.withOpacity(0.08),
+        borderRadius: BorderRadius.circular(8),
+        border: Border.all(color: color.withOpacity(0.3)),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(icon, size: 13, color: color),
+          const SizedBox(width: 5),
+          Text(
+            label,
+            style: TextStyle(
+              fontSize: 11,
+              fontWeight: FontWeight.w600,
+              color: color,
             ),
           ),
         ],

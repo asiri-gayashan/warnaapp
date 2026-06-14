@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:warna_app/core/network/dio_client.dart';
+import 'package:warna_app/core/utils/user_service.dart';
 
 // ============================================================
 // MODELS
@@ -23,25 +25,49 @@ class TutorFinanceSummaryModel {
         totalPending: 0,
         myEarnings: 0,
       );
+
+  factory TutorFinanceSummaryModel.fromJson(Map<String, dynamic> j) {
+    return TutorFinanceSummaryModel(
+      totalRevenue: (j['total_revenue'] ?? 0).toDouble(),
+      totalReceived: (j['total_received'] ?? 0).toDouble(),
+      totalPending: (j['total_pending'] ?? 0).toDouble(),
+      myEarnings: (j['my_earnings'] ?? 0).toDouble(),
+    );
+  }
 }
 
 class TutorClassFinanceModel {
   final String id;
   final String name;
   final int grade;
+
+  // Institute info
+  final bool hasInstitute;
+  final String? instituteName;
+  final double commissionPct;
+
+  // Financial
   final double revenue;
-  final double instituteCommission;
+  final double instituteCommission; // amount in Rs
   final double myShare;
   final double received;
   final double pending;
+
+  // Student payment counts
   final int paidCount;
   final int unpaidCount;
   final int totalCount;
+
+  // Institute payment to tutor
+  final bool tutorPaidByInstitute;
 
   const TutorClassFinanceModel({
     required this.id,
     required this.name,
     required this.grade,
+    required this.hasInstitute,
+    this.instituteName,
+    required this.commissionPct,
     required this.revenue,
     required this.instituteCommission,
     required this.myShare,
@@ -50,7 +76,28 @@ class TutorClassFinanceModel {
     required this.paidCount,
     required this.unpaidCount,
     required this.totalCount,
+    required this.tutorPaidByInstitute,
   });
+
+  factory TutorClassFinanceModel.fromJson(Map<String, dynamic> j) {
+    return TutorClassFinanceModel(
+      id: j['id'] ?? '',
+      name: j['name'] ?? '',
+      grade: j['grade'] ?? 0,
+      hasInstitute: j['has_institute'] ?? false,
+      instituteName: j['institute_name'],
+      commissionPct: (j['commission_pct'] ?? 0).toDouble(),
+      revenue: (j['revenue'] ?? 0).toDouble(),
+      instituteCommission: (j['institute_commission'] ?? 0).toDouble(),
+      myShare: (j['my_share'] ?? 0).toDouble(),
+      received: (j['received'] ?? 0).toDouble(),
+      pending: (j['pending'] ?? 0).toDouble(),
+      paidCount: j['paid_count'] ?? 0,
+      unpaidCount: j['unpaid_count'] ?? 0,
+      totalCount: j['total_count'] ?? 0,
+      tutorPaidByInstitute: j['tutor_paid_by_institute'] ?? false,
+    );
+  }
 }
 
 // ============================================================
@@ -58,6 +105,8 @@ class TutorClassFinanceModel {
 // ============================================================
 
 class TutorFinanceController extends ChangeNotifier {
+  final _dio = DioClient.instance;
+
   // ── State ─────────────────────────────────────────────────
   bool isLoading = false;
   String? errorMessage;
@@ -73,85 +122,40 @@ class TutorFinanceController extends ChangeNotifier {
     notifyListeners();
 
     try {
-      await Future.delayed(const Duration(milliseconds: 600));
+      final user = await UserService.getUser();
+      final tutorId = user?['id'];
+      final month = selectedMonth.month;
+      final year = selectedMonth.year;
 
-      classes = const [
-        TutorClassFinanceModel(
-          id: '1',
-          name: 'Advanced Mathematics',
-          grade: 11,
-          revenue: 84000,
-          instituteCommission: 21000,
-          myShare: 63000,
-          received: 72000,
-          pending: 12000,
-          paidCount: 24,
-          unpaidCount: 4,
-          totalCount: 28,
+      final results = await Future.wait([
+        _dio.get(
+          '/tutor-finance/summary/$tutorId',
+          queryParameters: {'month': month, 'year': year},
         ),
-        TutorClassFinanceModel(
-          id: '2',
-          name: 'Physics Foundations',
-          grade: 10,
-          revenue: 67200,
-          instituteCommission: 16800,
-          myShare: 50400,
-          received: 61600,
-          pending: 5600,
-          paidCount: 22,
-          unpaidCount: 2,
-          totalCount: 24,
+        _dio.get(
+          '/tutor-finance/classes/$tutorId',
+          queryParameters: {'month': month, 'year': year},
         ),
-        TutorClassFinanceModel(
-          id: '3',
-          name: 'Chemistry Basics',
-          grade: 9,
-          revenue: 50000,
-          instituteCommission: 12500,
-          myShare: 37500,
-          received: 45000,
-          pending: 5000,
-          paidCount: 18,
-          unpaidCount: 2,
-          totalCount: 20,
-        ),
-        TutorClassFinanceModel(
-          id: '4',
-          name: 'Combined Maths Revision',
-          grade: 12,
-          revenue: 21000,
-          instituteCommission: 5250,
-          myShare: 15750,
-          received: 17500,
-          pending: 3500,
-          paidCount: 5,
-          unpaidCount: 1,
-          totalCount: 6,
-        ),
-        TutorClassFinanceModel(
-          id: '5',
-          name: 'ICT Basics',
-          grade: 8,
-          revenue: 18000,
-          instituteCommission: 4500,
-          myShare: 13500,
-          received: 18000,
-          pending: 0,
-          paidCount: 9,
-          unpaidCount: 0,
-          totalCount: 9,
-        ),
-      ];
+      ]);
 
-      summary = const TutorFinanceSummaryModel(
-        totalRevenue: 240200,
-        totalReceived: 214100,
-        totalPending: 26100,
-        myEarnings: 180150,
-      );
+      final summaryRes = results[0];
+      final classesRes = results[1];
+
+      if (summaryRes.data['success'] == true && summaryRes.data['data'] != null) {
+        summary = TutorFinanceSummaryModel.fromJson(
+          summaryRes.data['data'] as Map<String, dynamic>,
+        );
+      }
+
+      if (classesRes.data['success'] == true && classesRes.data['data'] != null) {
+        final List<dynamic> data = classesRes.data['data'];
+        classes = data
+            .map((j) => TutorClassFinanceModel.fromJson(j as Map<String, dynamic>))
+            .toList();
+      }
     } catch (e) {
-      errorMessage = "Failed to load finance data";
-      debugPrint("Tutor finance fetch error: $e");
+      errorMessage = 'Failed to load finance data';
+      debugPrint('Tutor finance fetch error: $e');
     } finally {
       isLoading = false;
       notifyListeners();
