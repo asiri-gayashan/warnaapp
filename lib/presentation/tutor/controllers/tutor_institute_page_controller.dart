@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:warna_app/core/network/dio_client.dart';
+import 'package:warna_app/core/utils/user_service.dart';
+import 'package:warna_app/data/repositories/metadata_repository.dart';
 
 // ============================================================
 // MODEL
@@ -38,33 +41,47 @@ class TutorInstituteModel {
     required this.myClassCount,
     required this.myStudentCount,
   });
+
+  factory TutorInstituteModel.fromJson(Map<String, dynamic> json) {
+    return TutorInstituteModel(
+      id: json['id'] ?? '',
+      fullName: json['full_name'] ?? '',
+      email: json['email'] ?? '',
+      phone: json['phone'] ?? '',
+      addressLine1: json['address_line1'] ?? '',
+      addressLine2: json['address_line2'] ?? '',
+      districtId: json['district_id'] ?? '',
+      districtName: json['district_name'] ?? '',
+      description: json['description'] ?? '',
+      status: json['status'] ?? 'ACTIVE',
+      totalTutors: json['total_tutors'] ?? 0,
+      totalStudents: json['total_students'] ?? 0,
+      totalClasses: json['total_classes'] ?? 0,
+      myClassCount: json['my_class_count'] ?? 0,
+      myStudentCount: json['my_student_count'] ?? 0,
+    );
+  }
 }
-
-// ============================================================
-// DUMMY DISTRICTS (for filter dropdown)
-// ============================================================
-
-const List<Map<String, String>> tutorInstituteDistrictsList = [
-  {"id": "1", "name": "Colombo"},
-  {"id": "2", "name": "Gampaha"},
-  {"id": "3", "name": "Kalutara"},
-  {"id": "4", "name": "Kandy"},
-  {"id": "5", "name": "Galle"},
-  {"id": "6", "name": "Kurunegala"},
-];
 
 // ============================================================
 // CONTROLLER
 // ============================================================
 
 class TutorInstitutePageController extends ChangeNotifier {
+  final _dio = DioClient.instance;
+  final _metadata = MetadataRepository();
+
+  // ── Districts (for filter dropdown) ─────────────────────────
+  List<Map<String, String>> _districts = [];
+  List<Map<String, String>> get districts => _districts;
+
   // ── Pagination ──────────────────────────────────────────────
   static const int itemsPerPage = 6;
   int _currentPage = 0;
   int get currentPage => _currentPage;
 
   // ── Search ──────────────────────────────────────────────────
-  String _searchQuery = '';
+  String _searchQuery = ''; 
   String get searchQuery => _searchQuery;
 
   // ── Filters ─────────────────────────────────────────────────
@@ -129,141 +146,40 @@ class TutorInstitutePageController extends ChangeNotifier {
     return filteredInstitutes.sublist(start, end);
   }
 
-  // ── Fetch (dummy data) ────────────────────────────────────────
+  // ── Fetch ────────────────────────────────────────────────────
   Future<bool> fetchInstitutes() async {
-    await Future.delayed(const Duration(milliseconds: 500));
+    try {
+      final user = await UserService.getUser();
 
-    _allInstitutes = const [
-      TutorInstituteModel(
-        id: 'inst-1',
-        fullName: 'Bright Future Institute',
-        email: 'info@brightfuture.lk',
-        phone: '+94 11 234 5678',
-        addressLine1: 'No. 120, Galle Road',
-        addressLine2: 'Colombo 03',
-        districtId: '1',
-        districtName: 'Colombo',
-        description:
-            'A leading tuition institute offering classes for grades 6-13 across Mathematics, Science and English streams.',
-        status: 'ACTIVE',
-        totalTutors: 18,
-        totalStudents: 420,
-        totalClasses: 32,
-        myClassCount: 4,
-        myStudentCount: 73,
-      ),
-      TutorInstituteModel(
-        id: 'inst-2',
-        fullName: 'Star Academy',
-        email: 'contact@staracademy.lk',
-        phone: '+94 81 222 3344',
-        addressLine1: 'No. 45, Peradeniya Road',
-        addressLine2: 'Kandy',
-        districtId: '4',
-        districtName: 'Kandy',
-        description:
-            'A well-established academy specialising in O/L and A/L Science subjects with modern lab facilities.',
-        status: 'ACTIVE',
-        totalTutors: 12,
-        totalStudents: 260,
-        totalClasses: 20,
-        myClassCount: 2,
-        myStudentCount: 29,
-      ),
-      TutorInstituteModel(
-        id: 'inst-3',
-        fullName: 'Lyceum International Campus',
-        email: 'admin@lyceumic.lk',
-        phone: '+94 11 567 8901',
-        addressLine1: 'No. 9, Park Road',
-        addressLine2: 'Colombo 05',
-        districtId: '1',
-        districtName: 'Colombo',
-        description:
-            'International curriculum campus offering Cambridge and Edexcel programmes.',
-        status: 'PENDING',
-        totalTutors: 25,
-        totalStudents: 600,
-        totalClasses: 45,
-        myClassCount: 0,
-        myStudentCount: 0,
-      ),
-      TutorInstituteModel(
-        id: 'inst-4',
-        fullName: 'Horizon Campus',
-        email: 'info@horizoncampus.lk',
-        phone: '+94 11 789 0123',
-        addressLine1: 'No. 78, Negombo Road',
-        addressLine2: 'Wattala',
-        districtId: '2',
-        districtName: 'Gampaha',
-        description:
-            'A growing institute focused on technology and business education.',
-        status: 'ACTIVE',
-        totalTutors: 15,
-        totalStudents: 310,
-        totalClasses: 28,
-        myClassCount: 0,
-        myStudentCount: 0,
-      ),
-      TutorInstituteModel(
-        id: 'inst-5',
-        fullName: 'Elite Tuition Center',
-        email: 'hello@elitetuition.lk',
-        phone: '+94 91 345 6789',
-        addressLine1: 'No. 34, Matara Road',
-        addressLine2: 'Galle',
-        districtId: '5',
-        districtName: 'Galle',
-        description: 'Southern province tuition center for grades 6-11.',
-        status: 'INACTIVE',
-        totalTutors: 8,
-        totalStudents: 150,
-        totalClasses: 14,
-        myClassCount: 0,
-        myStudentCount: 0,
-      ),
-      TutorInstituteModel(
-        id: 'inst-6',
-        fullName: 'Knowledge Hub Academy',
-        email: 'support@knowledgehub.lk',
-        phone: '+94 37 456 7890',
-        addressLine1: 'No. 56, Kandy Road',
-        addressLine2: 'Kurunegala',
-        districtId: '6',
-        districtName: 'Kurunegala',
-        description:
-            'North western province academy offering combined maths and science classes.',
-        status: 'ACTIVE',
-        totalTutors: 10,
-        totalStudents: 200,
-        totalClasses: 18,
-        myClassCount: 0,
-        myStudentCount: 0,
-      ),
-      TutorInstituteModel(
-        id: 'inst-7',
-        fullName: 'Pinnacle Academy',
-        email: 'info@pinnacle.lk',
-        phone: '+94 34 567 1234',
-        addressLine1: 'No. 11, Station Road',
-        addressLine2: 'Kalutara',
-        districtId: '3',
-        districtName: 'Kalutara',
-        description:
-            'Newly established academy for primary and secondary education.',
-        status: 'PENDING',
-        totalTutors: 6,
-        totalStudents: 95,
-        totalClasses: 9,
-        myClassCount: 0,
-        myStudentCount: 0,
-      ),
-    ];
+      final results = await Future.wait([
+        _dio.get("/institutes/tutor/${user?["id"]}"),
+        _metadata.getDistricts(),
+      ]);
 
-    _currentPage = 0;
-    notifyListeners();
-    return true;
+      final instituteResponse = results[0] as dynamic;
+      final districtsRaw = results[1] as List<dynamic>?;
+
+      if (districtsRaw != null) {
+        _districts = districtsRaw
+            .map((d) => {"id": d["id"].toString(), "name": d["name"].toString()})
+            .toList();
+      }
+
+      if (instituteResponse.data['success'] == true &&
+          instituteResponse.data['data'] != null) {
+        final List<dynamic> data = instituteResponse.data['data'];
+        _allInstitutes = data
+            .map((json) => TutorInstituteModel.fromJson(json as Map<String, dynamic>))
+            .toList();
+        _currentPage = 0;
+        notifyListeners();
+        return true;
+      }
+      return false;
+    } catch (e) {
+      debugPrint("Error fetching institutes: $e");
+      return false;
+    }
   }
 
   // ── Navigation ───────────────────────────────────────────────

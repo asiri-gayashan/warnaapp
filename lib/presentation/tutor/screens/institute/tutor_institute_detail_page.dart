@@ -125,15 +125,15 @@ class _TutorInstituteDetailPageState extends State<TutorInstituteDetailPage> {
                     mainAxisAlignment: MainAxisAlignment.spaceAround,
                     children: [
                       StatColumn(
-                        label: 'Tutors',
+                        label: 'Total Tutors',
                         value: '${institute.totalTutors}',
                       ),
                       StatColumn(
-                        label: 'Students',
+                        label: 'Total Students',
                         value: '${institute.totalStudents}',
                       ),
                       StatColumn(
-                        label: 'Classes',
+                        label: 'Total Classes',
                         value: '${institute.totalClasses}',
                       ),
                     ],
@@ -203,7 +203,26 @@ class _TutorInstituteDetailPageState extends State<TutorInstituteDetailPage> {
 
                 // ── My Classes at this Institute ────────────────
                 const Text(
-                  'My Classes at this Institute',
+                  'My Class Details',
+                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
+                ),
+                const SizedBox(height: 12),
+
+                InfoTile(
+                  icon: Icons.sailing,
+                  label: 'My Classes',
+                  value: '${institute.myClassCount.toString()} Classes',
+                ),
+                InfoTile(
+                  icon: Icons.people,
+                  label: 'My Students',
+                  value: '${institute.myStudentCount.toString()} Students',
+                ),
+
+                const SizedBox(height: 24),
+
+                const Text(
+                  'My Classes In Institute',
                   style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
                 ),
                 const SizedBox(height: 12),
@@ -279,8 +298,9 @@ class _TutorInstituteDetailPageState extends State<TutorInstituteDetailPage> {
                               onTap: () => Navigator.push(
                                 context,
                                 MaterialPageRoute(
-                                  builder: (context) =>
-                                      TutorClassDetailPage(classItemDetails: cls),
+                                  builder: (context) => TutorClassDetailPage(
+                                    classItemDetails: cls,
+                                  ),
                                 ),
                               ),
                             );

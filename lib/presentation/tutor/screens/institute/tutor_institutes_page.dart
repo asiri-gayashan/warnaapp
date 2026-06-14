@@ -41,12 +41,14 @@ class _InstituteFilterSheet extends StatefulWidget {
   final String? initialStatus;
   final int? initialMinClasses;
   final int? initialMaxClasses;
+  final List<Map<String, String>> districts;
 
   const _InstituteFilterSheet({
     this.initialDistrict,
     this.initialStatus,
     this.initialMinClasses,
     this.initialMaxClasses,
+    required this.districts,
   });
 
   @override
@@ -223,7 +225,7 @@ class _InstituteFilterSheetState extends State<_InstituteFilterSheet> {
                     NewSelectOptions(
                       label: "District",
                       value: _district,
-                      items: tutorInstituteDistrictsList,
+                      items: widget.districts,
                       onChanged: (id) => setState(() => _district = id),
                     ),
                     const SizedBox(height: 20),
@@ -369,6 +371,7 @@ class _TutorInstitutesPageState extends State<TutorInstitutesPage> {
         initialStatus: controller.selectedStatus,
         initialMinClasses: controller.minClasses,
         initialMaxClasses: controller.maxClasses,
+        districts: controller.districts,
       ),
     );
 
@@ -606,13 +609,13 @@ class _TutorInstitutesPageState extends State<TutorInstitutesPage> {
                               },
                               badges: [
                                 InfoBadge(
-                                  icon: Icons.groups_outlined,
-                                  text: '${institute.totalTutors} Tutors',
+                                  icon: Icons.sailing,
+                                  text: '${institute.myClassCount} My Classes',
                                   color: AppColors.info,
                                 ),
                                 InfoBadge(
                                   icon: Icons.people_outline,
-                                  text: '${institute.totalStudents} Students',
+                                  text: '${institute.myStudentCount} Students',
                                   color: AppColors.secondary,
                                 ),
                                
