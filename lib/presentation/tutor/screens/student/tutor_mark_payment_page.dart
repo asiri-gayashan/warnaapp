@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:warna_app/core/constants/app_colors.dart';
-import 'package:warna_app/presentation/institute/controllers/mark_payment_controller.dart';
+import 'package:warna_app/presentation/tutor/controllers/tutor_mark_payment_controller.dart';
 
-class MarkPaymentPage extends StatefulWidget {
+class TutorMarkPaymentPage extends StatefulWidget {
   final String classId;
   final String className;
   final double classAmount;
 
-  const MarkPaymentPage({
+  const TutorMarkPaymentPage({
     Key? key,
     required this.classId,
     required this.className,
@@ -15,11 +15,11 @@ class MarkPaymentPage extends StatefulWidget {
   }) : super(key: key);
 
   @override
-  State<MarkPaymentPage> createState() => _MarkPaymentPageState();
+  State<TutorMarkPaymentPage> createState() => _TutorMarkPaymentPageState();
 }
 
-class _MarkPaymentPageState extends State<MarkPaymentPage> {
-  final MarkPaymentController _controller = MarkPaymentController();
+class _TutorMarkPaymentPageState extends State<TutorMarkPaymentPage> {
+  final TutorMarkPaymentController _controller = TutorMarkPaymentController();
   final TextEditingController _searchController = TextEditingController();
 
   // All enrolled students
@@ -49,10 +49,11 @@ class _MarkPaymentPageState extends State<MarkPaymentPage> {
 
   Future<void> _loadData() async {
     setState(() => _isLoading = true);
- 
+
     // Fetch enrolled students
-    final students =
-        await _controller.getEnrollStudentsByClassId(widget.classId);
+    final students = await _controller.getEnrollStudentsByClassId(
+      widget.classId,
+    );
 
     // Fetch existing payments for selected month
     final payments = await _controller.getPaymentsByClassAndMonth(
@@ -291,8 +292,9 @@ class _MarkPaymentPageState extends State<MarkPaymentPage> {
         return StatefulBuilder(
           builder: (context, setDialogState) {
             return AlertDialog(
-              shape:
-                  RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(20),
+              ),
               title: const Text(
                 'Select Month & Year',
                 style: TextStyle(fontWeight: FontWeight.w600, fontSize: 16),
@@ -310,22 +312,28 @@ class _MarkPaymentPageState extends State<MarkPaymentPage> {
                           icon: const Icon(Icons.chevron_left),
                           onPressed: () {
                             setDialogState(() {
-                              tempMonth =
-                                  DateTime(tempMonth.year - 1, tempMonth.month);
+                              tempMonth = DateTime(
+                                tempMonth.year - 1,
+                                tempMonth.month,
+                              );
                             });
                           },
                         ),
                         Text(
                           '${tempMonth.year}',
                           style: const TextStyle(
-                              fontSize: 18, fontWeight: FontWeight.bold),
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                          ),
                         ),
                         IconButton(
                           icon: const Icon(Icons.chevron_right),
                           onPressed: () {
                             setDialogState(() {
-                              tempMonth =
-                                  DateTime(tempMonth.year + 1, tempMonth.month);
+                              tempMonth = DateTime(
+                                tempMonth.year + 1,
+                                tempMonth.month,
+                              );
                             });
                           },
                         ),
@@ -338,11 +346,11 @@ class _MarkPaymentPageState extends State<MarkPaymentPage> {
                       physics: const NeverScrollableScrollPhysics(),
                       gridDelegate:
                           const SliverGridDelegateWithFixedCrossAxisCount(
-                        crossAxisCount: 3,
-                        childAspectRatio: 2,
-                        crossAxisSpacing: 8,
-                        mainAxisSpacing: 8,
-                      ),
+                            crossAxisCount: 3,
+                            childAspectRatio: 2,
+                            crossAxisSpacing: 8,
+                            mainAxisSpacing: 8,
+                          ),
                       itemCount: 12,
                       itemBuilder: (context, index) {
                         final month = index + 1;
@@ -359,7 +367,7 @@ class _MarkPaymentPageState extends State<MarkPaymentPage> {
                           'Sep',
                           'Oct',
                           'Nov',
-                          'Dec'
+                          'Dec',
                         ];
                         return GestureDetector(
                           onTap: () {
@@ -409,7 +417,8 @@ class _MarkPaymentPageState extends State<MarkPaymentPage> {
                     backgroundColor: AppColors.primary,
                     foregroundColor: Colors.white,
                     shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(8)),
+                      borderRadius: BorderRadius.circular(8),
+                    ),
                   ),
                   child: const Text('Confirm'),
                 ),
@@ -427,7 +436,8 @@ class _MarkPaymentPageState extends State<MarkPaymentPage> {
       final name = (student['student_full_name'] ?? '').toLowerCase();
       final isPaid = _paymentMap[studentId] ?? false;
 
-      final searchMatch = _searchController.text.isEmpty ||
+      final searchMatch =
+          _searchController.text.isEmpty ||
           name.contains(_searchController.text.toLowerCase());
 
       bool filterMatch = true;
@@ -462,7 +472,10 @@ class _MarkPaymentPageState extends State<MarkPaymentPage> {
         elevation: 0,
         centerTitle: true,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios_new, color: AppColors.textPrimary),
+          icon: const Icon(
+            Icons.arrow_back_ios_new,
+            color: AppColors.textPrimary,
+          ),
           onPressed: () => Navigator.pop(context),
         ),
       ),
@@ -477,7 +490,7 @@ class _MarkPaymentPageState extends State<MarkPaymentPage> {
                   const SizedBox(height: 20),
                   _buildCountStatsRow(),
                   const SizedBox(height: 20),
-        
+
                   _buildSearchBar(),
                   const SizedBox(height: 16),
                   _buildSelectAllRow(),
@@ -592,7 +605,13 @@ class _MarkPaymentPageState extends State<MarkPaymentPage> {
     );
   }
 
-  Widget _buildStatCard(String label, String value, String desicription, IconData icon, Color color) {
+  Widget _buildStatCard(
+    String label,
+    String value,
+    String desicription,
+    IconData icon,
+    Color color,
+  ) {
     return Expanded(
       child: Container(
         padding: const EdgeInsets.all(14),
@@ -684,7 +703,8 @@ class _MarkPaymentPageState extends State<MarkPaymentPage> {
   }
 
   Widget _buildSelectAllRow() {
-    final allPaid = _filteredStudents.isNotEmpty &&
+    final allPaid =
+        _filteredStudents.isNotEmpty &&
         _filteredStudents.every(
           (s) => _paymentMap[s['student_id']?.toString()] == true,
         );
@@ -706,7 +726,10 @@ class _MarkPaymentPageState extends State<MarkPaymentPage> {
                 child: GestureDetector(
                   onTap: () => setState(() => _selectedFilter = filter),
                   child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 14,
+                      vertical: 6,
+                    ),
                     decoration: BoxDecoration(
                       color: isSelected ? AppColors.primary : Colors.white,
                       borderRadius: BorderRadius.circular(20),
@@ -719,8 +742,12 @@ class _MarkPaymentPageState extends State<MarkPaymentPage> {
                     child: Text(
                       filter,
                       style: TextStyle(
-                        color: isSelected ? Colors.white : AppColors.textSecondary,
-                        fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
+                        color: isSelected
+                            ? Colors.white
+                            : AppColors.textSecondary,
+                        fontWeight: isSelected
+                            ? FontWeight.w600
+                            : FontWeight.normal,
                         fontSize: 13,
                       ),
                     ),
@@ -757,7 +784,9 @@ class _MarkPaymentPageState extends State<MarkPaymentPage> {
                   color: allPaid ? AppColors.primary : Colors.white,
                   borderRadius: BorderRadius.circular(6),
                   border: Border.all(
-                    color: allPaid ? AppColors.primary : AppColors.textSecondary,
+                    color: allPaid
+                        ? AppColors.primary
+                        : AppColors.textSecondary,
                     width: 1.5,
                   ),
                 ),
@@ -859,7 +888,10 @@ class _MarkPaymentPageState extends State<MarkPaymentPage> {
                 final isEven = index % 2 == 0;
 
                 return Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 14,
+                    vertical: 12,
+                  ),
                   color: isEven
                       ? Colors.white
                       : AppColors.background.withOpacity(0.4),
@@ -933,8 +965,8 @@ class _MarkPaymentPageState extends State<MarkPaymentPage> {
                                 color: isExisting && isPaid
                                     ? Colors.green.withOpacity(0.4)
                                     : isPaid
-                                        ? Colors.green
-                                        : AppColors.textSecondary,
+                                    ? Colors.green
+                                    : AppColors.textSecondary,
                                 width: 1.5,
                               ),
                             ),

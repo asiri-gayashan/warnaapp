@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../../../../core/constants/app_colors.dart';
+import 'package:warna_app/core/constants/app_colors.dart';
 
 class TutorTabContainer extends StatelessWidget {
   final int currentIndex;
@@ -42,27 +42,28 @@ class TutorTabContainer extends StatelessWidget {
               ),
               _buildTabItem(
                 index: 1,
-                icon: Icons.video_call_outlined,
-                activeIcon: Icons.video_call,
+                icon: Icons.menu_book_outlined,
+                activeIcon: Icons.menu_book,
                 label: 'Classes',
               ),
               _buildTabItem(
                 index: 2,
-                icon: Icons.people_outline,
-                activeIcon: Icons.people,
+                icon: Icons.school_outlined,
+                activeIcon: Icons.school,
                 label: 'Students',
               ),
+            
               _buildTabItem(
                 index: 3,
-                icon: Icons.payment_outlined,
-                activeIcon: Icons.payment,
-                label: 'Payments',
+                icon: Icons.apartment_outlined,
+                activeIcon: Icons.apartment,
+                label: 'Institutes',
               ),
-              _buildTabItem(
+                _buildTabItem(
                 index: 4,
-                icon: Icons.notifications_outlined,
-                activeIcon: Icons.notifications,
-                label: 'Alerts',
+                icon: Icons.analytics_outlined,
+                activeIcon: Icons.analytics,
+                label: 'Finance',
               ),
             ],
           ),
@@ -85,9 +86,9 @@ class TutorTabContainer extends StatelessWidget {
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
         decoration: isActive
             ? BoxDecoration(
-          color: AppColors.primary.withOpacity(0.1),
-          borderRadius: BorderRadius.circular(12),
-        )
+                color: AppColors.primary.withOpacity(0.1),
+                borderRadius: BorderRadius.circular(12),
+              )
             : null,
         child: Column(
           mainAxisSize: MainAxisSize.min,

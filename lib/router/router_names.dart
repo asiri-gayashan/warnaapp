@@ -53,10 +53,16 @@ class tutorRouteNames{
   static const String dashboard = 'tutor.dashboard';
   static const String courses = 'tutor.courses';
   static const String courseDetail = 'tutor.courseDetail';
+  static const String createClass = 'tutor.createClass';
+  static const String editClass = 'tutor.editClass';
+  static const String enrollStudent = 'tutor.enrollStudent';
+  static const String feesAttendance = 'tutor.feesAttendance';
   static const String students = 'tutor.students';
   static const String studentDetail = 'tutor.studentDetail';
   static const String schedule = 'tutor.schedule';
   static const String attendance = 'tutor.attendance';
+  static const String markAttendance = 'tutor.markAttendance';
+  static const String markPayment = 'tutor.markPayment';
   static const String payments = 'tutor.payments';
 }
 

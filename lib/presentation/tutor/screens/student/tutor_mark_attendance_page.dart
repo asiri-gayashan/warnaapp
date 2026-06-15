@@ -1,45 +1,44 @@
 import 'package:flutter/material.dart';
 import 'package:warna_app/core/constants/app_colors.dart';
-import 'package:warna_app/presentation/institute/controllers/mark_payment_controller.dart';
+import 'package:warna_app/presentation/tutor/controllers/tutor_mark_attendance_controller.dart';
 
-class MarkPaymentPage extends StatefulWidget {
+class TutorMarkAttendancePage extends StatefulWidget {
   final String classId;
   final String className;
-  final double classAmount;
 
-  const MarkPaymentPage({
+  const TutorMarkAttendancePage({
     Key? key,
     required this.classId,
     required this.className,
-    required this.classAmount,
   }) : super(key: key);
 
   @override
-  State<MarkPaymentPage> createState() => _MarkPaymentPageState();
+  State<TutorMarkAttendancePage> createState() =>
+      _TutorMarkAttendancePageState();
 }
 
-class _MarkPaymentPageState extends State<MarkPaymentPage> {
-  final MarkPaymentController _controller = MarkPaymentController();
+class _TutorMarkAttendancePageState extends State<TutorMarkAttendancePage> {
+  final TutorMarkAttendanceController _controller =
+      TutorMarkAttendanceController();
   final TextEditingController _searchController = TextEditingController();
 
-  // All enrolled students
+  // Enrolled students from backend
   List<Map<String, dynamic>> _enrolledStudents = [];
 
-  // Existing payment records for selected month
+  // Existing attendance records for selected date
   // key: student_id, value: {id, status}
-  Map<String, Map<String, dynamic>> _existingPayments = {};
+  Map<String, Map<String, dynamic>> _existingAttendance = {};
 
-  // Current payment state in UI
-  // key: student_id, value: true = PAID, false = NOTPAID
-  Map<String, bool> _paymentMap = {};
+  // Current attendance state being marked
+  // key: student_id, value: 'PRESENT' or 'ABSENT'
+  Map<String, String> _attendanceMap = {};
 
-  String _selectedFilter = 'All'; // All, Paid, Unpaid
-  DateTime _selectedMonth = DateTime.now();
   bool _isLoading = true;
   bool _isSaving = false;
+  DateTime _selectedDate = DateTime.now();
 
-  String get _formattedMonth =>
-      "${_selectedMonth.year} - ${_selectedMonth.month.toString().padLeft(2, '0')}";
+  String get _formattedDate =>
+      "${_selectedDate.year}-${_selectedDate.month.toString().padLeft(2, '0')}-${_selectedDate.day.toString().padLeft(2, '0')}";
 
   @override
   void initState() {
@@ -49,125 +48,108 @@ class _MarkPaymentPageState extends State<MarkPaymentPage> {
 
   Future<void> _loadData() async {
     setState(() => _isLoading = true);
- 
-    // Fetch enrolled students
-    final students =
-        await _controller.getEnrollStudentsByClassId(widget.classId);
 
-    // Fetch existing payments for selected month
-    final payments = await _controller.getPaymentsByClassAndMonth(
+    // Load enrolled students
+    final students = await _controller.getEnrollStudentsByClassId(
       widget.classId,
-      _selectedMonth.month,
-      _selectedMonth.year,
+    );
+
+    // Load existing attendance for selected date
+    final attendance = await _controller.getAttendanceByClassAndDate(
+      widget.classId,
+      _formattedDate,
     );
 
     final existingMap = <String, Map<String, dynamic>>{};
-    final paymentMap = <String, bool>{};
+    final attendanceMap = <String, String>{};
 
-    if (payments != null) {
-      for (final record in payments) {
+    // Map existing attendance by student_id
+    if (attendance != null) {
+      for (final record in attendance) {
         final studentId = record['student_id']?.toString() ?? '';
         existingMap[studentId] = {
           'id': record['id'],
           'status': record['status'],
         };
-        paymentMap[studentId] = record['status'] == 'PAID';
+        attendanceMap[studentId] = record['status'];
       }
     }
 
-    // Students with no existing payment default to NOTPAID
+    // For students with no existing record, default to ABSENT
     if (students != null) {
       for (final student in students) {
         final studentId = student['student_id']?.toString() ?? '';
-        if (!paymentMap.containsKey(studentId)) {
-          paymentMap[studentId] = false;
+        if (!attendanceMap.containsKey(studentId)) {
+          attendanceMap[studentId] = 'ABSENT';
         }
       }
     }
 
     setState(() {
       _enrolledStudents = students ?? [];
-      _existingPayments = existingMap;
-      _paymentMap = paymentMap;
+      _existingAttendance = existingMap;
+      _attendanceMap = attendanceMap;
       _isLoading = false;
     });
   }
 
-  Future<void> _onMonthChanged(DateTime newMonth) async {
+  // When date changes reload attendance for new date
+  Future<void> _onDateChanged(DateTime newDate) async {
     setState(() {
-      _selectedMonth = newMonth;
+      _selectedDate = newDate;
       _isLoading = true;
     });
 
-    final payments = await _controller.getPaymentsByClassAndMonth(
+    final attendance = await _controller.getAttendanceByClassAndDate(
       widget.classId,
-      newMonth.month,
-      newMonth.year,
+      "${newDate.year}-${newDate.month.toString().padLeft(2, '0')}-${newDate.day.toString().padLeft(2, '0')}",
     );
 
     final existingMap = <String, Map<String, dynamic>>{};
-    final paymentMap = <String, bool>{};
+    final attendanceMap = <String, String>{};
 
-    if (payments != null) {
-      for (final record in payments) {
+    if (attendance != null) {
+      for (final record in attendance) {
         final studentId = record['student_id']?.toString() ?? '';
         existingMap[studentId] = {
           'id': record['id'],
           'status': record['status'],
         };
-        paymentMap[studentId] = record['status'] == 'PAID';
+        attendanceMap[studentId] = record['status'];
       }
     }
 
     for (final student in _enrolledStudents) {
       final studentId = student['student_id']?.toString() ?? '';
-      if (!paymentMap.containsKey(studentId)) {
-        paymentMap[studentId] = false;
+      if (!attendanceMap.containsKey(studentId)) {
+        attendanceMap[studentId] = 'ABSENT';
       }
     }
 
     setState(() {
-      _existingPayments = existingMap;
-      _paymentMap = paymentMap;
+      _existingAttendance = existingMap;
+      _attendanceMap = attendanceMap;
       _isLoading = false;
     });
   }
 
-  void _togglePayment(String studentId) {
-    // If student already has a PAID record in DB, cannot unmark
-    // They can only be toggled if no existing record yet
-    final existing = _existingPayments[studentId];
-    if (existing != null && existing['status'] == 'PAID') {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          behavior: SnackBarBehavior.floating,
-          margin: const EdgeInsets.all(16),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12),
-          ),
-          backgroundColor: Colors.orange,
-          content: Row(
-            children: [
-              const Icon(Icons.warning, color: Colors.white),
-              const SizedBox(width: 10),
-              const Expanded(
-                child: Text(
-                  'Payment already recorded. Cannot unmark a paid payment.',
-                ),
-              ),
-            ],
-          ),
-        ),
-      );
-      return;
-    }
-
+  void _toggleAttendance(String studentId) {
     setState(() {
-      _paymentMap[studentId] = !(_paymentMap[studentId] ?? false);
+      final current = _attendanceMap[studentId] ?? 'ABSENT';
+      _attendanceMap[studentId] = current == 'PRESENT' ? 'ABSENT' : 'PRESENT';
     });
   }
 
-  Future<void> _savePayments() async {
+  void _toggleAll(bool markPresent) {
+    setState(() {
+      for (final student in _filteredStudents) {
+        final studentId = student['student_id']?.toString() ?? '';
+        _attendanceMap[studentId] = markPresent ? 'PRESENT' : 'ABSENT';
+      }
+    });
+  }
+
+  Future<void> _saveAttendance() async {
     setState(() => _isSaving = true);
 
     final markedUserId = await _controller.getMarkedUserId();
@@ -176,102 +158,102 @@ class _MarkPaymentPageState extends State<MarkPaymentPage> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           behavior: SnackBarBehavior.floating,
-          margin: const EdgeInsets.all(16),
+          margin: EdgeInsets.all(16),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(12),
           ),
           backgroundColor: AppColors.error,
           content: Row(
             children: [
-              const Icon(Icons.error, color: Colors.white),
-              const SizedBox(width: 10),
-              const Expanded(child: Text('Could not get logged in user')),
+              Icon(Icons.error, color: Colors.white),
+              SizedBox(width: 10),
+              Expanded(child: Text('Could not get logged in user')),
             ],
           ),
         ),
       );
+
       setState(() => _isSaving = false);
       return;
     }
 
-    // Only insert new PAID records — students toggled to PAID with no existing record
+    bool allSuccess = true;
+
+    // Separate into new records and updates
     final toInsert = <Map<String, dynamic>>[];
+    final toUpdate = <Map<String, String>>[];
 
     for (final student in _enrolledStudents) {
       final studentId = student['student_id']?.toString() ?? '';
-      final isPaid = _paymentMap[studentId] ?? false;
-      final existing = _existingPayments[studentId];
+      final status = _attendanceMap[studentId] ?? 'ABSENT';
+      final existing = _existingAttendance[studentId];
 
-      // Only insert if marked PAID and no existing record
-      if (isPaid && existing == null) {
+      if (existing != null) {
+        // Only update if status changed
+        if (existing['status'] != status) {
+          toUpdate.add({'id': existing['id'], 'status': status});
+        }
+      } else {
+        // New record
         toInsert.add({
-          'student_id': studentId,
           'class_id': widget.classId,
-          'paid_date': DateTime(_selectedMonth.year, _selectedMonth.month, 1)
-              .toIso8601String(),
-          'payment_method': 'Cash',
+          'student_id': studentId,
+          'status': status,
           'marked_user_id': markedUserId,
         });
       }
     }
 
-    if (toInsert.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          behavior: SnackBarBehavior.floating,
-          margin: const EdgeInsets.all(16),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12),
-          ),
-          backgroundColor: Colors.orange,
-          content: Row(
-            children: [
-              const Icon(Icons.info, color: Colors.white),
-              const SizedBox(width: 10),
-              const Expanded(child: Text('No new payments to save')),
-            ],
-          ),
-        ),
-      );
-      setState(() => _isSaving = false);
-      return;
+    // Insert new records
+    if (toInsert.isNotEmpty) {
+      final success = await _controller.insertAttendance(toInsert);
+      if (!success) allSuccess = false;
     }
 
-    final success = await _controller.insertPayments(toInsert);
+    // Update changed records
+    for (final update in toUpdate) {
+      final success = await _controller.updateAttendanceStatus(
+        update['id']!,
+        update['status']!,
+      );
+      if (!success) allSuccess = false;
+    }
 
-    if (success) {
+    if (allSuccess) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           behavior: SnackBarBehavior.floating,
-          margin: const EdgeInsets.all(16),
+          margin: EdgeInsets.all(16),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(12),
           ),
           backgroundColor: AppColors.success,
           content: Row(
             children: [
-              const Icon(Icons.check_circle, color: Colors.white),
-              const SizedBox(width: 10),
-              const Expanded(child: Text('Payments saved successfully')),
+              Icon(Icons.check_circle, color: Colors.white),
+              SizedBox(width: 10),
+              Expanded(child: Text('Attendance saved successfully')),
             ],
           ),
         ),
       );
+
+      // Reload to sync fresh data
       await _loadData();
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           behavior: SnackBarBehavior.floating,
-          margin: const EdgeInsets.all(16),
+          margin: EdgeInsets.all(16),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(12),
           ),
           backgroundColor: AppColors.error,
           content: Row(
             children: [
-              const Icon(Icons.error, color: Colors.white),
-              const SizedBox(width: 10),
-              const Expanded(child: Text('Failed to save payments')),
+              Icon(Icons.error, color: Colors.white),
+              SizedBox(width: 10),
+              Expanded(child: Text('Some records failed to save')),
             ],
           ),
         ),
@@ -281,170 +263,43 @@ class _MarkPaymentPageState extends State<MarkPaymentPage> {
     setState(() => _isSaving = false);
   }
 
-  // Month year picker dialog
-  Future<void> _pickMonth() async {
-    DateTime tempMonth = _selectedMonth;
-
-    await showDialog(
+  Future<void> _pickDate() async {
+    final picked = await showDatePicker(
       context: context,
-      builder: (context) {
-        return StatefulBuilder(
-          builder: (context, setDialogState) {
-            return AlertDialog(
-              shape:
-                  RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-              title: const Text(
-                'Select Month & Year',
-                style: TextStyle(fontWeight: FontWeight.w600, fontSize: 16),
-              ),
-              content: SizedBox(
-                width: 300,
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    // Year selector
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        IconButton(
-                          icon: const Icon(Icons.chevron_left),
-                          onPressed: () {
-                            setDialogState(() {
-                              tempMonth =
-                                  DateTime(tempMonth.year - 1, tempMonth.month);
-                            });
-                          },
-                        ),
-                        Text(
-                          '${tempMonth.year}',
-                          style: const TextStyle(
-                              fontSize: 18, fontWeight: FontWeight.bold),
-                        ),
-                        IconButton(
-                          icon: const Icon(Icons.chevron_right),
-                          onPressed: () {
-                            setDialogState(() {
-                              tempMonth =
-                                  DateTime(tempMonth.year + 1, tempMonth.month);
-                            });
-                          },
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 12),
-                    // Month grid
-                    GridView.builder(
-                      shrinkWrap: true,
-                      physics: const NeverScrollableScrollPhysics(),
-                      gridDelegate:
-                          const SliverGridDelegateWithFixedCrossAxisCount(
-                        crossAxisCount: 3,
-                        childAspectRatio: 2,
-                        crossAxisSpacing: 8,
-                        mainAxisSpacing: 8,
-                      ),
-                      itemCount: 12,
-                      itemBuilder: (context, index) {
-                        final month = index + 1;
-                        final isSelected = tempMonth.month == month;
-                        final monthNames = [
-                          'Jan',
-                          'Feb',
-                          'Mar',
-                          'Apr',
-                          'May',
-                          'Jun',
-                          'Jul',
-                          'Aug',
-                          'Sep',
-                          'Oct',
-                          'Nov',
-                          'Dec'
-                        ];
-                        return GestureDetector(
-                          onTap: () {
-                            setDialogState(() {
-                              tempMonth = DateTime(tempMonth.year, month);
-                            });
-                          },
-                          child: Container(
-                            decoration: BoxDecoration(
-                              color: isSelected
-                                  ? AppColors.primary
-                                  : AppColors.background,
-                              borderRadius: BorderRadius.circular(8),
-                            ),
-                            child: Center(
-                              child: Text(
-                                monthNames[index],
-                                style: TextStyle(
-                                  color: isSelected
-                                      ? Colors.white
-                                      : AppColors.textPrimary,
-                                  fontWeight: isSelected
-                                      ? FontWeight.w600
-                                      : FontWeight.normal,
-                                  fontSize: 13,
-                                ),
-                              ),
-                            ),
-                          ),
-                        );
-                      },
-                    ),
-                  ],
-                ),
-              ),
-              actions: [
-                TextButton(
-                  onPressed: () => Navigator.pop(context),
-                  child: const Text('Cancel'),
-                ),
-                ElevatedButton(
-                  onPressed: () {
-                    Navigator.pop(context);
-                    _onMonthChanged(tempMonth);
-                  },
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: AppColors.primary,
-                    foregroundColor: Colors.white,
-                    shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(8)),
-                  ),
-                  child: const Text('Confirm'),
-                ),
-              ],
-            );
-          },
-        );
-      },
+      initialDate: _selectedDate,
+      firstDate: DateTime(2020),
+      lastDate: DateTime.now(),
+      builder: (context, child) => Theme(
+        data: Theme.of(context).copyWith(
+          colorScheme: ColorScheme.light(
+            primary: AppColors.primary,
+            onPrimary: Colors.white,
+            surface: Colors.white,
+            onSurface: AppColors.textPrimary,
+          ),
+        ),
+        child: child!,
+      ),
     );
+
+    if (picked != null && picked != _selectedDate) {
+      await _onDateChanged(picked);
+    }
   }
 
   List<Map<String, dynamic>> get _filteredStudents {
-    return _enrolledStudents.where((student) {
-      final studentId = student['student_id']?.toString() ?? '';
-      final name = (student['student_full_name'] ?? '').toLowerCase();
-      final isPaid = _paymentMap[studentId] ?? false;
-
-      final searchMatch = _searchController.text.isEmpty ||
-          name.contains(_searchController.text.toLowerCase());
-
-      bool filterMatch = true;
-      if (_selectedFilter == 'Paid') filterMatch = isPaid;
-      if (_selectedFilter == 'Unpaid') filterMatch = !isPaid;
-
-      return searchMatch && filterMatch;
+    if (_searchController.text.isEmpty) return _enrolledStudents;
+    return _enrolledStudents.where((s) {
+      final name = (s['student_full_name'] ?? '').toLowerCase();
+      return name.contains(_searchController.text.toLowerCase());
     }).toList();
   }
 
-  int get _paidCount => _paymentMap.values.where((v) => v == true).length;
+  int get _presentCount =>
+      _attendanceMap.values.where((s) => s == 'PRESENT').length;
 
-  int get _unpaidCount => _paymentMap.values.where((v) => v == false).length;
-
-  double get _collectedAmount => _paidCount * widget.classAmount;
-  double get _pendingAmount => _unpaidCount * widget.classAmount;
-  double get _totalAmount => _enrolledStudents.length * widget.classAmount;
+  int get _absentCount =>
+      _attendanceMap.values.where((s) => s == 'ABSENT').length;
 
   @override
   Widget build(BuildContext context) {
@@ -452,7 +307,7 @@ class _MarkPaymentPageState extends State<MarkPaymentPage> {
       backgroundColor: AppColors.background,
       appBar: AppBar(
         title: const Text(
-          'Mark Payments',
+          'Mark Attendance',
           style: TextStyle(
             fontWeight: FontWeight.w600,
             color: AppColors.textPrimary,
@@ -462,7 +317,10 @@ class _MarkPaymentPageState extends State<MarkPaymentPage> {
         elevation: 0,
         centerTitle: true,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios_new, color: AppColors.textPrimary),
+          icon: const Icon(
+            Icons.arrow_back_ios_new,
+            color: AppColors.textPrimary,
+          ),
           onPressed: () => Navigator.pop(context),
         ),
       ),
@@ -475,9 +333,8 @@ class _MarkPaymentPageState extends State<MarkPaymentPage> {
                 children: [
                   _buildHeaderCard(),
                   const SizedBox(height: 20),
-                  _buildCountStatsRow(),
+                  _buildStatsRow(),
                   const SizedBox(height: 20),
-        
                   _buildSearchBar(),
                   const SizedBox(height: 16),
                   _buildSelectAllRow(),
@@ -514,17 +371,21 @@ class _MarkPaymentPageState extends State<MarkPaymentPage> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           const Text(
-            'You are marking payments for:',
+            'You are marking attendance for:',
             style: TextStyle(color: Colors.white, fontSize: 15),
           ),
           const SizedBox(height: 12),
+
+          // Class name
           _buildHeaderChip(Icons.class_, widget.className),
           const SizedBox(height: 10),
+
+          // Date picker
           GestureDetector(
-            onTap: _pickMonth,
+            onTap: _pickDate,
             child: _buildHeaderChip(
-              Icons.calendar_month,
-              _formattedMonth,
+              Icons.calendar_today,
+              _formattedDate,
               trailing: const Icon(Icons.edit, color: Colors.white70, size: 16),
             ),
           ),
@@ -562,37 +423,34 @@ class _MarkPaymentPageState extends State<MarkPaymentPage> {
     );
   }
 
-  Widget _buildCountStatsRow() {
+  Widget _buildStatsRow() {
     return Row(
       children: [
         _buildStatCard(
-          'Total Students',
+          'Total',
           '${_enrolledStudents.length}',
-          'Rs ${_totalAmount.toStringAsFixed(0)}',
           Icons.people_alt,
           AppColors.primary,
         ),
         const SizedBox(width: 12),
         _buildStatCard(
-          'Paid',
-          '$_paidCount',
-          'Rs ${_collectedAmount.toStringAsFixed(0)}',
+          'Present',
+          '$_presentCount',
           Icons.check_circle,
           Colors.green,
         ),
         const SizedBox(width: 12),
-        _buildStatCard(
-          'Not Paid',
-          '$_unpaidCount',
-          'Rs ${_pendingAmount.toStringAsFixed(0)}',
-          Icons.cancel,
-          Colors.orange,
-        ),
+        _buildStatCard('Absent', '$_absentCount', Icons.cancel, Colors.red),
       ],
     );
   }
 
-  Widget _buildStatCard(String label, String value, String desicription, IconData icon, Color color) {
+  Widget _buildStatCard(
+    String label,
+    String value,
+    IconData icon,
+    Color color,
+  ) {
     return Expanded(
       child: Container(
         padding: const EdgeInsets.all(14),
@@ -618,7 +476,6 @@ class _MarkPaymentPageState extends State<MarkPaymentPage> {
                 fontWeight: FontWeight.bold,
                 color: color,
               ),
-              textAlign: TextAlign.center,
             ),
             const SizedBox(height: 2),
             Text(
@@ -627,16 +484,6 @@ class _MarkPaymentPageState extends State<MarkPaymentPage> {
                 fontSize: 11,
                 color: AppColors.textSecondary,
               ),
-              textAlign: TextAlign.center,
-            ),
-            const SizedBox(height: 2),
-            Text(
-              desicription,
-              style: const TextStyle(
-                fontSize: 11,
-                color: AppColors.textSecondary,
-              ),
-              textAlign: TextAlign.center,
             ),
           ],
         ),
@@ -684,84 +531,42 @@ class _MarkPaymentPageState extends State<MarkPaymentPage> {
   }
 
   Widget _buildSelectAllRow() {
-    final allPaid = _filteredStudents.isNotEmpty &&
+    final allPresent =
+        _filteredStudents.isNotEmpty &&
         _filteredStudents.every(
-          (s) => _paymentMap[s['student_id']?.toString()] == true,
+          (s) => _attendanceMap[s['student_id']?.toString()] == 'PRESENT',
         );
 
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        Row(
-          children: [
-            const Text(
-              'Filter:',
-              style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
-            ),
-            const SizedBox(width: 12),
-            ...['All', 'Paid', 'Unpaid'].map((filter) {
-              final isSelected = _selectedFilter == filter;
-              return Padding(
-                padding: const EdgeInsets.only(right: 8),
-                child: GestureDetector(
-                  onTap: () => setState(() => _selectedFilter = filter),
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
-                    decoration: BoxDecoration(
-                      color: isSelected ? AppColors.primary : Colors.white,
-                      borderRadius: BorderRadius.circular(20),
-                      border: Border.all(
-                        color: isSelected
-                            ? AppColors.primary
-                            : AppColors.textSecondary.withOpacity(0.3),
-                      ),
-                    ),
-                    child: Text(
-                      filter,
-                      style: TextStyle(
-                        color: isSelected ? Colors.white : AppColors.textSecondary,
-                        fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
-                        fontSize: 13,
-                      ),
-                    ),
-                  ),
-                ),
-              );
-            }).toList(),
-          ],
+        Text(
+          'Students (${_filteredStudents.length})',
+          style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
         ),
         Row(
           children: [
             const Text(
-              'Mark All Paid',
+              'Mark All Present',
               style: TextStyle(fontSize: 13, color: AppColors.textSecondary),
             ),
             const SizedBox(width: 8),
             GestureDetector(
-              onTap: () {
-                setState(() {
-                  for (final student in _filteredStudents) {
-                    final studentId = student['student_id']?.toString() ?? '';
-                    final existing = _existingPayments[studentId];
-                    // Only allow toggling if not already paid in DB
-                    if (existing == null || existing['status'] != 'PAID') {
-                      _paymentMap[studentId] = !allPaid;
-                    }
-                  }
-                });
-              },
+              onTap: () => _toggleAll(!allPresent),
               child: Container(
                 width: 22,
                 height: 22,
                 decoration: BoxDecoration(
-                  color: allPaid ? AppColors.primary : Colors.white,
+                  color: allPresent ? AppColors.primary : Colors.white,
                   borderRadius: BorderRadius.circular(6),
                   border: Border.all(
-                    color: allPaid ? AppColors.primary : AppColors.textSecondary,
+                    color: allPresent
+                        ? AppColors.primary
+                        : AppColors.textSecondary,
                     width: 1.5,
                   ),
                 ),
-                child: allPaid
+                child: allPresent
                     ? const Icon(Icons.check, color: Colors.white, size: 14)
                     : null,
               ),
@@ -824,7 +629,7 @@ class _MarkPaymentPageState extends State<MarkPaymentPage> {
                   Expanded(
                     flex: 2,
                     child: Text(
-                      'Amount',
+                      'Grade',
                       style: TextStyle(
                         fontWeight: FontWeight.w600,
                         fontSize: 13,
@@ -854,12 +659,15 @@ class _MarkPaymentPageState extends State<MarkPaymentPage> {
               itemBuilder: (context, index) {
                 final student = _filteredStudents[index];
                 final studentId = student['student_id']?.toString() ?? '';
-                final isPaid = _paymentMap[studentId] ?? false;
-                final isExisting = _existingPayments.containsKey(studentId);
+                final status = _attendanceMap[studentId] ?? 'ABSENT';
+                final isPresent = status == 'PRESENT';
                 final isEven = index % 2 == 0;
 
                 return Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 14,
+                    vertical: 12,
+                  ),
                   color: isEven
                       ? Colors.white
                       : AppColors.background.withOpacity(0.4),
@@ -878,15 +686,12 @@ class _MarkPaymentPageState extends State<MarkPaymentPage> {
                         ),
                       ),
 
-                      // Amount
+                      // Grade
                       Expanded(
                         flex: 2,
                         child: Text(
-                          'Rs ${widget.classAmount.toStringAsFixed(0)}',
-                          style: const TextStyle(
-                            fontSize: 13,
-                            fontWeight: FontWeight.w600,
-                          ),
+                          'Grade ${student['student_grade'] ?? ''}',
+                          style: const TextStyle(fontSize: 13),
                         ),
                       ),
 
@@ -899,17 +704,17 @@ class _MarkPaymentPageState extends State<MarkPaymentPage> {
                               width: 8,
                               height: 8,
                               decoration: BoxDecoration(
-                                color: isPaid ? Colors.green : Colors.orange,
+                                color: isPresent ? Colors.green : Colors.red,
                                 shape: BoxShape.circle,
                               ),
                             ),
                             const SizedBox(width: 6),
                             Text(
-                              isPaid ? 'Paid' : 'Not Paid',
+                              isPresent ? 'Present' : 'Absent',
                               style: TextStyle(
                                 fontSize: 12,
                                 fontWeight: FontWeight.w500,
-                                color: isPaid ? Colors.green : Colors.orange,
+                                color: isPresent ? Colors.green : Colors.red,
                               ),
                             ),
                           ],
@@ -920,27 +725,25 @@ class _MarkPaymentPageState extends State<MarkPaymentPage> {
                       SizedBox(
                         width: 40,
                         child: GestureDetector(
-                          onTap: () => _togglePayment(studentId),
+                          onTap: () => _toggleAttendance(studentId),
                           child: Container(
                             width: 28,
                             height: 28,
                             decoration: BoxDecoration(
-                              color: isPaid
+                              color: isPresent
                                   ? Colors.green.withOpacity(0.1)
                                   : Colors.transparent,
                               borderRadius: BorderRadius.circular(8),
                               border: Border.all(
-                                color: isExisting && isPaid
-                                    ? Colors.green.withOpacity(0.4)
-                                    : isPaid
-                                        ? Colors.green
-                                        : AppColors.textSecondary,
+                                color: isPresent
+                                    ? Colors.green
+                                    : AppColors.textSecondary,
                                 width: 1.5,
                               ),
                             ),
-                            child: isPaid
-                                ? Icon(
-                                    isExisting ? Icons.lock : Icons.check,
+                            child: isPresent
+                                ? const Icon(
+                                    Icons.check,
                                     color: Colors.green,
                                     size: 16,
                                   )
@@ -963,7 +766,7 @@ class _MarkPaymentPageState extends State<MarkPaymentPage> {
     return SizedBox(
       width: double.infinity,
       child: ElevatedButton(
-        onPressed: !_isSaving ? _savePayments : null,
+        onPressed: !_isSaving ? _saveAttendance : null,
         style: ElevatedButton.styleFrom(
           backgroundColor: AppColors.primary,
           disabledBackgroundColor: Colors.grey.shade300,
@@ -984,7 +787,7 @@ class _MarkPaymentPageState extends State<MarkPaymentPage> {
                 ),
               )
             : const Text(
-                'Save Payments',
+                'Save Attendance',
                 style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
               ),
       ),

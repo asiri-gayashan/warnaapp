@@ -2,25 +2,18 @@ import 'package:go_router/go_router.dart';
 import 'package:warna_app/features/auth/ui/screens/login/login_screen.dart';
 import 'package:warna_app/features/institute/ui/navigation/institute_navigation.dart';
 import 'package:warna_app/features/student/ui/navigation/student_navigation.dart';
-import 'package:warna_app/features/tutor/ui/navigation/tutor_navigation.dart';
-import 'package:warna_app/presentation/institute/screens/classes/class_detail_page.dart';
-import 'package:warna_app/presentation/institute/screens/classes/enroll_student_page.dart';
+import 'package:warna_app/presentation/tutor/navigation/tutor_navigation.dart';
+import 'package:warna_app/presentation/tutor/screens/classes/tutor_fees_attendance_page.dart';
 import 'package:warna_app/presentation/institute/screens/classes/fees_attendance_page.dart';
 import 'package:warna_app/presentation/institute/screens/classes/institute_courses_page.dart';
 import 'package:warna_app/presentation/institute/screens/classes/institute_create_class.dart';
-import 'package:warna_app/presentation/institute/screens/institute_dashboard_page.dart';
-import 'package:warna_app/presentation/institute/screens/classes/institute_edit_class.dart';
 import 'package:warna_app/presentation/institute/screens/institute_finance_page.dart';
 import 'package:warna_app/presentation/institute/screens/student/institute_students_page.dart';
 import 'package:warna_app/presentation/institute/screens/tutor/institute_tutors_page.dart';
-import 'package:warna_app/presentation/institute/screens/student/mark_attendance_page.dart';
 import 'package:warna_app/presentation/institute/screens/tutor/mark_payement_teachers_page.dart';
-import 'package:warna_app/presentation/institute/screens/student/mark_payment_page.dart';
 import 'package:warna_app/presentation/institute/screens/student/student_detail_page.dart';
 import 'package:warna_app/presentation/institute/screens/tutor/tutor_detail_page.dart';
 import 'package:warna_app/features/test2.dart';
-import 'package:warna_app/features/test_student_page.dart';
-import 'package:warna_app/features/tutor/ui/screens/create_class_page.dart';
 import 'package:warna_app/presentation/splash_screen.dart';
 import 'package:warna_app/router/router_names.dart';
 
@@ -192,10 +185,16 @@ class RouterClass {
       //---------------------------------------------------------------Start Tutor Dashboard routes-------------------------------------------------
       GoRoute(
         path: "/tutor/dashboard",
-        name: tutorRouteNames.dashboard,
+        name: tutorRouteNames.dashboard, 
         builder: (context, state) {
           return TutorNavigation();
         },
+      ),
+
+      GoRoute(
+        path: "/tutor/fees-attendance",
+        name: tutorRouteNames.feesAttendance,
+        builder: (context, state) => const TutorFeesAttendancePage(),
       ),
 
       //---------------------------------------------------------------End of Tutor Dashboard routes-------------------------------------------------

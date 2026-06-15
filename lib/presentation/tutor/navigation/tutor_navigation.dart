@@ -1,11 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:warna_app/features/tutor/ui/screens/classes_page.dart';
-import '../screens/tutor_home_page.dart';
-import '../screens/sessions_page.dart';
-import '../screens/students_page.dart';
-import '../screens/earnings_page.dart';
-import '../screens/notifications_page.dart';
-import '../navigation/tutor_tab_container.dart';
+import 'package:warna_app/presentation/tutor/navigation/tutor_tab_container.dart';
+import 'package:warna_app/presentation/tutor/screens/tutor_dashboard_page.dart';
+import 'package:warna_app/presentation/tutor/screens/classes/tutor_classes_page.dart';
+import 'package:warna_app/presentation/tutor/screens/student/tutor_students_page.dart';
+import 'package:warna_app/presentation/tutor/screens/tutor_finance_page.dart';
+import 'package:warna_app/presentation/tutor/screens/institute/tutor_institutes_page.dart';
 
 class TutorNavigation extends StatefulWidget {
   const TutorNavigation({Key? key}) : super(key: key);
@@ -18,12 +17,11 @@ class _TutorNavigationState extends State<TutorNavigation> {
   int _selectedIndex = 0;
 
   static const List<Widget> _pages = <Widget>[
-    TutorHomePage(),
-    // SessionsPage(),
-    ClassesPage(),
-    StudentsPage(),
-    EarningsPage(),
-    NotificationsPage(),
+    TutorDashboardPage(),
+    TutorClassesPage(),
+    TutorStudentsPage(),
+    TutorInstitutesPage(),
+    TutorFinancePage(),
   ];
 
   void _onItemTapped(int index) {
