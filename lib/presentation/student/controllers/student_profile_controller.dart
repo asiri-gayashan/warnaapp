@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:warna_app/core/constants/select_options.dart';
+import 'package:warna_app/core/network/dio_client.dart';
+import 'package:warna_app/core/utils/user_service.dart';
+import 'package:warna_app/data/repositories/metadata_repository.dart';
 
 // ============================================================
 // MODEL
@@ -17,6 +20,24 @@ class StudentProfileModel {
   final String grade; // id matching SelectOptions.newgradesList
   final String school;
   final String description;
+
+  factory StudentProfileModel.fromJson(Map<String, dynamic> j) {
+    final users = j['users'] as Map<String, dynamic>? ?? {};
+    final district = users['district'] as Map<String, dynamic>? ?? {};
+    return StudentProfileModel(
+      id: j['id']?.toString() ?? '',
+      fullName: users['full_name'] ?? '',
+      email: users['email'] ?? '',
+      phone: users['phone'] ?? '',
+      addressLine1: users['address_line1'] ?? '',
+      addressLine2: users['address_line2'] ?? '',
+      districtId: users['district_id']?.toString() ?? '',
+      districtName: district['name'] ?? '',
+      grade: j['grade']?.toString() ?? '',
+      school: j['school'] ?? '',
+      description: users['description'] ?? '',
+    );
+  }
 
   const StudentProfileModel({
     required this.id,
@@ -60,25 +81,21 @@ class StudentProfileModel {
 }
 
 // ============================================================
-// STATIC DATA
-// ============================================================
-
-final List<Map<String, String>> studentProfileDistrictOptions = [
-  for (int i = 0; i < SelectOptions.districtsList.length; i++)
-    {'id': 'd${i + 1}', 'name': SelectOptions.districtsList[i]},
-];
-
-// ============================================================
 // CONTROLLER
 // ============================================================
 
 class StudentProfileController extends ChangeNotifier {
+  final _dio = DioClient.instance;
+  final _metadata = MetadataRepository();
+
   bool isLoading = false;
   bool isSaving = false;
+  String? errorMessage;
 
   StudentProfileModel? profile;
 
-  List<Map<String, String>> get districts => studentProfileDistrictOptions;
+  List<Map<String, String>> _districts = [];
+  List<Map<String, String>> get districts => _districts;
   List<Map<String, String>> get grades =>
       SelectOptions.newgradesList.toList();
 
@@ -255,43 +272,81 @@ class StudentProfileController extends ChangeNotifier {
     validateDescription(p.description);
   }
 
-  // ── Fetch profile (dummy) ─────────────────────────────────────
-  Future<void> fetchProfile() async {
+  // ── Fetch profile ─────────────────────────────────────────────
+  Future<bool> fetchProfile() async {
     isLoading = true;
+    errorMessage = null;
     notifyListeners();
 
-    await Future.delayed(const Duration(milliseconds: 600));
+    try {
+      final user = await UserService.getUser();
+      final email = user?['email'];
 
-    profile = const StudentProfileModel(
-      id: 's1',
-      fullName: 'Ashan Perera',
-      email: 'ashan@example.com',
-      phone: '0771234567',
-      addressLine1: '123/A Kandy Road, Peliyagoda',
-      addressLine2: 'Kiribathgoda',
-      districtId: 'd1',
-      districtName: 'Colombo',
-      grade: '12',
-      school: 'Royal College',
-      description: 'I am an A/L student passionate about science subjects.',
-    );
+      final results = await Future.wait([
+        _dio.get('/students/email/$email'),
+        _metadata.getDistricts(),
+      ]);
 
-    _initValidation(profile!);
-    isLoading = false;
-    notifyListeners();
+      final studentRes = results[0] as dynamic;
+      final districtsRaw = results[1] as List<dynamic>?;
+
+      if (districtsRaw != null) {
+        _districts = districtsRaw
+            .map((d) => {'id': d['id'].toString(), 'name': d['name'].toString()})
+            .toList();
+      }
+
+      final data = studentRes.data['data'];
+      if (data != null) {
+        profile = StudentProfileModel.fromJson(data as Map<String, dynamic>);
+        _initValidation(profile!);
+        isLoading = false;
+        notifyListeners();
+        return true;
+      }
+
+      isLoading = false;
+      notifyListeners();
+      return false;
+    } catch (e) {
+      debugPrint('Error fetching student profile: $e');
+      errorMessage = 'Failed to load profile';
+      isLoading = false;
+      notifyListeners();
+      return false;
+    }
   }
 
-  // ── Update profile (dummy) ────────────────────────────────────
+  // ── Update profile ────────────────────────────────────────────
   Future<bool> updateProfile(StudentProfileModel updated) async {
     isSaving = true;
     notifyListeners();
 
-    await Future.delayed(const Duration(milliseconds: 700));
+    try {
+      await _dio.put(
+        '/students/${updated.id}',
+        data: {
+          'full_name': updated.fullName,
+          'phone': updated.phone,
+          'address_line1': updated.addressLine1,
+          'address_line2': updated.addressLine2,
+          'description': updated.description,
+          'district_id': updated.districtId,
+          'grade': int.tryParse(updated.grade) ?? 0,
+          'school': updated.school,
+        },
+      );
 
-    profile = updated;
-    isSaving = false;
-    notifyListeners();
-    return true;
+      profile = updated;
+      isSaving = false;
+      notifyListeners();
+      return true;
+    } catch (e) {
+      debugPrint('Error updating student profile: $e');
+      isSaving = false;
+      notifyListeners();
+      return false;
+    }
   }
 
   @override
