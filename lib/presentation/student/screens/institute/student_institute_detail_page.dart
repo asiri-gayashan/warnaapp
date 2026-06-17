@@ -234,67 +234,79 @@ class _StudentInstituteDetailPageState
                           child: CircularProgressIndicator(),
                         ),
                       )
-                    : _controller.classes.isEmpty
-                        ? Container(
-                            width: double.infinity,
-                            padding: const EdgeInsets.all(24),
-                            decoration: BoxDecoration(
-                              color: const Color(0xffF5F7FB),
-                              borderRadius: BorderRadius.circular(16),
-                            ),
-                            child: const Column(
-                              children: [
-                                Icon(
-                                  Icons.class_outlined,
-                                  size: 40,
+                    : _controller.errorMessage != null
+                        ? Center(
+                            child: Padding(
+                              padding: const EdgeInsets.all(24),
+                              child: Text(
+                                _controller.errorMessage!,
+                                style: const TextStyle(
                                   color: AppColors.textSecondary,
                                 ),
-                                SizedBox(height: 8),
-                                Text(
-                                  'No classes at this institute',
-                                  style: TextStyle(
-                                    color: AppColors.textSecondary,
-                                    fontSize: 15,
-                                  ),
-                                ),
-                              ],
+                              ),
                             ),
                           )
-                        : Container(
-                            padding: const EdgeInsets.all(16),
-                            decoration: BoxDecoration(
-                              color: Colors.white,
-                              borderRadius: BorderRadius.circular(16),
-                              boxShadow: [
-                                BoxShadow(
-                                  color: Colors.grey.withOpacity(0.1),
-                                  blurRadius: 10,
-                                  offset: const Offset(0, 2),
+                        : _controller.classes.isEmpty
+                            ? Container(
+                                width: double.infinity,
+                                padding: const EdgeInsets.all(24),
+                                decoration: BoxDecoration(
+                                  color: const Color(0xffF5F7FB),
+                                  borderRadius: BorderRadius.circular(16),
                                 ),
-                              ],
-                            ),
-                            child: Column(
-                              children: _controller.classes.map((cls) {
-                                return UpcomingClassListTile(
-                                  className: cls.name,
-                                  grade: 'Grade ${cls.grade}',
-                                  time: '${cls.startTime} - ${cls.endTime}',
-                                  teacher: cls.tutorName,
-                                  day: studentDayName(cls.day),
-                                  iconColor: AppColors.secondary,
-                                  onTap: () => Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                      builder: (context) =>
-                                          StudentClassDetailPage(
-                                        classItemDetails: cls,
+                                child: const Column(
+                                  children: [
+                                    Icon(
+                                      Icons.class_outlined,
+                                      size: 40,
+                                      color: AppColors.textSecondary,
+                                    ),
+                                    SizedBox(height: 8),
+                                    Text(
+                                      'No classes at this institute',
+                                      style: TextStyle(
+                                        color: AppColors.textSecondary,
+                                        fontSize: 15,
                                       ),
                                     ),
-                                  ),
-                                );
-                              }).toList(),
-                            ),
-                          ),
+                                  ],
+                                ),
+                              )
+                            : Container(
+                                padding: const EdgeInsets.all(16),
+                                decoration: BoxDecoration(
+                                  color: Colors.white,
+                                  borderRadius: BorderRadius.circular(16),
+                                  boxShadow: [
+                                    BoxShadow(
+                                      color: Colors.grey.withOpacity(0.1),
+                                      blurRadius: 10,
+                                      offset: const Offset(0, 2),
+                                    ),
+                                  ],
+                                ),
+                                child: Column(
+                                  children: _controller.classes.map((cls) {
+                                    return UpcomingClassListTile(
+                                      className: cls.name,
+                                      grade: 'Grade ${cls.grade}',
+                                      time: '${cls.startTime} - ${cls.endTime}',
+                                      teacher: cls.tutorName,
+                                      day: studentDayName(cls.day),
+                                      iconColor: AppColors.secondary,
+                                      onTap: () => Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                          builder: (context) =>
+                                              StudentClassDetailPage(
+                                            classItemDetails: cls,
+                                          ),
+                                        ),
+                                      ),
+                                    );
+                                  }).toList(),
+                                ),
+                              ),
 
                 const SizedBox(height: 30),
               ],

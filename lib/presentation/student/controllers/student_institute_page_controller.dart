@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:warna_app/core/network/dio_client.dart';
+import 'package:warna_app/core/utils/user_service.dart';
+import 'package:warna_app/data/repositories/metadata_repository.dart';
 
 // ============================================================
 // MODEL
@@ -36,74 +39,26 @@ class StudentInstituteModel {
     required this.totalClasses,
     required this.myClassCount,
   });
+
+  factory StudentInstituteModel.fromJson(Map<String, dynamic> j) {
+    return StudentInstituteModel(
+      id: j['id']?.toString() ?? '',
+      fullName: j['full_name']?.toString() ?? '',
+      email: j['email']?.toString() ?? '',
+      phone: j['phone']?.toString() ?? '',
+      addressLine1: j['address_line1']?.toString() ?? '',
+      addressLine2: j['address_line2']?.toString() ?? '',
+      districtId: j['district_id']?.toString() ?? '',
+      districtName: j['district_name']?.toString() ?? '',
+      description: j['description']?.toString() ?? '',
+      status: j['status']?.toString() ?? 'ACTIVE',
+      totalTutors: (j['total_tutors'] as num?)?.toInt() ?? 0,
+      totalStudents: (j['total_students'] as num?)?.toInt() ?? 0,
+      totalClasses: (j['total_classes'] as num?)?.toInt() ?? 0,
+      myClassCount: (j['my_class_count'] as num?)?.toInt() ?? 0,
+    );
+  }
 }
-
-// ============================================================
-// CANONICAL DUMMY DATA
-// ============================================================
-
-final List<StudentInstituteModel> studentDummyInstitutes = [
-  const StudentInstituteModel(
-    id: 'i1',
-    fullName: 'Bright Future Institute',
-    email: 'info@brightfuture.lk',
-    phone: '0112345678',
-    addressLine1: 'No. 25, Duplication Road',
-    addressLine2: 'Colombo 03',
-    districtId: '1',
-    districtName: 'Colombo',
-    description:
-        'Bright Future Institute is a premier educational centre offering '
-        'quality tuition for A/L students across a wide range of subjects.',
-    status: 'ACTIVE',
-    totalTutors: 18,
-    totalStudents: 240,
-    totalClasses: 32,
-    myClassCount: 2,
-  ),
-  const StudentInstituteModel(
-    id: 'i2',
-    fullName: 'Star Academy',
-    email: 'contact@staracademy.lk',
-    phone: '0812345678',
-    addressLine1: 'No. 12, Peradeniya Road',
-    addressLine2: 'Kandy',
-    districtId: '8',
-    districtName: 'Kandy',
-    description:
-        'Star Academy provides comprehensive A/L tuition with dedicated '
-        'faculty and a student-friendly learning environment in Kandy.',
-    status: 'ACTIVE',
-    totalTutors: 14,
-    totalStudents: 180,
-    totalClasses: 24,
-    myClassCount: 2,
-  ),
-  const StudentInstituteModel(
-    id: 'i3',
-    fullName: 'Horizon Campus',
-    email: 'hello@horizoncampus.lk',
-    phone: '0332345678',
-    addressLine1: 'No. 67, Negombo Road',
-    addressLine2: 'Gampaha',
-    districtId: '4',
-    districtName: 'Gampaha',
-    description:
-        'Horizon Campus specialises in ICT and science subjects, equipping '
-        'students with practical skills for the modern world.',
-    status: 'ACTIVE',
-    totalTutors: 10,
-    totalStudents: 130,
-    totalClasses: 16,
-    myClassCount: 1,
-  ),
-];
-
-const List<Map<String, String>> studentInstituteDistrictOptions = [
-  {'id': '1', 'name': 'Colombo'},
-  {'id': '4', 'name': 'Gampaha'},
-  {'id': '8', 'name': 'Kandy'},
-];
 
 const List<String> studentInstituteStatusOptions = [
   'ACTIVE',
@@ -116,6 +71,13 @@ const List<String> studentInstituteStatusOptions = [
 // ============================================================
 
 class StudentInstitutePageController extends ChangeNotifier {
+  final _dio = DioClient.instance;
+  final _metadata = MetadataRepository();
+
+  // ── Districts (for filter dropdown) ─────────────────────────
+  List<Map<String, String>> _districts = [];
+  List<Map<String, String>> get districts => _districts;
+
   // ── Pagination ──────────────────────────────────────────────
   static const int itemsPerPage = 6;
   int _currentPage = 0;
@@ -141,14 +103,43 @@ class StudentInstitutePageController extends ChangeNotifier {
   List<StudentInstituteModel> _allInstitutes = [];
   List<StudentInstituteModel> get allInstitutes => _allInstitutes;
 
-  // ── Fetch (dummy) ────────────────────────────────────────────
+  // ── Fetch (real API) ─────────────────────────────────────────
   Future<void> fetchInstitutes() async {
     isLoading = true;
     notifyListeners();
+    try {
+      final user = await UserService.getUser();
+      final studentUserId = user?['id'];
 
-    await Future.delayed(const Duration(milliseconds: 600));
-    _allInstitutes = studentDummyInstitutes;
+      final results = await Future.wait([
+        _dio.get('/student-dashboard/institutes/$studentUserId'),
+        _metadata.getDistricts(),
+      ]);
 
+      final response = results[0] as dynamic;
+      final districtsRaw = results[1] as List<dynamic>?;
+
+      if (districtsRaw != null) {
+        _districts = districtsRaw
+            .map((d) => {
+                  'id': d['id'].toString(),
+                  'name': d['name'].toString(),
+                })
+            .toList();
+      }
+
+      final List<dynamic> raw = response.data is List
+          ? List<dynamic>.from(response.data as List)
+          : List<dynamic>.from((response.data['data'] as List?) ?? []);
+
+      _allInstitutes = raw
+          .map((j) => StudentInstituteModel.fromJson(j as Map<String, dynamic>))
+          .toList();
+    } catch (e) {
+      debugPrint('Error fetching student institutes: $e');
+      _allInstitutes = [];
+    }
+    _currentPage = 0;
     isLoading = false;
     notifyListeners();
   }
@@ -237,5 +228,10 @@ class StudentInstitutePageController extends ChangeNotifier {
     _maxClasses = null;
     _currentPage = 0;
     notifyListeners();
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
   }
 }

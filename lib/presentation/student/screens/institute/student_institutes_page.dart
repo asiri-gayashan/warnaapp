@@ -35,12 +35,14 @@ class _InstituteFilterSheet extends StatefulWidget {
   final String? initialStatus;
   final int? initialMinClasses;
   final int? initialMaxClasses;
+  final List<Map<String, String>> districts;
 
   const _InstituteFilterSheet({
     this.initialDistrict,
     this.initialStatus,
     this.initialMinClasses,
     this.initialMaxClasses,
+    required this.districts,
   });
 
   @override
@@ -217,7 +219,7 @@ class _InstituteFilterSheetState extends State<_InstituteFilterSheet> {
                     NewSelectOptions(
                       label: "District",
                       value: _district,
-                      items: studentInstituteDistrictOptions,
+                      items: widget.districts,
                       onChanged: (id) => setState(() => _district = id),
                     ),
                     const SizedBox(height: 20),
@@ -336,6 +338,7 @@ class StudentInstitutesPage extends StatefulWidget {
 
 class _StudentInstitutesPageState extends State<StudentInstitutesPage> {
   late StudentInstitutePageController controller;
+  bool isLoading = true;
 
   final TextEditingController _searchController = TextEditingController();
 
@@ -343,7 +346,12 @@ class _StudentInstitutesPageState extends State<StudentInstitutesPage> {
   void initState() {
     super.initState();
     controller = StudentInstitutePageController();
-    controller.fetchInstitutes();
+    _loadData();
+  }
+
+  Future<void> _loadData() async {
+    await controller.fetchInstitutes();
+    if (mounted) setState(() => isLoading = false);
   }
 
   Future<void> _openFilterSheet() async {
@@ -357,6 +365,7 @@ class _StudentInstitutesPageState extends State<StudentInstitutesPage> {
         initialStatus: controller.selectedStatus,
         initialMinClasses: controller.minClasses,
         initialMaxClasses: controller.maxClasses,
+        districts: controller.districts,
       ),
     );
 
@@ -367,6 +376,7 @@ class _StudentInstitutesPageState extends State<StudentInstitutesPage> {
         minClasses: result.minClasses,
         maxClasses: result.maxClasses,
       );
+      setState(() {});
     }
   }
 
@@ -400,7 +410,7 @@ class _StudentInstitutesPageState extends State<StudentInstitutesPage> {
             elevation: 0,
             centerTitle: true,
           ),
-          body: controller.isLoading
+          body: isLoading
               ? const Center(child: CircularProgressIndicator())
               : CustomScrollView(
                   slivers: [
@@ -419,6 +429,7 @@ class _StudentInstitutesPageState extends State<StudentInstitutesPage> {
                                 isRequired: false,
                                 onChanged: (value) {
                                   controller.onSearchChanged(value);
+                                  if (mounted) setState(() {});
                                 },
                               ),
                             ),
@@ -519,7 +530,10 @@ class _StudentInstitutesPageState extends State<StudentInstitutesPage> {
                               ),
                               const Spacer(),
                               GestureDetector(
-                                onTap: () => controller.clearFilters(),
+                                onTap: () {
+                                  controller.clearFilters();
+                                  if (mounted) setState(() {});
+                                },
                                 child: const Text(
                                   'Clear all',
                                   style: TextStyle(
@@ -585,8 +599,7 @@ class _StudentInstitutesPageState extends State<StudentInstitutesPage> {
                                 ),
                                 InfoBadge(
                                   icon: Icons.people_outline,
-                                  text:
-                                      '${institute.totalStudents} Students',
+                                  text: '${institute.totalStudents} Students',
                                   color: AppColors.secondary,
                                 ),
                               ],
@@ -604,6 +617,7 @@ class _StudentInstitutesPageState extends State<StudentInstitutesPage> {
                             totalPages: controller.totalPages,
                             onPageChanged: (page) {
                               controller.goToPage(page);
+                              if (mounted) setState(() {});
                             },
                           ),
                         ),
