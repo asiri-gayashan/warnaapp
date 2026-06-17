@@ -182,7 +182,7 @@ class _StudentFinancePageState extends State<StudentFinancePage> {
             centerTitle: true,
           ),
           body: _controller.isLoading
-              ? const Center(child: CircularProgressIndicator())
+              ? Center(child: CircularProgressIndicator(color: AppColors.primary))
               : SingleChildScrollView(
                   padding: const EdgeInsets.all(16),
                   child: Column(
@@ -504,24 +504,24 @@ class _StudentFinancePageState extends State<StudentFinancePage> {
             ],
           ),
 
-          const SizedBox(height: 14),
+          // const SizedBox(height: 14),
 
-          // Progress bar — months paid
-          ClipRRect(
-            borderRadius: BorderRadius.circular(8),
-            child: LinearProgressIndicator(
-              value: progress,
-              minHeight: 7,
-              backgroundColor: AppColors.divider,
-              color: AppColors.success,
-            ),
-          ),
-          const SizedBox(height: 5),
-          Text(
-            '${cls.paidMonths}/${cls.totalMonths} months paid'
-            ' (${(progress * 100).toStringAsFixed(0)}%)',
-            style: TextStyle(fontSize: 10, color: AppColors.textSecondary),
-          ),
+          // // Progress bar — months paid
+          // ClipRRect(
+          //   borderRadius: BorderRadius.circular(8),
+          //   child: LinearProgressIndicator(
+          //     value: progress,
+          //     minHeight: 7,
+          //     backgroundColor: AppColors.divider,
+          //     color: AppColors.success,
+          //   ),
+          // ),
+          // const SizedBox(height: 5),
+          // Text(
+          //   '${cls.paidMonths}/${cls.totalMonths} months paid'
+          //   ' (${(progress * 100).toStringAsFixed(0)}%)',
+          //   style: TextStyle(fontSize: 10, color: AppColors.textSecondary),
+          // ),
         ],
       ),
     );
@@ -582,7 +582,7 @@ class _StudentFinancePageState extends State<StudentFinancePage> {
         ),
         const SizedBox(height: 2),
         Text(
-          'This Month',
+          'Payement Status',
           style: TextStyle(fontSize: 10, color: AppColors.textSecondary),
         ),
       ],

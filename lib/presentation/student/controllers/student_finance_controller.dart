@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:warna_app/presentation/student/controllers/student_class_page_controller.dart';
+import 'package:warna_app/core/network/dio_client.dart';
+import 'package:warna_app/core/utils/user_service.dart';
 
 // ============================================================
 // MODELS
@@ -22,6 +23,14 @@ class StudentFinanceSummaryModel {
         totalPaid: 0,
         totalPending: 0,
       );
+
+  factory StudentFinanceSummaryModel.fromJson(Map<String, dynamic> j) {
+    return StudentFinanceSummaryModel(
+      totalFees: (j['total_fees'] ?? 0).toDouble(),
+      totalPaid: (j['total_paid'] ?? 0).toDouble(),
+      totalPending: (j['total_pending'] ?? 0).toDouble(),
+    );
+  }
 }
 
 class StudentClassFinanceModel {
@@ -31,7 +40,7 @@ class StudentClassFinanceModel {
   final double monthlyFee;
   final String tutorName;
   final String? instituteName;
-  final String paymentStatus; // for selected month: 'PAID' or 'PENDING'
+  final String paymentStatus; // 'PAID' or 'PENDING' for selected month
   final int paidMonths;
   final int pendingMonths;
   final int totalMonths;
@@ -48,6 +57,21 @@ class StudentClassFinanceModel {
     required this.pendingMonths,
     required this.totalMonths,
   });
+
+  factory StudentClassFinanceModel.fromJson(Map<String, dynamic> j) {
+    return StudentClassFinanceModel(
+      id: j['id']?.toString() ?? '',
+      name: j['name']?.toString() ?? '',
+      grade: (j['grade'] as num?)?.toInt() ?? 0,
+      monthlyFee: (j['monthly_fee'] ?? 0).toDouble(),
+      tutorName: j['tutor_name']?.toString() ?? '',
+      instituteName: j['institute_name']?.toString(),
+      paymentStatus: j['payment_status']?.toString() ?? 'PENDING',
+      paidMonths: (j['paid_months'] as num?)?.toInt() ?? 0,
+      pendingMonths: (j['pending_months'] as num?)?.toInt() ?? 0,
+      totalMonths: (j['total_months'] as num?)?.toInt() ?? 0,
+    );
+  }
 }
 
 // ============================================================
@@ -55,74 +79,72 @@ class StudentClassFinanceModel {
 // ============================================================
 
 class StudentFinanceController extends ChangeNotifier {
+  final _dio = DioClient.instance;
+
   // ── State ─────────────────────────────────────────────────
   bool isLoading = false;
+  String? errorMessage;
   DateTime selectedMonth = DateTime(DateTime.now().year, DateTime.now().month, 1);
 
   StudentFinanceSummaryModel summary = StudentFinanceSummaryModel.empty();
   List<StudentClassFinanceModel> classes = [];
 
-  // ── Fetch all finance data (dummy) ────────────────────────
+  // ── Fetch all finance data ────────────────────────────────
   Future<void> fetchAll() async {
     isLoading = true;
+    errorMessage = null;
     notifyListeners();
 
-    await Future.delayed(const Duration(milliseconds: 700));
+    try {
+      final user = await UserService.getUser();
+      final studentUserId = user?['id'];
+      final month = selectedMonth.month;
+      final year = selectedMonth.year;
 
-    final now = DateTime.now();
-    final currentMonth = DateTime(now.year, now.month, 1);
-    final isCurrentMonth = selectedMonth.year == currentMonth.year &&
-        selectedMonth.month == currentMonth.month;
+      final results = await Future.wait([
+        _dio.get(
+          '/student-dashboard/finance/summary/$studentUserId',
+          queryParameters: {'month': month, 'year': year},
+        ),
+        _dio.get(
+          '/student-dashboard/finance/classes/$studentUserId',
+          queryParameters: {'month': month, 'year': year},
+        ),
+      ]);
 
-    // Determine if selectedMonth falls in the last 6 months
-    bool isInRange = false;
-    for (int i = 0; i < 6; i++) {
-      final m = DateTime(now.year, now.month - i, 1);
-      if (m.year == selectedMonth.year && m.month == selectedMonth.month) {
-        isInRange = true;
-        break;
+      final summaryRes = results[0];
+      final classesRes = results[1];
+
+      // Summary — flat object response
+      final summaryData = summaryRes.data;
+      if (summaryData is Map<String, dynamic>) {
+        summary = StudentFinanceSummaryModel.fromJson(summaryData);
       }
+
+      // Classes — flat array response
+      final List<dynamic> raw = classesRes.data is List
+          ? List<dynamic>.from(classesRes.data as List)
+          : List<dynamic>.from((classesRes.data['data'] as List?) ?? []);
+      classes = raw
+          .map((j) => StudentClassFinanceModel.fromJson(j as Map<String, dynamic>))
+          .toList();
+    } catch (e) {
+      errorMessage = 'Failed to load finance data';
+      debugPrint('Student finance fetch error: $e');
+    } finally {
+      isLoading = false;
+      notifyListeners();
     }
-
-    classes = studentDummyClasses.map((cls) {
-      // Current month reflects actual paymentStatus; all previous = PAID.
-      final monthStatus = (!isInRange || !isCurrentMonth)
-          ? 'PAID'
-          : cls.paymentStatus;
-
-      return StudentClassFinanceModel(
-        id: cls.id,
-        name: cls.name,
-        grade: cls.grade,
-        monthlyFee: cls.amount,
-        tutorName: cls.tutorName,
-        instituteName: cls.instituteName,
-        paymentStatus: monthStatus,
-        paidMonths: cls.paymentStatus == 'PAID' ? 6 : 5,
-        pendingMonths: cls.paymentStatus == 'PENDING' ? 1 : 0,
-        totalMonths: 6,
-      );
-    }).toList();
-
-    final totalFees =
-        classes.fold<double>(0, (sum, c) => sum + c.monthlyFee);
-    final totalPaid = classes
-        .where((c) => c.paymentStatus == 'PAID')
-        .fold<double>(0, (sum, c) => sum + c.monthlyFee);
-
-    summary = StudentFinanceSummaryModel(
-      totalFees: totalFees,
-      totalPaid: totalPaid,
-      totalPending: totalFees - totalPaid,
-    );
-
-    isLoading = false;
-    notifyListeners();
   }
 
   // ── Set month and refetch ─────────────────────────────────
   void setMonth(DateTime month) {
     selectedMonth = DateTime(month.year, month.month, 1);
     fetchAll();
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
   }
 }
