@@ -200,11 +200,7 @@ class StudentClassDetailPage extends StatelessWidget {
                         icon: Icons.event_available,
                         label: 'Attendance: ${classData.attendancePercentage}%',
                       ),
-                      const SizedBox(width: 12),
-                      _buildInfoChip(
-                        icon: Icons.circle,
-                        label: classData.status,
-                      ),
+                      
                     ],
                   ),
                 ],

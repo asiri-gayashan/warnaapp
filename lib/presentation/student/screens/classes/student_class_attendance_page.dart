@@ -21,37 +21,140 @@ class _StudentClassAttendancePageState
   final StudentClassAttendanceController _controller =
       StudentClassAttendanceController();
 
+  late DateTime _selectedMonth;
+
   @override
   void initState() {
     super.initState();
+    _selectedMonth = _controller.selectedMonth;
     _controller.fetchAttendance(widget.classItemDetails);
   }
 
-  void _pickMonth() {
-    showModalBottomSheet(
+  void _onMonthChanged(DateTime month) {
+    setState(() => _selectedMonth = month);
+    _controller.changeMonth(month, widget.classItemDetails);
+  }
+
+  Future<void> _pickMonth() async {
+    DateTime tempMonth = _selectedMonth;
+
+    await showDialog(
       context: context,
-      backgroundColor: Colors.white,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-      ),
       builder: (context) {
-        return ListView(
-          shrinkWrap: true,
-          padding: const EdgeInsets.symmetric(vertical: 12),
-          children: _controller.availableMonths.map((month) {
-            final isSelected = month.year == _controller.selectedMonth.year &&
-                month.month == _controller.selectedMonth.month;
-            return ListTile(
-              title: Text(studentMonthLabel(month)),
-              trailing: isSelected
-                  ? const Icon(Icons.check, color: AppColors.primary)
-                  : null,
-              onTap: () {
-                Navigator.pop(context);
-                _controller.changeMonth(month, widget.classItemDetails);
-              },
+        return StatefulBuilder(
+          builder: (context, setDialogState) {
+            const monthNames = [
+              'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
+              'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec',
+            ];
+            return AlertDialog(
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(20),
+              ),
+              title: const Text(
+                'Select Month & Year',
+                style: TextStyle(fontWeight: FontWeight.w600, fontSize: 16),
+              ),
+              content: SizedBox(
+                width: 300,
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    // Year selector
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        IconButton(
+                          icon: const Icon(Icons.chevron_left),
+                          onPressed: () => setDialogState(() {
+                            tempMonth = DateTime(
+                                tempMonth.year - 1, tempMonth.month);
+                          }),
+                        ),
+                        Text(
+                          '${tempMonth.year}',
+                          style: const TextStyle(
+                              fontSize: 18, fontWeight: FontWeight.bold),
+                        ),
+                        IconButton(
+                          icon: const Icon(Icons.chevron_right),
+                          onPressed: () => setDialogState(() {
+                            tempMonth = DateTime(
+                                tempMonth.year + 1, tempMonth.month);
+                          }),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 12),
+                    // Month grid
+                    GridView.builder(
+                      shrinkWrap: true,
+                      physics: const NeverScrollableScrollPhysics(),
+                      gridDelegate:
+                          const SliverGridDelegateWithFixedCrossAxisCount(
+                        crossAxisCount: 3,
+                        childAspectRatio: 2,
+                        crossAxisSpacing: 8,
+                        mainAxisSpacing: 8,
+                      ),
+                      itemCount: 12,
+                      itemBuilder: (context, index) {
+                        final month = index + 1;
+                        final isSelected = tempMonth.month == month;
+                        return GestureDetector(
+                          onTap: () => setDialogState(() {
+                            tempMonth = DateTime(tempMonth.year, month);
+                          }),
+                          child: Container(
+                            decoration: BoxDecoration(
+                              color: isSelected
+                                  ? AppColors.primary
+                                  : AppColors.background,
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            child: Center(
+                              child: Text(
+                                monthNames[index],
+                                style: TextStyle(
+                                  color: isSelected
+                                      ? Colors.white
+                                      : AppColors.textPrimary,
+                                  fontWeight: isSelected
+                                      ? FontWeight.w600
+                                      : FontWeight.normal,
+                                  fontSize: 13,
+                                ),
+                              ),
+                            ),
+                          ),
+                        );
+                      },
+                    ),
+                  ],
+                ),
+              ),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.pop(context),
+                  child: const Text('Cancel'),
+                ),
+                ElevatedButton(
+                  onPressed: () {
+                    Navigator.pop(context);
+                    _onMonthChanged(tempMonth);
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: AppColors.primary,
+                    foregroundColor: Colors.white,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                  ),
+                  child: const Text('Confirm'),
+                ),
+              ],
             );
-          }).toList(),
+          },
         );
       },
     );
@@ -148,7 +251,7 @@ class _StudentClassAttendancePageState
             onTap: _pickMonth,
             child: _buildHeaderChip(
               Icons.calendar_today,
-              studentMonthLabel(_controller.selectedMonth),
+              studentMonthLabel(_selectedMonth),
               trailing:
                   const Icon(Icons.edit, color: Colors.white70, size: 16),
             ),

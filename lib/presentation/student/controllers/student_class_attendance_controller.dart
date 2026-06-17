@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:warna_app/core/network/dio_client.dart';
+import 'package:warna_app/core/utils/user_service.dart';
 import 'package:warna_app/presentation/student/controllers/student_class_page_controller.dart';
 
 // ============================================================
@@ -6,16 +8,23 @@ import 'package:warna_app/presentation/student/controllers/student_class_page_co
 // ============================================================
 
 class StudentAttendanceRecord {
+  final String id;
   final DateTime date;
-  final String status; // 'PRESENT' or 'ABSENT'
+  final String status; // 'PRESENT' | 'ABSENT'
 
   const StudentAttendanceRecord({
+    required this.id,
     required this.date,
     required this.status,
   });
 
-  String get formattedDate =>
-      '${date.year}-${date.month.toString().padLeft(2, '0')}-${date.day.toString().padLeft(2, '0')}';
+  String get formattedDate {
+    const months = [
+      'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
+      'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec',
+    ];
+    return '${date.day.toString().padLeft(2, '0')} ${months[date.month - 1]} ${date.year}';
+  }
 }
 
 // ============================================================
@@ -23,81 +32,76 @@ class StudentAttendanceRecord {
 // ============================================================
 
 const List<String> _monthNames = [
-  'January',
-  'February',
-  'March',
-  'April',
-  'May',
-  'June',
-  'July',
-  'August',
-  'September',
-  'October',
-  'November',
-  'December',
+  'January', 'February', 'March', 'April', 'May', 'June',
+  'July', 'August', 'September', 'October', 'November', 'December',
 ];
 
-String studentMonthLabel(DateTime month) {
-  return '${_monthNames[month.month - 1]} ${month.year}';
-}
+String studentMonthLabel(DateTime month) =>
+    '${_monthNames[month.month - 1]} ${month.year}';
 
 // ============================================================
 // CONTROLLER
 // ============================================================
 
 class StudentClassAttendanceController extends ChangeNotifier {
+  final _dio = DioClient.instance;
+
   bool isLoading = false;
   List<StudentAttendanceRecord> records = [];
+
   DateTime selectedMonth = DateTime(DateTime.now().year, DateTime.now().month, 1);
 
+  // Last 12 months including current
   List<DateTime> get availableMonths {
     final now = DateTime.now();
-    return List.generate(6, (i) => DateTime(now.year, now.month - i, 1));
+    return List.generate(12, (i) {
+      int month = now.month - i;
+      int year = now.year;
+      if (month <= 0) {
+        month += 12;
+        year -= 1;
+      }
+      return DateTime(year, month, 1);
+    });
   }
 
   int get totalCount => records.length;
-  int get presentCount =>
-      records.where((r) => r.status == 'PRESENT').length;
-  int get absentCount =>
-      records.where((r) => r.status == 'ABSENT').length;
+  int get presentCount => records.where((r) => r.status == 'PRESENT').length;
+  int get absentCount => records.where((r) => r.status == 'ABSENT').length;
 
-  // ── Fetch (dummy) ────────────────────────────────────────────
+  // ── Fetch (real API) ─────────────────────────────────────────
   Future<void> fetchAttendance(StudentClassModel classData) async {
     isLoading = true;
     notifyListeners();
-
-    await Future.delayed(const Duration(milliseconds: 500));
-
-    final now = DateTime.now();
-    final daysInMonth =
-        DateUtils.getDaysInMonth(selectedMonth.year, selectedMonth.month);
-
-    final dates = <DateTime>[];
-    for (int d = 1; d <= daysInMonth; d++) {
-      final date = DateTime(selectedMonth.year, selectedMonth.month, d);
-      if (date.weekday == classData.day && !date.isAfter(now)) {
-        dates.add(date);
-      }
+    try {
+      final user = await UserService.getUser();
+      final studentUserId = user?['id'];
+      final response = await _dio.get(
+        '/student-dashboard/attendance/${classData.id}/student/$studentUserId',
+        queryParameters: {
+          'month': selectedMonth.month,
+          'year': selectedMonth.year,
+        },
+      );
+      final data = response.data as Map<String, dynamic>;
+      final rawRecords = (data['records'] as List?) ?? [];
+      records = rawRecords.map((r) {
+        return StudentAttendanceRecord(
+          id: r['id']?.toString() ?? '',
+          status: r['status']?.toString() ?? 'ABSENT',
+          date: DateTime.parse(r['date'].toString()).toLocal(),
+        );
+      }).toList();
+    } catch (e) {
+      debugPrint('Error fetching attendance: $e');
+      records = [];
     }
-    dates.sort((a, b) => b.compareTo(a));
-
-    final presentTarget =
-        (dates.length * classData.attendancePercentage / 100).round();
-
-    records = [
-      for (int i = 0; i < dates.length; i++)
-        StudentAttendanceRecord(
-          date: dates[i],
-          status: i < presentTarget ? 'PRESENT' : 'ABSENT',
-        ),
-    ];
-
     isLoading = false;
     notifyListeners();
   }
 
-  void changeMonth(DateTime month, StudentClassModel classData) {
+  Future<void> changeMonth(DateTime month, StudentClassModel classData) async {
     selectedMonth = month;
-    fetchAttendance(classData);
+    await fetchAttendance(classData);
   }
 }
