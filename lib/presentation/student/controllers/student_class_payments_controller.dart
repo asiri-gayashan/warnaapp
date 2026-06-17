@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:warna_app/core/network/dio_client.dart';
+import 'package:warna_app/core/utils/user_service.dart';
 import 'package:warna_app/presentation/student/controllers/student_class_page_controller.dart';
 
 // ============================================================
@@ -9,11 +11,15 @@ class StudentPaymentRecord {
   final DateTime month;
   final double amount;
   String status; // 'PAID' or 'PENDING'
+  final DateTime? paidDate;
+  final String? paymentMethod;
 
   StudentPaymentRecord({
     required this.month,
     required this.amount,
     required this.status,
+    this.paidDate,
+    this.paymentMethod,
   });
 }
 
@@ -45,28 +51,44 @@ String studentPaymentMonthLabel(DateTime month) {
 // ============================================================
 
 class StudentClassPaymentsController extends ChangeNotifier {
+  final _dio = DioClient.instance;
+
   bool isLoading = false;
   List<StudentPaymentRecord> records = [];
   String selectedFilter = 'All'; // All, Paid, Pending
 
-  // ── Fetch (dummy) ────────────────────────────────────────────
+  // ── Fetch (real API) ─────────────────────────────────────────
   Future<void> fetchPayments(StudentClassModel classData) async {
     isLoading = true;
     notifyListeners();
-
-    await Future.delayed(const Duration(milliseconds: 500));
-
-    final now = DateTime.now();
-    records = List.generate(6, (i) {
-      final month = DateTime(now.year, now.month - i, 1);
-      final status = i == 0 ? classData.paymentStatus : 'PAID';
-      return StudentPaymentRecord(
-        month: month,
-        amount: classData.amount,
-        status: status,
+    try {
+      final user = await UserService.getUser();
+      final studentUserId = user?['id'];
+      final response = await _dio.get(
+        '/student-dashboard/payments/${classData.id}/student/$studentUserId',
       );
-    });
-
+      final data = response.data as Map<String, dynamic>;
+      final classAmount = (data['class_amount'] as num?)?.toDouble() ?? classData.amount;
+      final rawRecords = (data['records'] as List?) ?? [];
+      records = rawRecords.map((r) {
+        final month = r['month'] as int;
+        final year = r['year'] as int;
+        final dbStatus = r['status']?.toString() ?? 'NOTPAID';
+        return StudentPaymentRecord(
+          month: DateTime(year, month, 1),
+          amount: classAmount,
+          // Map DB NOTPAID → PENDING so filter chips work
+          status: dbStatus == 'PAID' ? 'PAID' : 'PENDING',
+          paidDate: r['paid_date'] != null
+              ? DateTime.parse(r['paid_date'].toString()).toLocal()
+              : null,
+          paymentMethod: r['payment_method']?.toString(),
+        );
+      }).toList();
+    } catch (e) {
+      debugPrint('Error fetching payments: $e');
+      records = [];
+    }
     isLoading = false;
     notifyListeners();
   }
@@ -99,10 +121,6 @@ class StudentClassPaymentsController extends ChangeNotifier {
   }
 
   void markAsPaid(int index) {
-    final record = filteredRecords[index];
-    if (record.status == 'PENDING') {
-      record.status = 'PAID';
-      notifyListeners();
-    }
+    // Read-only for now — payments are marked by the tutor/institute
   }
 }

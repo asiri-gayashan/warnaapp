@@ -418,30 +418,7 @@ class _StudentClassPaymentsPageState extends State<StudentClassPaymentsPage> {
                                     isPaid ? Colors.green : Colors.orange,
                               ),
                             ),
-                            if (!isPaid) ...[
-                              const SizedBox(width: 8),
-                              GestureDetector(
-                                onTap: () => _payNow(index),
-                                child: Container(
-                                  padding: const EdgeInsets.symmetric(
-                                    horizontal: 10,
-                                    vertical: 4,
-                                  ),
-                                  decoration: BoxDecoration(
-                                    color: AppColors.primary,
-                                    borderRadius: BorderRadius.circular(20),
-                                  ),
-                                  child: const Text(
-                                    'Pay Now',
-                                    style: TextStyle(
-                                      color: Colors.white,
-                                      fontSize: 11,
-                                      fontWeight: FontWeight.w600,
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            ],
+                          
                           ],
                         ),
                       ),
