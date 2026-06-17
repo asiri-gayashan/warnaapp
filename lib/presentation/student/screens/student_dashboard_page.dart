@@ -136,14 +136,7 @@ class _StudentDashboardPageState extends State<StudentDashboardPage> {
                               ),
                             ),
                             const SizedBox(width: 12),
-                            Expanded(
-                              child: MetricOverviewCard(
-                                label: 'Attendance',
-                                value: '${s.attendancePercentage.toStringAsFixed(0)}%',
-                                icon: Icons.event_available_outlined,
-                              ),
-                            ),
-                            const SizedBox(width: 12),
+
                             Expanded(
                               child: MetricOverviewCard(
                                 label: 'Institutes',
@@ -159,7 +152,8 @@ class _StudentDashboardPageState extends State<StudentDashboardPage> {
                             Expanded(
                               child: MetricOverviewCard(
                                 label: 'Paid This Month',
-                                value: 'Rs ${s.paidThisMonth.toStringAsFixed(0)}',
+                                value:
+                                    'Rs ${s.paidThisMonth.toStringAsFixed(0)}',
                                 icon: Icons.payments_outlined,
                               ),
                             ),
@@ -167,7 +161,8 @@ class _StudentDashboardPageState extends State<StudentDashboardPage> {
                             Expanded(
                               child: MetricOverviewCard(
                                 label: 'Pending Payments',
-                                value: 'Rs ${s.pendingPayments.toStringAsFixed(0)}',
+                                value:
+                                    'Rs ${s.pendingPayments.toStringAsFixed(0)}',
                                 icon: Icons.pending_actions_outlined,
                               ),
                             ),
@@ -179,21 +174,10 @@ class _StudentDashboardPageState extends State<StudentDashboardPage> {
 
                   const SizedBox(height: 24),
 
-                  // ── Best Attendance ──────────────────────────
-                  _PerformanceCard(
-                    title: 'Best Attendance',
-                    icon: Icons.star,
-                    iconColor: AppColors.success,
-                    items: _controller.topClasses,
-                    metricColor: AppColors.success,
-                  ),
-
-                  const SizedBox(height: 12),
-
                   // ── Needs Attention ──────────────────────────
                   _PerformanceCard(
-                    title: 'Needs Attention',
-                    icon: Icons.trending_down,
+                    title: 'Payement Pending Classes',
+                    icon: Icons.warning_amber_outlined,
                     iconColor: Colors.orange,
                     items: _controller.leastClasses,
                     metricColor: Colors.orange,
@@ -302,11 +286,6 @@ class _StudentDashboardPageState extends State<StudentDashboardPage> {
                           change: '',
                         ),
                         QuickStatRowItem(
-                          label: 'Overall Attendance',
-                          value: '${s.attendancePercentage.toStringAsFixed(0)}%',
-                          change: '',
-                        ),
-                        QuickStatRowItem(
                           label: 'Paid This Month',
                           value: 'Rs ${s.paidThisMonth.toStringAsFixed(0)}',
                           change: '',
@@ -401,8 +380,8 @@ class _PerformanceCard extends StatelessWidget {
             ...items.map(
               (c) => PerformanceRowItem(
                 className: '${c.name} - Grade ${c.grade}',
-                value: '${c.attendancePercentage}%',
-                metric: 'Attendance',
+                value: '',
+                metric: 'Pending',
                 color: metricColor,
               ),
             ),

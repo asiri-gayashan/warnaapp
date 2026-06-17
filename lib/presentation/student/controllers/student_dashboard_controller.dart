@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:warna_app/presentation/student/controllers/student_class_page_controller.dart';
+import 'package:warna_app/core/network/dio_client.dart';
+import 'package:warna_app/core/utils/user_service.dart';
 
 // ============================================================
 // MODELS
@@ -30,6 +31,17 @@ class StudentStatsModel {
         pendingPayments: 0,
         tutorsCount: 0,
       );
+
+  factory StudentStatsModel.fromJson(Map<String, dynamic> j) {
+    return StudentStatsModel(
+      totalClasses: (j['total_classes'] as num?)?.toInt() ?? 0,
+      attendancePercentage: 0,
+      institutesCount: (j['institutes_count'] as num?)?.toInt() ?? 0,
+      paidThisMonth: (j['paid_this_month'] ?? 0).toDouble(),
+      pendingPayments: (j['pending_payments'] ?? 0).toDouble(),
+      tutorsCount: (j['tutors_count'] as num?)?.toInt() ?? 0,
+    );
+  }
 }
 
 class StudentClassPerformanceModel {
@@ -50,6 +62,18 @@ class StudentClassPerformanceModel {
     required this.attendancePercentage,
     required this.status,
   });
+
+  factory StudentClassPerformanceModel.fromJson(Map<String, dynamic> j) {
+    return StudentClassPerformanceModel(
+      id: j['id']?.toString() ?? '',
+      name: j['name']?.toString() ?? '',
+      grade: (j['grade'] as num?)?.toInt() ?? 0,
+      subjectName: j['subject_name']?.toString() ?? '',
+      tutorName: j['tutor_name']?.toString() ?? '',
+      attendancePercentage: 0,
+      status: 'PENDING',
+    );
+  }
 }
 
 class StudentUpcomingClassModel {
@@ -75,6 +99,23 @@ class StudentUpcomingClassModel {
     required this.day,
   });
 
+  factory StudentUpcomingClassModel.fromJson(Map<String, dynamic> j) {
+    // DB uses 1=Mon ... 6=Sat, 7=Sun; Flutter dayName uses 0=Sun, 1=Mon ... 6=Sat
+    final rawDay = (j['day'] as num?)?.toInt() ?? 0;
+    final flutterDay = rawDay == 7 ? 0 : rawDay;
+    return StudentUpcomingClassModel(
+      id: j['id']?.toString() ?? '',
+      name: j['name']?.toString() ?? '',
+      grade: (j['grade'] as num?)?.toInt() ?? 0,
+      subjectName: j['subject_name']?.toString() ?? '',
+      tutorName: j['tutor_name']?.toString() ?? '',
+      startTime: j['start_time']?.toString() ?? '',
+      endTime: j['end_time']?.toString() ?? '',
+      duration: '',
+      day: flutterDay,
+    );
+  }
+
   String get dayName {
     const days = [
       'Sunday',
@@ -94,6 +135,8 @@ class StudentUpcomingClassModel {
 // ============================================================
 
 class StudentDashboardController extends ChangeNotifier {
+  final _dio = DioClient.instance;
+
   // ── State ─────────────────────────────────────────────────
   bool isLoading = false;
   String? errorMessage;
@@ -103,85 +146,52 @@ class StudentDashboardController extends ChangeNotifier {
   List<StudentClassPerformanceModel> leastClasses = [];
   List<StudentUpcomingClassModel> upcomingClasses = [];
 
-  // ── Fetch all dashboard data (dummy) ──────────────────────
+  // ── Fetch all dashboard data ──────────────────────────────
   Future<void> fetchAll() async {
     isLoading = true;
     errorMessage = null;
     notifyListeners();
 
-    await Future.delayed(const Duration(milliseconds: 700));
+    try {
+      final user = await UserService.getUser();
+      final studentUserId = user?['id'];
 
-    final classes = studentDummyClasses;
+      final res = await _dio.get('/student-dashboard/dashboard/$studentUserId');
+      final data = res.data as Map<String, dynamic>;
 
-    final totalAttendance = classes.fold<int>(
-      0,
-      (sum, c) => sum + c.attendancePercentage,
-    );
-    final paidThisMonth = classes
-        .where((c) => c.paymentStatus == 'PAID')
-        .fold<double>(0, (sum, c) => sum + c.amount);
-    final pendingPayments = classes
-        .where((c) => c.paymentStatus == 'PENDING')
-        .fold<double>(0, (sum, c) => sum + c.amount);
-    final institutesCount =
-        classes.map((c) => c.instituteId).whereType<String>().toSet().length;
-    final tutorsCount = classes.map((c) => c.tutorId).toSet().length;
+      // Stats
+      if (data['stats'] is Map<String, dynamic>) {
+        stats = StudentStatsModel.fromJson(data['stats'] as Map<String, dynamic>);
+      }
 
-    stats = StudentStatsModel(
-      totalClasses: classes.length,
-      attendancePercentage: classes.isEmpty
-          ? 0
-          : (totalAttendance / classes.length).roundToDouble(),
-      institutesCount: institutesCount,
-      paidThisMonth: paidThisMonth,
-      pendingPayments: pendingPayments,
-      tutorsCount: tutorsCount,
-    );
+      // Pending payment classes → leastClasses
+      final rawPending = data['pending_classes'];
+      if (rawPending is List) {
+        leastClasses = rawPending
+            .map((j) => StudentClassPerformanceModel.fromJson(j as Map<String, dynamic>))
+            .toList();
+      }
 
-    final sortedByAttendance = [...classes]
-      ..sort((a, b) => b.attendancePercentage.compareTo(a.attendancePercentage));
+      // Upcoming classes
+      final rawUpcoming = data['upcoming_classes'];
+      if (rawUpcoming is List) {
+        upcomingClasses = rawUpcoming
+            .map((j) => StudentUpcomingClassModel.fromJson(j as Map<String, dynamic>))
+            .toList();
+      }
 
-    topClasses = sortedByAttendance
-        .take(3)
-        .map((c) => StudentClassPerformanceModel(
-              id: c.id,
-              name: c.name,
-              grade: c.grade,
-              subjectName: c.subjectName,
-              tutorName: c.tutorName,
-              attendancePercentage: c.attendancePercentage,
-              status: c.status,
-            ))
-        .toList();
+      topClasses = [];
+    } catch (e) {
+      errorMessage = 'Failed to load dashboard data';
+      debugPrint('Student dashboard fetch error: $e');
+    } finally {
+      isLoading = false;
+      notifyListeners();
+    }
+  }
 
-    leastClasses = sortedByAttendance.reversed
-        .take(3)
-        .map((c) => StudentClassPerformanceModel(
-              id: c.id,
-              name: c.name,
-              grade: c.grade,
-              subjectName: c.subjectName,
-              tutorName: c.tutorName,
-              attendancePercentage: c.attendancePercentage,
-              status: c.status,
-            ))
-        .toList();
-
-    upcomingClasses = classes
-        .map((c) => StudentUpcomingClassModel(
-              id: c.id,
-              name: c.name,
-              grade: c.grade,
-              subjectName: c.subjectName,
-              tutorName: c.tutorName,
-              startTime: c.startTime,
-              endTime: c.endTime,
-              duration: c.duration,
-              day: c.day == 7 ? 0 : c.day,
-            ))
-        .toList();
-
-    isLoading = false;
-    notifyListeners();
+  @override
+  void dispose() {
+    super.dispose();
   }
 }
