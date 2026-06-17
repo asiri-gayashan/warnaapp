@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:warna_app/core/constants/app_colors.dart';
+import 'package:warna_app/data/repositories/metadata_repository.dart';
 import 'package:warna_app/presentation/student/controllers/student_tutor_page_controller.dart';
 import 'package:warna_app/presentation/student/screens/tutor/student_tutor_detail_page.dart';
 import 'package:warna_app/shared/widgets/new/custom_textfield.dart';
@@ -14,23 +15,35 @@ import 'package:warna_app/shared/widgets/new/user_list_card.dart';
 
 class _FilterResult {
   final String? subject;
+  final String? district;
   final int? minExperience;
   final int? maxExperience;
 
-  const _FilterResult({this.subject, this.minExperience, this.maxExperience});
+  const _FilterResult({
+    this.subject,
+    this.district,
+    this.minExperience,
+    this.maxExperience,
+  });
 }
 
 // ============================================================
-// FILTER SHEET — self-contained StatefulWidget
+// FILTER SHEET
 // ============================================================
 
 class _TutorFilterSheet extends StatefulWidget {
+  final List<Map<String, String>> subjectsList;
+  final List<Map<String, String>> districtsList;
   final String? initialSubject;
+  final String? initialDistrict;
   final int? initialMinExperience;
   final int? initialMaxExperience;
 
   const _TutorFilterSheet({
+    required this.subjectsList,
+    required this.districtsList,
     this.initialSubject,
+    this.initialDistrict,
     this.initialMinExperience,
     this.initialMaxExperience,
   });
@@ -41,6 +54,7 @@ class _TutorFilterSheet extends StatefulWidget {
 
 class _TutorFilterSheetState extends State<_TutorFilterSheet> {
   String? _subject;
+  String? _district;
 
   late final TextEditingController _minExpCtrl;
   late final TextEditingController _maxExpCtrl;
@@ -49,6 +63,7 @@ class _TutorFilterSheetState extends State<_TutorFilterSheet> {
   void initState() {
     super.initState();
     _subject = widget.initialSubject;
+    _district = widget.initialDistrict;
     _minExpCtrl = TextEditingController(
       text: widget.initialMinExperience?.toString() ?? '',
     );
@@ -67,6 +82,7 @@ class _TutorFilterSheetState extends State<_TutorFilterSheet> {
   void _clearAll() {
     setState(() {
       _subject = null;
+      _district = null;
       _minExpCtrl.clear();
       _maxExpCtrl.clear();
     });
@@ -77,6 +93,7 @@ class _TutorFilterSheetState extends State<_TutorFilterSheet> {
     Navigator.of(context).pop(
       _FilterResult(
         subject: _subject,
+        district: _district,
         minExperience: _minExpCtrl.text.isNotEmpty
             ? int.tryParse(_minExpCtrl.text)
             : null,
@@ -145,7 +162,7 @@ class _TutorFilterSheetState extends State<_TutorFilterSheet> {
   @override
   Widget build(BuildContext context) {
     return DraggableScrollableSheet(
-      initialChildSize: 0.7,
+      initialChildSize: 0.75,
       minChildSize: 0.5,
       maxChildSize: 0.95,
       expand: false,
@@ -203,10 +220,19 @@ class _TutorFilterSheetState extends State<_TutorFilterSheet> {
                   children: [
                     // Subject
                     NewSelectOptions(
-                      label: "Subject",
+                      label: 'Subject',
                       value: _subject,
-                      items: studentTutorSubjectOptions,
+                      items: widget.subjectsList,
                       onChanged: (id) => setState(() => _subject = id),
+                    ),
+                    const SizedBox(height: 20),
+
+                    // District
+                    NewSelectOptions(
+                      label: 'District',
+                      value: _district,
+                      items: widget.districtsList,
+                      onChanged: (id) => setState(() => _district = id),
                     ),
                     const SizedBox(height: 20),
 
@@ -288,13 +314,50 @@ class StudentTutorsPage extends StatefulWidget {
 class _StudentTutorsPageState extends State<StudentTutorsPage> {
   late StudentTutorPageController controller;
 
+  List<Map<String, String>> _subjectsList = [];
+  List<Map<String, String>> _districtsList = [];
+  bool _isLoading = true;
+
   final TextEditingController _searchController = TextEditingController();
 
   @override
   void initState() {
     super.initState();
     controller = StudentTutorPageController();
-    controller.fetchTutors();
+    _loadAll();
+  }
+
+  Future<void> _loadAll() async {
+    await Future.wait([_loadTutors(), _loadMetadata()]);
+  }
+
+  Future<void> _loadTutors() async {
+    await controller.fetchTutors();
+    if (mounted) setState(() => _isLoading = false);
+  }
+
+  Future<void> _loadMetadata() async {
+    await Future.wait([_fetchSubjects(), _fetchDistricts()]);
+  }
+
+  Future<void> _fetchSubjects() async {
+    final raw = await MetadataRepository().getSubjects();
+    if (!mounted || raw == null) return;
+    setState(() {
+      _subjectsList = raw
+          .map((s) => {'id': s['id'].toString(), 'name': s['name'].toString()})
+          .toList();
+    });
+  }
+
+  Future<void> _fetchDistricts() async {
+    final raw = await MetadataRepository().getDistricts();
+    if (!mounted || raw == null) return;
+    setState(() {
+      _districtsList = raw
+          .map((d) => {'id': d['id'].toString(), 'name': d['name'].toString()})
+          .toList();
+    });
   }
 
   Future<void> _openFilterSheet() async {
@@ -304,7 +367,10 @@ class _StudentTutorsPageState extends State<StudentTutorsPage> {
       backgroundColor: Colors.transparent,
       useSafeArea: true,
       builder: (_) => _TutorFilterSheet(
+        subjectsList: _subjectsList,
+        districtsList: _districtsList,
         initialSubject: controller.selectedSubject,
+        initialDistrict: controller.selectedDistrict,
         initialMinExperience: controller.minExperience,
         initialMaxExperience: controller.maxExperience,
       ),
@@ -313,6 +379,7 @@ class _StudentTutorsPageState extends State<StudentTutorsPage> {
     if (result != null && mounted) {
       controller.applyFilters(
         subject: result.subject,
+        district: result.district,
         minExperience: result.minExperience,
         maxExperience: result.maxExperience,
       );
@@ -349,7 +416,7 @@ class _StudentTutorsPageState extends State<StudentTutorsPage> {
             elevation: 0,
             centerTitle: true,
           ),
-          body: controller.isLoading
+          body: _isLoading
               ? const Center(child: CircularProgressIndicator())
               : CustomScrollView(
                   slivers: [
@@ -468,9 +535,7 @@ class _StudentTutorsPageState extends State<StudentTutorsPage> {
                               ),
                               const Spacer(),
                               GestureDetector(
-                                onTap: () {
-                                  controller.clearFilters();
-                                },
+                                onTap: () => controller.clearFilters(),
                                 child: const Text(
                                   'Clear all',
                                   style: TextStyle(
@@ -506,41 +571,41 @@ class _StudentTutorsPageState extends State<StudentTutorsPage> {
                           vertical: 8,
                         ),
                         sliver: SliverList(
-                          delegate: SliverChildBuilderDelegate((
-                            context,
-                            index,
-                          ) {
-                            final tutor = pageItems[index];
-                            return UserListCard(
-                              name: tutor.fullName,
-                              title: tutor.subjects.join(', '),
-                              titleColor: AppColors.primary,
-                              subtitle: tutor.districtName,
-                              trailingIcon: Icons.arrow_forward_ios,
-                              onTap: () {
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (_) => StudentTutorDetailPage(
-                                      tutor: tutor,
+                          delegate: SliverChildBuilderDelegate(
+                            (context, index) {
+                              final tutor = pageItems[index];
+                              return UserListCard(
+                                name: tutor.fullName,
+                                title: tutor.subjectName,
+                                titleColor: AppColors.primary,
+                                subtitle: '${tutor.phone} • ${tutor.districtName}',
+                                trailingIcon: Icons.arrow_forward_ios,
+                                onTap: () {
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (_) => StudentTutorDetailPage(
+                                        tutor: tutor,
+                                      ),
                                     ),
+                                  );
+                                },
+                                badges: [
+                                  InfoBadge(
+                                    icon: Icons.menu_book,
+                                    text: '${tutor.myClassCount} classes',
+                                    color: AppColors.info,
                                   ),
-                                );
-                              },
-                              badges: [
-                                InfoBadge(
-                                  icon: Icons.menu_book,
-                                  text: '${tutor.myClassCount} classes',
-                                  color: AppColors.info,
-                                ),
-                                InfoBadge(
-                                  icon: Icons.workspace_premium,
-                                  text: '${tutor.experience} yrs exp',
-                                  color: AppColors.success,
-                                ),
-                              ],
-                            );
-                          }, childCount: pageItems.length),
+                                  InfoBadge(
+                                    icon: Icons.workspace_premium,
+                                    text: '${tutor.experience} yrs exp',
+                                    color: AppColors.success,
+                                  ),
+                                ],
+                              );
+                            },
+                            childCount: pageItems.length,
+                          ),
                         ),
                       ),
 
