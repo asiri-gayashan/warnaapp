@@ -253,9 +253,7 @@ class StudentClassDetailPage extends StatelessWidget {
             Padding(
               padding: const EdgeInsets.only(bottom: 10),
               child: Text(
-                classData.description.isNotEmpty
-                    ? classData.description
-                    : 'No description provided.',
+                classData.description ?? 'No description provided.',
                 style: const TextStyle(
                   color: AppColors.textSecondary,
                   fontSize: 15,

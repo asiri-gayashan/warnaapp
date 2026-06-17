@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:warna_app/core/constants/select_options.dart';
+import 'package:warna_app/core/network/dio_client.dart';
+import 'package:warna_app/core/utils/user_service.dart';
 
 // ============================================================
 // MODEL
@@ -15,8 +17,8 @@ class StudentClassModel {
   final String startTime;
   final String endTime;
   final String duration;
-  final String location;
-  final String description;
+  final String? location;
+  final String? description;
   final double amount;
   final String status;
   final String tutorId;
@@ -26,7 +28,7 @@ class StudentClassModel {
   final String? instituteName;
   final int attendancePercentage;
   final String paymentStatus;
-  final int classSize;
+  final int studentCount;
 
   const StudentClassModel({
     required this.id,
@@ -38,8 +40,8 @@ class StudentClassModel {
     required this.startTime,
     required this.endTime,
     required this.duration,
-    required this.location,
-    required this.description,
+    this.location,
+    this.description,
     required this.amount,
     required this.status,
     required this.tutorId,
@@ -49,12 +51,77 @@ class StudentClassModel {
     this.instituteName,
     required this.attendancePercentage,
     required this.paymentStatus,
-    required this.classSize,
+    required this.studentCount,
   });
+
+  factory StudentClassModel.fromJson(Map<String, dynamic> j) {
+    final subjectName = j['subject_name']?.toString() ?? '';
+    final startTime = j['start_time']?.toString() ?? '';
+    final endTime = j['end_time']?.toString() ?? '';
+    return StudentClassModel(
+      id: j['id']?.toString() ?? '',
+      name: j['name']?.toString() ?? '',
+      subjectId: j['subject_id']?.toString() ?? subjectName,
+      subjectName: subjectName,
+      grade: int.tryParse(j['grade']?.toString() ?? '') ?? 0,
+      day: int.tryParse(j['day_num']?.toString() ?? '') ?? 0,
+      startTime: startTime,
+      endTime: endTime,
+      duration: _computeDuration(startTime, endTime),
+      location: j['location']?.toString(),
+      description: j['description']?.toString(),
+      amount: (j['amount'] is num) ? (j['amount'] as num).toDouble() : 0.0,
+      status: j['status']?.toString() ?? '',
+      tutorId: j['tutor_id']?.toString() ?? '',
+      tutorName: j['tutor_name']?.toString() ?? '',
+      tutorSubject: subjectName,
+      instituteId: j['institute_id']?.toString(),
+      instituteName: j['institute_name']?.toString(),
+      attendancePercentage: 0,
+      paymentStatus: j['is_paid_this_month'] == true
+          ? 'PAID'
+          : (j['has_pending'] == true ? 'PENDING' : ''),
+      studentCount: (j['student_count'] as num?)?.toInt() ?? 0,
+    );
+  }
 }
 
 // ============================================================
-// CANONICAL DUMMY DATA
+// HELPERS
+// ============================================================
+
+int _parseAmPm(String time) {
+  try {
+    final parts = time.trim().split(' ');
+    if (parts.length < 2) return 0;
+    final timeParts = parts[0].split(':');
+    if (timeParts.length < 2) return 0;
+    int hours = int.tryParse(timeParts[0]) ?? 0;
+    final minutes = int.tryParse(timeParts[1]) ?? 0;
+    final isPm = parts[1].toUpperCase() == 'PM';
+    if (isPm && hours != 12) hours += 12;
+    if (!isPm && hours == 12) hours = 0;
+    return hours * 60 + minutes;
+  } catch (_) {
+    return 0;
+  }
+}
+
+String _computeDuration(String startTime, String endTime) {
+  final s = _parseAmPm(startTime);
+  final e = _parseAmPm(endTime);
+  if (s == 0 && e == 0) return '';
+  final diffMin = e - s;
+  if (diffMin <= 0) return '';
+  final h = diffMin ~/ 60;
+  final m = diffMin % 60;
+  if (h > 0 && m > 0) return '${h}h ${m}m';
+  if (h > 0) return '${h}h';
+  return '${m}m';
+}
+
+// ============================================================
+// DUMMY DATA (kept for other pages)
 // ============================================================
 
 final List<StudentClassModel> studentDummyClasses = [
@@ -65,13 +132,11 @@ final List<StudentClassModel> studentDummyClasses = [
     subjectName: 'Combined Mathematics',
     grade: 12,
     day: 1,
-    startTime: '14:00',
-    endTime: '16:00',
+    startTime: '2:00 PM',
+    endTime: '4:00 PM',
     duration: '2h',
-    location: 'Bright Future Institute - Room 101',
-    description:
-        'Comprehensive coverage of the Combined Mathematics syllabus for Grade 12, '
-        'focusing on pure and applied mathematics with past paper practice.',
+    location: 'Bright Future Institute',
+    description: 'Comprehensive coverage of the Combined Mathematics syllabus.',
     amount: 4500,
     status: 'ACTIVE',
     tutorId: 't1',
@@ -81,148 +146,30 @@ final List<StudentClassModel> studentDummyClasses = [
     instituteName: 'Bright Future Institute',
     attendancePercentage: 92,
     paymentStatus: 'PAID',
-    classSize: 35,
-  ),
-  const StudentClassModel(
-    id: 'c2',
-    name: 'Physics for A/L',
-    subjectId: '2',
-    subjectName: 'Physics',
-    grade: 12,
-    day: 1,
-    startTime: '16:00',
-    endTime: '18:00',
-    duration: '2h',
-    location: 'Bright Future Institute - Room 203',
-    description:
-        'In-depth A/L Physics lessons covering mechanics, electricity and modern '
-        'physics with practical demonstrations.',
-    amount: 4000,
-    status: 'ACTIVE',
-    tutorId: 't2',
-    tutorName: 'Saman Kumara',
-    tutorSubject: 'Physics',
-    instituteId: 'i1',
-    instituteName: 'Bright Future Institute',
-    attendancePercentage: 85,
-    paymentStatus: 'PAID',
-    classSize: 30,
-  ),
-  const StudentClassModel(
-    id: 'c3',
-    name: 'Chemistry Essentials',
-    subjectId: '3',
-    subjectName: 'Chemistry',
-    grade: 12,
-    day: 3,
-    startTime: '14:00',
-    endTime: '16:00',
-    duration: '2h',
-    location: 'Star Academy - Lab 1',
-    description:
-        'Essential Chemistry concepts for A/L students with emphasis on organic '
-        'chemistry and lab techniques.',
-    amount: 3500,
-    status: 'ACTIVE',
-    tutorId: 't3',
-    tutorName: 'Dilani Fernando',
-    tutorSubject: 'Chemistry',
-    instituteId: 'i2',
-    instituteName: 'Star Academy',
-    attendancePercentage: 76,
-    paymentStatus: 'PENDING',
-    classSize: 28,
-  ),
-  const StudentClassModel(
-    id: 'c4',
-    name: 'English Literature',
-    subjectId: '4',
-    subjectName: 'English Literature',
-    grade: 12,
-    day: 3,
-    startTime: '16:00',
-    endTime: '17:30',
-    duration: '1h 30m',
-    location: 'Star Academy - Room 5',
-    description:
-        'Critical analysis of prescribed English Literature texts with essay '
-        'writing and exam preparation.',
-    amount: 3000,
-    status: 'ACTIVE',
-    tutorId: 't4',
-    tutorName: 'Anjali Silva',
-    tutorSubject: 'English',
-    instituteId: 'i2',
-    instituteName: 'Star Academy',
-    attendancePercentage: 95,
-    paymentStatus: 'PAID',
-    classSize: 22,
-  ),
-  const StudentClassModel(
-    id: 'c5',
-    name: 'ICT Practical',
-    subjectId: '5',
-    subjectName: 'Information & Communication Technology (ICT)',
-    grade: 12,
-    day: 5,
-    startTime: '09:00',
-    endTime: '11:00',
-    duration: '2h',
-    location: 'Horizon Campus - Computer Lab',
-    description:
-        'Hands-on ICT practical sessions covering databases, programming basics '
-        'and web development for A/L.',
-    amount: 2800,
-    status: 'ACTIVE',
-    tutorId: 't1',
-    tutorName: 'Nuwan Perera',
-    tutorSubject: 'ICT',
-    instituteId: 'i3',
-    instituteName: 'Horizon Campus',
-    attendancePercentage: 60,
-    paymentStatus: 'PENDING',
-    classSize: 18,
-  ),
-  const StudentClassModel(
-    id: 'c6',
-    name: 'Biology Foundations',
-    subjectId: '6',
-    subjectName: 'Biology',
-    grade: 12,
-    day: 5,
-    startTime: '11:00',
-    endTime: '13:00',
-    duration: '2h',
-    location: 'No. 45, Galle Road, Colombo 06',
-    description:
-        'Foundational Biology lessons covering cell biology, genetics and human '
-        'physiology for A/L students.',
-    amount: 3200,
-    status: 'ACTIVE',
-    tutorId: 't5',
-    tutorName: 'Kasun Jayawardena',
-    tutorSubject: 'Biology',
-    instituteId: null,
-    instituteName: null,
-    attendancePercentage: 88,
-    paymentStatus: 'PAID',
-    classSize: 32,
+    studentCount: 35,
   ),
 ];
-
-const List<Map<String, String>> studentSubjectOptions = [
-  {'id': '1', 'name': 'Combined Mathematics'},
-  {'id': '2', 'name': 'Physics'},
-  {'id': '3', 'name': 'Chemistry'},
-  {'id': '4', 'name': 'English Literature'},
-  {'id': '5', 'name': 'Information & Communication Technology (ICT)'},
-  {'id': '6', 'name': 'Biology'},
-];
-
-const List<String> studentClassStatusOptions = ['ACTIVE', 'COMPLETED'];
 
 // ============================================================
-// HELPERS
+// OPTIONS
+// ============================================================
+
+const List<String> studentClassStatusOptions = [
+  'ACTIVE',
+  'INACTIVE',
+  'PENDING',
+  'APPROVED',
+  'REJECTED',
+];
+
+// Class type options
+const List<Map<String, String>> studentClassTypeOptions = [
+  {'id': 'institute', 'label': 'At Institute'},
+  {'id': 'tutor', 'label': 'By Tutor'},
+];
+
+// ============================================================
+// OPTION HELPERS
 // ============================================================
 
 String studentDayName(int day) {
@@ -276,6 +223,8 @@ Color studentDayBg(int day) {
 // ============================================================
 
 class StudentClassPageController extends ChangeNotifier {
+  final _dio = DioClient.instance;
+
   // ── Pagination ──────────────────────────────────────────────
   static const int itemsPerPage = 4;
   int _currentPage = 0;
@@ -290,49 +239,71 @@ class StudentClassPageController extends ChangeNotifier {
   String? _selectedSubject;
   String? _selectedGrade;
   String? _selectedStatus;
+  String? _selectedType;   // 'institute' | 'tutor' | null
+  TimeOfDay? _startTime;
+  TimeOfDay? _endTime;
+  double? _minFee;
+  double? _maxFee;
 
   String? get selectedDay => _selectedDay;
   String? get selectedSubject => _selectedSubject;
   String? get selectedGrade => _selectedGrade;
   String? get selectedStatus => _selectedStatus;
+  String? get selectedType => _selectedType;
+  TimeOfDay? get startTime => _startTime;
+  TimeOfDay? get endTime => _endTime;
+  double? get minFee => _minFee;
+  double? get maxFee => _maxFee;
 
   // ── Source data ─────────────────────────────────────────────
   bool isLoading = false;
   List<StudentClassModel> _allClasses = [];
   List<StudentClassModel> get allClasses => _allClasses;
 
-  // ── Fetch (dummy) ────────────────────────────────────────────
+  // ── Fetch ────────────────────────────────────────────────────
   Future<void> fetchClasses() async {
     isLoading = true;
     notifyListeners();
-
-    await Future.delayed(const Duration(milliseconds: 600));
-    _allClasses = studentDummyClasses;
-
+    try {
+      final user = await UserService.getUser();
+      final userId = user?['id'];
+      final response = await _dio.get('/student-dashboard/classes/$userId');
+      final List<dynamic> raw = (response.data is List)
+          ? List<dynamic>.from(response.data as List)
+          : List<dynamic>.from((response.data['data'] as List?) ?? []);
+      _allClasses = raw
+          .map((e) => StudentClassModel.fromJson(e as Map<String, dynamic>))
+          .toList();
+    } catch (e) {
+      debugPrint('Error fetching student classes: $e');
+      _allClasses = [];
+    }
     isLoading = false;
     notifyListeners();
   }
 
-  // ── Computed: active filter count ────────────────────────────
+  // ── Active filter count ──────────────────────────────────────
   int get activeFilterCount {
     int count = 0;
     if (_selectedDay != null) count++;
     if (_selectedSubject != null) count++;
     if (_selectedGrade != null) count++;
     if (_selectedStatus != null) count++;
+    if (_selectedType != null) count++;
+    if (_startTime != null || _endTime != null) count++;
+    if (_minFee != null || _maxFee != null) count++;
     return count;
   }
 
-  // ── Computed: filtered list ──────────────────────────────────
+  // ── Filtered list ────────────────────────────────────────────
   List<StudentClassModel> get filteredClasses {
     return _allClasses.where((cls) {
-      final matchesSearch = _searchQuery.isEmpty ||
-          cls.name.toLowerCase().contains(_searchQuery.toLowerCase()) ||
-          cls.subjectName.toLowerCase().contains(_searchQuery.toLowerCase()) ||
-          cls.tutorName.toLowerCase().contains(_searchQuery.toLowerCase()) ||
-          (cls.instituteName ?? '')
-              .toLowerCase()
-              .contains(_searchQuery.toLowerCase());
+      final q = _searchQuery.toLowerCase();
+      final matchesSearch = q.isEmpty ||
+          cls.name.toLowerCase().contains(q) ||
+          cls.subjectName.toLowerCase().contains(q) ||
+          cls.tutorName.toLowerCase().contains(q) ||
+          (cls.instituteName ?? '').toLowerCase().contains(q);
 
       final matchesDay =
           _selectedDay == null || cls.day.toString() == _selectedDay;
@@ -346,19 +317,42 @@ class StudentClassPageController extends ChangeNotifier {
       final matchesStatus = _selectedStatus == null ||
           cls.status.toUpperCase() == _selectedStatus!.toUpperCase();
 
+      final matchesType = _selectedType == null ||
+          (_selectedType == 'institute' && cls.instituteId != null) ||
+          (_selectedType == 'tutor' && cls.instituteId == null);
+
+      bool matchesTime = true;
+      if (_startTime != null || _endTime != null) {
+        final clsStart = _parseAmPm(cls.startTime);
+        final filterStart = _startTime != null
+            ? _startTime!.hour * 60 + _startTime!.minute
+            : 0;
+        final filterEnd = _endTime != null
+            ? _endTime!.hour * 60 + _endTime!.minute
+            : 24 * 60;
+        matchesTime = clsStart >= filterStart && clsStart <= filterEnd;
+      }
+
+      final matchesFee =
+          (_minFee == null || cls.amount >= _minFee!) &&
+          (_maxFee == null || cls.amount <= _maxFee!);
+
       return matchesSearch &&
           matchesDay &&
           matchesSubject &&
           matchesGrade &&
-          matchesStatus;
+          matchesStatus &&
+          matchesType &&
+          matchesTime &&
+          matchesFee;
     }).toList();
   }
 
-  // ── Computed: total pages ────────────────────────────────────
+  // ── Total pages ──────────────────────────────────────────────
   int get totalPages =>
       (filteredClasses.length / itemsPerPage).ceil().clamp(1, 999);
 
-  // ── Computed: current page items ─────────────────────────────
+  // ── Current page items ───────────────────────────────────────
   List<StudentClassModel> get currentPageItems {
     if (filteredClasses.isEmpty) return [];
     final start = _currentPage * itemsPerPage;
@@ -385,11 +379,21 @@ class StudentClassPageController extends ChangeNotifier {
     String? subject,
     String? grade,
     String? status,
+    String? type,
+    TimeOfDay? startTime,
+    TimeOfDay? endTime,
+    double? minFee,
+    double? maxFee,
   }) {
     _selectedDay = day;
     _selectedSubject = subject;
     _selectedGrade = grade;
     _selectedStatus = status;
+    _selectedType = type;
+    _startTime = startTime;
+    _endTime = endTime;
+    _minFee = minFee;
+    _maxFee = maxFee;
     _currentPage = 0;
     notifyListeners();
   }
@@ -399,6 +403,11 @@ class StudentClassPageController extends ChangeNotifier {
     _selectedSubject = null;
     _selectedGrade = null;
     _selectedStatus = null;
+    _selectedType = null;
+    _startTime = null;
+    _endTime = null;
+    _minFee = null;
+    _maxFee = null;
     _currentPage = 0;
     notifyListeners();
   }

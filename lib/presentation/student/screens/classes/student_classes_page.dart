@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:warna_app/core/constants/app_colors.dart';
 import 'package:warna_app/core/constants/select_options.dart';
+import 'package:warna_app/data/repositories/metadata_repository.dart';
 import 'package:warna_app/presentation/student/controllers/student_class_page_controller.dart';
 import 'package:warna_app/presentation/student/screens/classes/student_class_detail_page.dart';
+import 'package:warna_app/shared/widgets/field_error_text.dart';
 import 'package:warna_app/shared/widgets/new/course_card.dart';
 import 'package:warna_app/shared/widgets/new/custom_textfield.dart';
 import 'package:warna_app/shared/widgets/new/new_select_options.dart';
@@ -20,6 +22,7 @@ class StudentClassesPage extends StatefulWidget {
 
 class _StudentClassesPageState extends State<StudentClassesPage> {
   late StudentClassPageController controller;
+  List<Map<String, String>> _subjectsList = [];
 
   final TextEditingController _searchController = TextEditingController();
 
@@ -28,6 +31,21 @@ class _StudentClassesPageState extends State<StudentClassesPage> {
     super.initState();
     controller = StudentClassPageController();
     controller.fetchClasses();
+    _loadSubjects();
+  }
+
+  Future<void> _loadSubjects() async {
+    final raw = await MetadataRepository().getSubjects();
+    if (raw != null && mounted) {
+      setState(() {
+        _subjectsList = raw
+            .map((s) => {
+                  'id': s['id'].toString(),
+                  'name': s['name'].toString(),
+                })
+            .toList();
+      });
+    }
   }
 
   // ── Filter sheet ─────────────────────────────────────────────
@@ -37,6 +55,15 @@ class _StudentClassesPageState extends State<StudentClassesPage> {
     String? tempSubject = controller.selectedSubject;
     String? tempGrade = controller.selectedGrade;
     String? tempStatus = controller.selectedStatus;
+    String? tempType = controller.selectedType;
+    TimeOfDay? tempStart = controller.startTime;
+    TimeOfDay? tempEnd = controller.endTime;
+
+    // Fee range — default to full range (0–20000)
+    const double feeMin = 0;
+    const double feeMax = 20000;
+    double tempMinFee = controller.minFee ?? feeMin;
+    double tempMaxFee = controller.maxFee ?? feeMax;
 
     showModalBottomSheet(
       context: context,
@@ -46,9 +73,9 @@ class _StudentClassesPageState extends State<StudentClassesPage> {
         return StatefulBuilder(
           builder: (context, setSheetState) {
             return DraggableScrollableSheet(
-              initialChildSize: 0.7,
-              minChildSize: 0.4,
-              maxChildSize: 0.9,
+              initialChildSize: 0.9,
+              minChildSize: 0.5,
+              maxChildSize: 0.95,
               builder: (_, scrollController) {
                 return Container(
                   decoration: const BoxDecoration(
@@ -91,6 +118,11 @@ class _StudentClassesPageState extends State<StudentClassesPage> {
                                 tempSubject = null;
                                 tempGrade = null;
                                 tempStatus = null;
+                                tempType = null;
+                                tempStart = null;
+                                tempEnd = null;
+                                tempMinFee = feeMin;
+                                tempMaxFee = feeMax;
                               }),
                               child: const Text(
                                 'Clear All',
@@ -100,12 +132,14 @@ class _StudentClassesPageState extends State<StudentClassesPage> {
                           ],
                         ),
                       ),
+
                       // Filter fields
                       Expanded(
                         child: ListView(
                           controller: scrollController,
                           padding: const EdgeInsets.all(20),
                           children: [
+                            // ── Day ───────────────────────────────────
                             NewSelectOptions(
                               label: "Day",
                               value: tempDay,
@@ -114,14 +148,18 @@ class _StudentClassesPageState extends State<StudentClassesPage> {
                                   setSheetState(() => tempDay = id),
                             ),
                             const SizedBox(height: 20),
+
+                            // ── Subject ───────────────────────────────
                             NewSelectOptions(
                               label: "Subject",
                               value: tempSubject,
-                              items: studentSubjectOptions,
+                              items: _subjectsList,
                               onChanged: (id) =>
                                   setSheetState(() => tempSubject = id),
                             ),
                             const SizedBox(height: 20),
+
+                            // ── Grade ─────────────────────────────────
                             NewSelectOptions(
                               label: "Grade",
                               value: tempGrade,
@@ -130,59 +168,156 @@ class _StudentClassesPageState extends State<StudentClassesPage> {
                                   setSheetState(() => tempGrade = id),
                             ),
                             const SizedBox(height: 20),
-                            // Status chips
+
+                            // ── Status ────────────────────────────────
                             const _FilterSectionLabel('Status'),
                             const SizedBox(height: 10),
                             Wrap(
                               spacing: 8,
                               runSpacing: 8,
-                              children:
-                                  studentClassStatusOptions.map((status) {
-                                final isSelected = tempStatus == status;
-                                return GestureDetector(
-                                  onTap: () => setSheetState(() =>
-                                      tempStatus =
-                                          isSelected ? null : status),
-                                  child: AnimatedContainer(
-                                    duration:
-                                        const Duration(milliseconds: 180),
-                                    padding: const EdgeInsets.symmetric(
-                                        horizontal: 14, vertical: 8),
-                                    decoration: BoxDecoration(
-                                      color: isSelected
-                                          ? AppColors.primary
-                                          : const Color(0xffF5F7FB),
-                                      borderRadius:
-                                          BorderRadius.circular(20),
-                                      border: Border.all(
-                                        color: isSelected
-                                            ? AppColors.primary
-                                            : const Color(0xffDDDDDD),
-                                      ),
-                                    ),
-                                    child: Text(
-                                      status,
-                                      style: TextStyle(
-                                        fontSize: 12,
-                                        fontWeight: FontWeight.w600,
-                                        color: isSelected
-                                            ? Colors.white
-                                            : const Color(0xff555555),
-                                        letterSpacing: 0.5,
-                                      ),
-                                    ),
-                                  ),
+                              children: studentClassStatusOptions.map((s) {
+                                final isSelected = tempStatus == s;
+                                return _FilterChip(
+                                  label: s,
+                                  isSelected: isSelected,
+                                  onTap: () => setSheetState(
+                                      () => tempStatus = isSelected ? null : s),
                                 );
                               }).toList(),
                             ),
+                            const SizedBox(height: 20),
+
+                            // ── Class Type ────────────────────────────
+                            const _FilterSectionLabel('Class Type'),
+                            const SizedBox(height: 10),
+                            Wrap(
+                              spacing: 8,
+                              runSpacing: 8,
+                              children: studentClassTypeOptions.map((opt) {
+                                final isSelected = tempType == opt['id'];
+                                return _FilterChip(
+                                  label: opt['label']!,
+                                  isSelected: isSelected,
+                                  onTap: () => setSheetState(() =>
+                                      tempType =
+                                          isSelected ? null : opt['id']),
+                                );
+                              }).toList(),
+                            ),
+                            const SizedBox(height: 20),
+
+                            // ── Fee Range ─────────────────────────────
+                            const _FilterSectionLabel('Fee Range (Rs.)'),
+                            const SizedBox(height: 6),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Text(
+                                  'Rs. ${tempMinFee.toStringAsFixed(0)}',
+                                  style: const TextStyle(
+                                    fontSize: 13,
+                                    fontWeight: FontWeight.w600,
+                                    color: AppColors.textPrimary,
+                                  ),
+                                ),
+                                Text(
+                                  'Rs. ${tempMaxFee.toStringAsFixed(0)}',
+                                  style: const TextStyle(
+                                    fontSize: 13,
+                                    fontWeight: FontWeight.w600,
+                                    color: AppColors.textPrimary,
+                                  ),
+                                ),
+                              ],
+                            ),
+                            SliderTheme(
+                              data: SliderTheme.of(context).copyWith(
+                                activeTrackColor: AppColors.primary,
+                                inactiveTrackColor:
+                                    AppColors.primary.withOpacity(0.15),
+                                thumbColor: AppColors.primary,
+                                overlayColor:
+                                    AppColors.primary.withOpacity(0.12),
+                                rangeThumbShape:
+                                    const RoundRangeSliderThumbShape(
+                                        enabledThumbRadius: 10),
+                              ),
+                              child: RangeSlider(
+                                min: feeMin,
+                                max: feeMax,
+                                divisions: 200,
+                                values: RangeValues(tempMinFee, tempMaxFee),
+                                onChanged: (v) => setSheetState(() {
+                                  tempMinFee = v.start;
+                                  tempMaxFee = v.end;
+                                }),
+                              ),
+                            ),
+                            const SizedBox(height: 20),
+
+                            // ── Time Range ────────────────────────────
+                            Row(
+                              children: [
+                                Expanded(
+                                  child: _buildTimePicker(
+                                    label: 'Start Time',
+                                    selectedTime: tempStart,
+                                    onTap: () async {
+                                      final picked = await showTimePicker(
+                                        context: context,
+                                        initialTime: tempStart ??
+                                            const TimeOfDay(hour: 8, minute: 0),
+                                      );
+                                      if (picked != null) {
+                                        setSheetState(() => tempStart = picked);
+                                      }
+                                    },
+                                  ),
+                                ),
+                                const SizedBox(width: 16),
+                                Expanded(
+                                  child: _buildTimePicker(
+                                    label: 'End Time',
+                                    selectedTime: tempEnd,
+                                    onTap: () async {
+                                      final picked = await showTimePicker(
+                                        context: context,
+                                        initialTime: tempEnd ??
+                                            const TimeOfDay(
+                                                hour: 10, minute: 0),
+                                      );
+                                      if (picked != null) {
+                                        setSheetState(() => tempEnd = picked);
+                                      }
+                                    },
+                                  ),
+                                ),
+                              ],
+                            ),
+                            if (tempStart != null && tempEnd != null)
+                              Builder(builder: (_) {
+                                final s =
+                                    tempStart!.hour * 60 + tempStart!.minute;
+                                final e = tempEnd!.hour * 60 + tempEnd!.minute;
+                                if (e <= s) {
+                                  return const Padding(
+                                    padding: EdgeInsets.only(top: 8),
+                                    child: FieldErrorText(
+                                      message:
+                                          'End time must be after start time',
+                                    ),
+                                  );
+                                }
+                                return const SizedBox.shrink();
+                              }),
                             const SizedBox(height: 30),
                           ],
                         ),
                       ),
+
                       // Apply button
                       Container(
-                        padding:
-                            const EdgeInsets.fromLTRB(20, 12, 20, 24),
+                        padding: const EdgeInsets.fromLTRB(20, 12, 20, 24),
                         decoration: const BoxDecoration(
                           color: Colors.white,
                           border: Border(
@@ -193,11 +328,22 @@ class _StudentClassesPageState extends State<StudentClassesPage> {
                           height: 50,
                           child: ElevatedButton(
                             onPressed: () {
+                              if (tempStart != null && tempEnd != null) {
+                                final s =
+                                    tempStart!.hour * 60 + tempStart!.minute;
+                                final e = tempEnd!.hour * 60 + tempEnd!.minute;
+                                if (e <= s) return;
+                              }
                               controller.applyFilters(
                                 day: tempDay,
                                 subject: tempSubject,
                                 grade: tempGrade,
                                 status: tempStatus,
+                                type: tempType,
+                                startTime: tempStart,
+                                endTime: tempEnd,
+                                minFee: tempMinFee > feeMin ? tempMinFee : null,
+                                maxFee: tempMaxFee < feeMax ? tempMaxFee : null,
                               );
                               setState(() {});
                               Navigator.pop(context);
@@ -228,6 +374,60 @@ class _StudentClassesPageState extends State<StudentClassesPage> {
           },
         );
       },
+    );
+  }
+
+  // ── Time picker widget ───────────────────────────────────────
+
+  Widget _buildTimePicker({
+    required String label,
+    required TimeOfDay? selectedTime,
+    required VoidCallback onTap,
+  }) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Padding(
+          padding: const EdgeInsets.only(bottom: 8),
+          child: Text(
+            label,
+            style: const TextStyle(
+              fontSize: 14,
+              fontWeight: FontWeight.w600,
+              color: AppColors.textPrimary,
+            ),
+          ),
+        ),
+        GestureDetector(
+          onTap: onTap,
+          child: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(color: Colors.grey.shade200),
+            ),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  selectedTime != null
+                      ? selectedTime.format(context)
+                      : 'Select Time',
+                  style: TextStyle(
+                    color: selectedTime != null
+                        ? AppColors.textPrimary
+                        : AppColors.textSecondary,
+                    fontSize: 14,
+                  ),
+                ),
+                const Icon(Icons.access_time,
+                    color: AppColors.textSecondary, size: 20),
+              ],
+            ),
+          ),
+        ),
+      ],
     );
   }
 
@@ -301,8 +501,7 @@ class _StudentClassesPageState extends State<StudentClassesPage> {
                                       width: 50,
                                       decoration: BoxDecoration(
                                         color: activeFilterCount > 0
-                                            ? AppColors.primary
-                                                .withOpacity(0.1)
+                                            ? AppColors.primary.withOpacity(0.1)
                                             : const Color(0xffF5F7FB),
                                         borderRadius:
                                             BorderRadius.circular(10),
@@ -433,11 +632,11 @@ class _StudentClassesPageState extends State<StudentClassesPage> {
                                 subject: cls.subjectName,
                                 grade: studentGradeName(cls.grade),
                                 tutorName: cls.tutorName,
-                                location: cls.location,
+                                location: cls.location ?? '—',
                                 day: studentDayName(cls.day),
                                 time: cls.startTime,
                                 duration: cls.duration,
-                                studentCount: cls.classSize,
+                                studentCount: cls.studentCount,
                                 dayColor: studentDayColor(cls.day),
                                 dayBg: studentDayBg(cls.day),
                                 onViewDetails: () {
@@ -447,7 +646,7 @@ class _StudentClassesPageState extends State<StudentClassesPage> {
                                       builder: (_) => StudentClassDetailPage(
                                           classItemDetails: cls),
                                     ),
-                                  );
+                                  ).then((_) => controller.fetchClasses());
                                 },
                               );
                             },
@@ -475,6 +674,49 @@ class _StudentClassesPageState extends State<StudentClassesPage> {
                 ),
         );
       },
+    );
+  }
+}
+
+// ============================================================
+// REUSABLE FILTER CHIP
+// ============================================================
+
+class _FilterChip extends StatelessWidget {
+  final String label;
+  final bool isSelected;
+  final VoidCallback onTap;
+
+  const _FilterChip({
+    required this.label,
+    required this.isSelected,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: onTap,
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 180),
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+        decoration: BoxDecoration(
+          color: isSelected ? AppColors.primary : const Color(0xffF5F7FB),
+          borderRadius: BorderRadius.circular(20),
+          border: Border.all(
+            color: isSelected ? AppColors.primary : const Color(0xffDDDDDD),
+          ),
+        ),
+        child: Text(
+          label,
+          style: TextStyle(
+            fontSize: 12,
+            fontWeight: FontWeight.w600,
+            color: isSelected ? Colors.white : const Color(0xff555555),
+            letterSpacing: 0.5,
+          ),
+        ),
+      ),
     );
   }
 }
@@ -534,7 +776,6 @@ class _PaginationBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final pageItems = _buildPageItems();
-
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
       child: Column(
@@ -614,9 +855,8 @@ class _ModernNavButton extends StatelessWidget {
           color: enabled ? Colors.white : const Color(0xffF5F5F5),
           borderRadius: BorderRadius.circular(10),
           border: Border.all(
-            color: enabled
-                ? const Color(0xffDDE3F0)
-                : const Color(0xffEEEEEE),
+            color:
+                enabled ? const Color(0xffDDE3F0) : const Color(0xffEEEEEE),
           ),
           boxShadow: enabled
               ? [
@@ -671,9 +911,7 @@ class _ModernPageButton extends StatelessWidget {
           color: isSelected ? null : Colors.white,
           borderRadius: BorderRadius.circular(10),
           border: Border.all(
-            color: isSelected
-                ? AppColors.primary
-                : const Color(0xffDDE3F0),
+            color: isSelected ? AppColors.primary : const Color(0xffDDE3F0),
           ),
           boxShadow: isSelected
               ? [
@@ -696,8 +934,7 @@ class _ModernPageButton extends StatelessWidget {
           '${page + 1}',
           style: TextStyle(
             fontSize: 13,
-            fontWeight:
-                isSelected ? FontWeight.w700 : FontWeight.w500,
+            fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
             color: isSelected ? Colors.white : const Color(0xff555555),
           ),
         ),
