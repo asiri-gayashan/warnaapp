@@ -1,7 +1,7 @@
 import 'package:go_router/go_router.dart';
 import 'package:warna_app/features/auth/ui/screens/login/login_screen.dart';
 import 'package:warna_app/features/institute/ui/navigation/institute_navigation.dart';
-import 'package:warna_app/features/student/ui/navigation/student_navigation.dart';
+import 'package:warna_app/presentation/student/navigation/student_navigation.dart';
 import 'package:warna_app/presentation/tutor/navigation/tutor_navigation.dart';
 import 'package:warna_app/presentation/tutor/screens/classes/tutor_fees_attendance_page.dart';
 import 'package:warna_app/presentation/institute/screens/classes/fees_attendance_page.dart';
