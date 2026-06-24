@@ -6,12 +6,15 @@ class MarkPaymentPage extends StatefulWidget {
   final String classId;
   final String className;
   final double classAmount;
+  final double instituteCommission;
+
 
   const MarkPaymentPage({
     Key? key,
     required this.classId,
     required this.className,
     required this.classAmount,
+    required this.instituteCommission,
   }) : super(key: key);
 
   @override
@@ -38,6 +41,10 @@ class _MarkPaymentPageState extends State<MarkPaymentPage> {
   bool _isLoading = true;
   bool _isSaving = false;
 
+  // Tutor payment state
+  Map<String, dynamic>? _tutorPaymentInfo; // null while loading
+  bool _isSavingTutorPayment = false;
+
   String get _formattedMonth =>
       "${_selectedMonth.year} - ${_selectedMonth.month.toString().padLeft(2, '0')}";
 
@@ -49,17 +56,25 @@ class _MarkPaymentPageState extends State<MarkPaymentPage> {
 
   Future<void> _loadData() async {
     setState(() => _isLoading = true);
- 
-    // Fetch enrolled students
-    final students =
-        await _controller.getEnrollStudentsByClassId(widget.classId);
 
-    // Fetch existing payments for selected month
-    final payments = await _controller.getPaymentsByClassAndMonth(
-      widget.classId,
-      _selectedMonth.month,
-      _selectedMonth.year,
-    );
+    // Parallel fetch: students + student payments + tutor payment status
+    final results = await Future.wait([
+      _controller.getEnrollStudentsByClassId(widget.classId),
+      _controller.getPaymentsByClassAndMonth(
+        widget.classId,
+        _selectedMonth.month,
+        _selectedMonth.year,
+      ),
+      _controller.getTutorPaymentStatus(
+        widget.classId,
+        _selectedMonth.month,
+        _selectedMonth.year,
+      ),
+    ]);
+
+    final students = results[0] as List<Map<String, dynamic>>?;
+    final payments = results[1] as List<Map<String, dynamic>>?;
+    final tutorInfo = results[2] as Map<String, dynamic>?;
 
     final existingMap = <String, Map<String, dynamic>>{};
     final paymentMap = <String, bool>{};
@@ -89,6 +104,7 @@ class _MarkPaymentPageState extends State<MarkPaymentPage> {
       _enrolledStudents = students ?? [];
       _existingPayments = existingMap;
       _paymentMap = paymentMap;
+      _tutorPaymentInfo = tutorInfo;
       _isLoading = false;
     });
   }
@@ -99,11 +115,21 @@ class _MarkPaymentPageState extends State<MarkPaymentPage> {
       _isLoading = true;
     });
 
-    final payments = await _controller.getPaymentsByClassAndMonth(
-      widget.classId,
-      newMonth.month,
-      newMonth.year,
-    );
+    final results = await Future.wait([
+      _controller.getPaymentsByClassAndMonth(
+        widget.classId,
+        newMonth.month,
+        newMonth.year,
+      ),
+      _controller.getTutorPaymentStatus(
+        widget.classId,
+        newMonth.month,
+        newMonth.year,
+      ),
+    ]);
+
+    final payments = results[0] as List<Map<String, dynamic>>?;
+    final tutorInfo = results[1] as Map<String, dynamic>?;
 
     final existingMap = <String, Map<String, dynamic>>{};
     final paymentMap = <String, bool>{};
@@ -129,6 +155,7 @@ class _MarkPaymentPageState extends State<MarkPaymentPage> {
     setState(() {
       _existingPayments = existingMap;
       _paymentMap = paymentMap;
+      _tutorPaymentInfo = tutorInfo;
       _isLoading = false;
     });
   }
@@ -138,26 +165,9 @@ class _MarkPaymentPageState extends State<MarkPaymentPage> {
     // They can only be toggled if no existing record yet
     final existing = _existingPayments[studentId];
     if (existing != null && existing['status'] == 'PAID') {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          behavior: SnackBarBehavior.floating,
-          margin: const EdgeInsets.all(16),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12),
-          ),
-          backgroundColor: Colors.orange,
-          content: Row(
-            children: [
-              const Icon(Icons.warning, color: Colors.white),
-              const SizedBox(width: 10),
-              const Expanded(
-                child: Text(
-                  'Payment already recorded. Cannot unmark a paid payment.',
-                ),
-              ),
-            ],
-          ),
-        ),
+      _showSnackBar(
+        'Payment already recorded. Cannot unmark a paid payment.',
+        isError: false,
       );
       return;
     }
@@ -173,23 +183,7 @@ class _MarkPaymentPageState extends State<MarkPaymentPage> {
     final markedUserId = await _controller.getMarkedUserId();
 
     if (markedUserId == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          behavior: SnackBarBehavior.floating,
-          margin: const EdgeInsets.all(16),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12),
-          ),
-          backgroundColor: AppColors.error,
-          content: Row(
-            children: [
-              const Icon(Icons.error, color: Colors.white),
-              const SizedBox(width: 10),
-              const Expanded(child: Text('Could not get logged in user')),
-            ],
-          ),
-        ),
-      );
+      _showSnackBar('Could not get logged in user', isError: true);
       setState(() => _isSaving = false);
       return;
     }
@@ -216,23 +210,7 @@ class _MarkPaymentPageState extends State<MarkPaymentPage> {
     }
 
     if (toInsert.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          behavior: SnackBarBehavior.floating,
-          margin: const EdgeInsets.all(16),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12),
-          ),
-          backgroundColor: Colors.orange,
-          content: Row(
-            children: [
-              const Icon(Icons.info, color: Colors.white),
-              const SizedBox(width: 10),
-              const Expanded(child: Text('No new payments to save')),
-            ],
-          ),
-        ),
-      );
+      _showSnackBar('No new payments to save', isError: false);
       setState(() => _isSaving = false);
       return;
     }
@@ -240,45 +218,77 @@ class _MarkPaymentPageState extends State<MarkPaymentPage> {
     final success = await _controller.insertPayments(toInsert);
 
     if (success) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          behavior: SnackBarBehavior.floating,
-          margin: const EdgeInsets.all(16),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12),
-          ),
-          backgroundColor: AppColors.success,
-          content: Row(
-            children: [
-              const Icon(Icons.check_circle, color: Colors.white),
-              const SizedBox(width: 10),
-              const Expanded(child: Text('Payments saved successfully')),
-            ],
-          ),
-        ),
-      );
+      _showSnackBar('Payments saved successfully', isError: false);
       await _loadData();
     } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          behavior: SnackBarBehavior.floating,
-          margin: const EdgeInsets.all(16),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12),
-          ),
-          backgroundColor: AppColors.error,
-          content: Row(
-            children: [
-              const Icon(Icons.error, color: Colors.white),
-              const SizedBox(width: 10),
-              const Expanded(child: Text('Failed to save payments')),
-            ],
-          ),
-        ),
-      );
+      _showSnackBar('Failed to save payments', isError: true);
     }
 
     setState(() => _isSaving = false);
+  }
+
+  Future<void> _saveTutorPayment() async {
+    final info = _tutorPaymentInfo;
+    if (info == null) return;
+
+    final tutorId = info['tutor_id']?.toString();
+    if (tutorId == null) return;
+
+    setState(() => _isSavingTutorPayment = true);
+
+    final markedUserId = await _controller.getMarkedUserId();
+    if (markedUserId == null) {
+      _showSnackBar('Could not get logged in user', isError: true);
+      setState(() => _isSavingTutorPayment = false);
+      return;
+    }
+
+    final success = await _controller.insertTutorPayment({
+      'class_id': widget.classId,
+      'tutor_id': tutorId,
+      'amount': info['tutor_amount'] ?? 0,
+      'paid_date':
+          DateTime(_selectedMonth.year, _selectedMonth.month, 1).toIso8601String(),
+      'marked_user_id': markedUserId,
+    });
+
+    if (success) {
+      _showSnackBar('Tutor payment marked successfully', isError: false);
+      // Refresh tutor payment status
+      final updated = await _controller.getTutorPaymentStatus(
+        widget.classId,
+        _selectedMonth.month,
+        _selectedMonth.year,
+      );
+      setState(() => _tutorPaymentInfo = updated);
+    } else {
+      _showSnackBar('Failed to mark tutor payment', isError: true);
+    }
+
+    setState(() => _isSavingTutorPayment = false);
+  }
+
+  void _showSnackBar(String message, {required bool isError}) {
+    if (!mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        behavior: SnackBarBehavior.floating,
+        margin: const EdgeInsets.all(16),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        backgroundColor: isError ? AppColors.error : AppColors.success,
+        content: Row(
+          children: [
+            Icon(isError ? Icons.error : Icons.check_circle,
+                color: Colors.white),
+            const SizedBox(width: 10),
+            Expanded(
+              child: Text(message,
+                  style: const TextStyle(color: Colors.white)),
+            ),
+          ],
+        ),
+      ),
+    );
   }
 
   // Month year picker dialog
@@ -477,7 +487,8 @@ class _MarkPaymentPageState extends State<MarkPaymentPage> {
                   const SizedBox(height: 20),
                   _buildCountStatsRow(),
                   const SizedBox(height: 20),
-        
+          _buildTutorPaymentCard(),
+                  const SizedBox(height: 30),
                   _buildSearchBar(),
                   const SizedBox(height: 16),
                   _buildSelectAllRow(),
@@ -485,7 +496,8 @@ class _MarkPaymentPageState extends State<MarkPaymentPage> {
                   _buildTable(),
                   const SizedBox(height: 24),
                   _buildSaveButton(),
-                  const SizedBox(height: 30),
+                  const SizedBox(height: 20),
+                
                 ],
               ),
             ),
@@ -987,6 +999,223 @@ class _MarkPaymentPageState extends State<MarkPaymentPage> {
                 'Save Payments',
                 style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
               ),
+      ),
+    );
+  }
+
+  Widget _buildTutorPaymentCard() {
+    final info = _tutorPaymentInfo;
+
+    // No tutor assigned to this class
+    if (info != null && info['tutor_id'] == null) {
+      return const SizedBox.shrink();
+    }
+
+    final tutorName = info?['tutor_name']?.toString() ?? '';
+    final tutorAmount = (info?['tutor_amount'] ?? 0).toDouble();
+    final isPaid = info?['paid'] == true;
+
+    return Container(
+      padding: const EdgeInsets.all(18),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(
+          color: isPaid
+              ? AppColors.success.withOpacity(0.4)
+              : AppColors.border,
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.04),
+            blurRadius: 12,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Section header
+          Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: AppColors.success.withOpacity(0.1),
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: const Icon(Icons.person_outline,
+                    color: AppColors.success, size: 18),
+              ),
+              const SizedBox(width: 10),
+              const Text(
+                'Tutor Payment',
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+              const Spacer(),
+              if (isPaid)
+                Container(
+                  padding: const EdgeInsets.symmetric(
+                      horizontal: 10, vertical: 4),
+                  decoration: BoxDecoration(
+                    color: AppColors.success.withOpacity(0.1),
+                    borderRadius: BorderRadius.circular(20),
+                  ),
+                  child: const Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(Icons.check_circle,
+                          color: AppColors.success, size: 13),
+                      SizedBox(width: 4),
+                      Text(
+                        'Paid',
+                        style: TextStyle(
+                          fontSize: 12,
+                          fontWeight: FontWeight.w600,
+                          color: AppColors.success,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+            ],
+          ),
+
+          const SizedBox(height: 16),
+
+          // Tutor info row
+          if (info == null)
+            const Center(
+              child: SizedBox(
+                height: 24,
+                width: 24,
+                child: CircularProgressIndicator(strokeWidth: 2),
+              ),
+            )
+          else ...[
+            Row(
+              children: [
+                Expanded(
+                  child: _tutorInfoTile(
+                    Icons.person,
+                    'Tutor',
+                    tutorName.isNotEmpty ? tutorName : '—',
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: _tutorInfoTile(
+                    Icons.payments_outlined,
+                    'Amount Due · ${(100 - widget.instituteCommission).toStringAsFixed(0)}%',
+                    'Rs ${tutorAmount.toStringAsFixed(0)}',
+                  ),
+                ),
+              ],
+            ),
+
+            const SizedBox(height: 16),
+
+            // Mark paid button
+            SizedBox(
+              width: double.infinity,
+              child: ElevatedButton.icon(
+                onPressed: isPaid || _isSavingTutorPayment || tutorAmount <= 0
+                    ? null
+                    : _saveTutorPayment,
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: AppColors.success,
+                  disabledBackgroundColor: isPaid
+                      ? AppColors.success.withOpacity(0.15)
+                      : Colors.grey.shade300,
+                  foregroundColor: Colors.white,
+                  padding: const EdgeInsets.symmetric(vertical: 14),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(14),
+                  ),
+                  elevation: 0,
+                ),
+                icon: _isSavingTutorPayment
+                    ? const SizedBox(
+                        width: 18,
+                        height: 18,
+                        child: CircularProgressIndicator(
+                          color: Colors.white,
+                          strokeWidth: 2,
+                        ),
+                      )
+                    : Icon(
+                        isPaid ? Icons.lock : Icons.check,
+                        size: 18,
+                        color: isPaid ? AppColors.success : Colors.white,
+                      ),
+                label: Text(
+                  isPaid ? 'Tutor Already Paid' : 'Mark Tutor Paid',
+                  style: TextStyle(
+                    fontSize: 15,
+                    fontWeight: FontWeight.w600,
+                    color: isPaid ? AppColors.success : Colors.white,
+                  ),
+                ),
+              ),
+            ),
+
+            if (tutorAmount <= 0 && !isPaid)
+              Padding(
+                padding: const EdgeInsets.only(top: 8),
+                child: Text(
+                  'Amount will be calculated once student payments are saved.',
+                  style: TextStyle(
+                    fontSize: 11,
+                    color: AppColors.textSecondary,
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+              ),
+          ],
+        ],
+      ),
+    );
+  }
+
+  Widget _tutorInfoTile(IconData icon, String label, String value) {
+    return Container(
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: AppColors.background,
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Row(
+        children: [
+          Icon(icon, size: 16, color: AppColors.textSecondary),
+          const SizedBox(width: 8),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  label,
+                  style: const TextStyle(
+                    fontSize: 10,
+                    color: AppColors.textSecondary,
+                  ),
+                ),
+                const SizedBox(height: 2),
+                Text(
+                  value,
+                  style: const TextStyle(
+                    fontSize: 13,
+                    fontWeight: FontWeight.w600,
+                  ),
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ],
+            ),
+          ),
+        ],
       ),
     );
   }

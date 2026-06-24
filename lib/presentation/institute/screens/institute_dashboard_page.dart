@@ -3,8 +3,9 @@ import 'package:open_filex/open_filex.dart';
 import 'package:warna_app/core/constants/app_colors.dart';
 import 'package:warna_app/core/constants/select_options.dart';
 import 'package:warna_app/data/repositories/metadata_repository.dart';
-import 'package:warna_app/features/auth/logic/auth_service.dart';
 import 'package:warna_app/presentation/institute/controllers/institute_dashboard_controller.dart';
+import 'package:warna_app/presentation/institute/screens/institute_notifications_page.dart';
+import 'package:warna_app/presentation/institute/screens/institute_profile_page.dart';
 import 'package:warna_app/shared/widgets/new/category_grid_card.dart';
 import 'package:warna_app/shared/widgets/new/metric_overview_card.dart';
 import 'package:warna_app/shared/widgets/new/performance_row_item.dart';
@@ -688,9 +689,32 @@ class _InstituteDashboardPageState
       appBar: AppBar(
         actions: [
           IconButton(
-            icon:
-                const Icon(Icons.logout, color: AppColors.textPrimary),
-            onPressed: () => AuthService.logoutUser(context: context),
+            icon: const Icon(
+              Icons.notifications_outlined,
+              color: AppColors.textPrimary,
+            ),
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (_) => const InstituteNotificationsPage(),
+                ),
+              );
+            },
+          ),
+          IconButton(
+            icon: const Icon(
+              Icons.person_outline,
+              color: AppColors.textPrimary,
+            ),
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (_) => const InstituteProfilePage(),
+                ),
+              );
+            },
           ),
         ],
         title: const Text(

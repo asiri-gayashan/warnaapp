@@ -77,4 +77,36 @@ class MarkPaymentController {
     final user = await UserService.getUser();
     return user?['id']?.toString();
   }
+
+  // GET tutor payment status for a class + month
+  Future<Map<String, dynamic>?> getTutorPaymentStatus(
+      String classId, int month, int year) async {
+    try {
+      final response = await _dio.get(
+        '/institute/data/tutor-payment/$classId',
+        queryParameters: {'month': month, 'year': year},
+      );
+      return Map<String, dynamic>.from(response.data['data']);
+    } on DioException catch (e) {
+      print(e.response?.data);
+      return null;
+    } catch (e) {
+      print(e);
+      return null;
+    }
+  }
+
+  // POST — insert a tutor payment record
+  Future<bool> insertTutorPayment(Map<String, dynamic> payment) async {
+    try {
+      await _dio.post('/institute/data/tutor-payment', data: payment);
+      return true;
+    } on DioException catch (e) {
+      print(e.response?.data);
+      return false;
+    } catch (e) {
+      print(e);
+      return false;
+    }
+  }
 }
