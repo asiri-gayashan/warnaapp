@@ -584,23 +584,8 @@ class _InstituteFinancePageState extends State<InstituteFinancePage> {
 
           const SizedBox(height: 10),
 
-          // Progress bar
-          ClipRRect(
-            borderRadius: BorderRadius.circular(8),
-            child: LinearProgressIndicator(
-              value: cls.totalCount > 0 ? cls.paidCount / cls.totalCount : 0,
-              minHeight: 7,
-              backgroundColor: AppColors.divider,
-              color: AppColors.success,
-            ),
-          ),
-          const SizedBox(height: 5),
-          Text(
-            cls.totalCount > 0
-                ? '${((cls.paidCount / cls.totalCount) * 100).toStringAsFixed(0)}% collected'
-                : '0% collected',
-            style: TextStyle(fontSize: 10, color: AppColors.textSecondary),
-          ),
+          
+           
         ],
       ),
     );

@@ -245,10 +245,7 @@ class _TutorFinancePageState extends State<TutorFinancePage> {
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
               gradient: LinearGradient(
-                colors: [
-                  AppColors.primary,
-                  AppColors.primary.withOpacity(0.8),
-                ],
+                colors: [AppColors.primary, AppColors.primary.withOpacity(0.8)],
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
               ),
@@ -465,10 +462,7 @@ class _TutorFinancePageState extends State<TutorFinancePage> {
           const SizedBox(height: 3),
           Text(
             'Grade ${cls.grade}',
-            style: TextStyle(
-              fontSize: 12,
-              color: AppColors.textSecondary,
-            ),
+            style: TextStyle(fontSize: 12, color: AppColors.textSecondary),
           ),
 
           const SizedBox(height: 16),
@@ -476,7 +470,7 @@ class _TutorFinancePageState extends State<TutorFinancePage> {
           // Financial metrics
           Row(
             children: [
-              Expanded(child: _metricTile('Received', _rs(cls.received))),
+              Expanded(child: _metricTile('Collected', _rs(cls.received))),
               Expanded(child: _metricTile('Pending', _rs(cls.pending))),
             ],
           ),
@@ -518,24 +512,6 @@ class _TutorFinancePageState extends State<TutorFinancePage> {
           ),
 
           const SizedBox(height: 10),
-
-          // Progress bar
-          ClipRRect(
-            borderRadius: BorderRadius.circular(8),
-            child: LinearProgressIndicator(
-              value: cls.totalCount > 0 ? cls.paidCount / cls.totalCount : 0,
-              minHeight: 7,
-              backgroundColor: AppColors.divider,
-              color: AppColors.success,
-            ),
-          ),
-          const SizedBox(height: 5),
-          Text(
-            cls.totalCount > 0
-                ? '${((cls.paidCount / cls.totalCount) * 100).toStringAsFixed(0)}% collected'
-                : '0% collected',
-            style: TextStyle(fontSize: 10, color: AppColors.textSecondary),
-          ),
         ],
       ),
     );
@@ -588,7 +564,9 @@ class _TutorFinancePageState extends State<TutorFinancePage> {
 
   Widget _buildInstitutePaymentChip(TutorClassFinanceModel cls) {
     final paid = cls.tutorPaidByInstitute;
-    final label = paid ? 'Institute Payment: Received' : 'Institute Payment: Pending';
+    final label = paid
+        ? 'Institute Payment: Received'
+        : 'Institute Payment: Pending';
     final color = paid ? AppColors.success : AppColors.warning;
     final icon = paid ? Icons.check_circle_outline : Icons.schedule;
 

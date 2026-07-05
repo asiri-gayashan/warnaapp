@@ -336,7 +336,7 @@ class _TutorDetailPageState extends State<TutorDetailPage> {
                             return UpcomingClassListTile(
                               className: cls.name,
                               grade: 'Grade ${cls.grade}',
-                              time: '${cls.startTime} - ${cls.endTime}',
+                              time: '${cls.startTime.toString().substring(0, 5)} - ${cls.endTime.toString().substring(0, 5)}',
                               teacher: cls.tutorName,
                               day: _controller.dayName(cls.day),
                               iconColor: AppColors.secondary,

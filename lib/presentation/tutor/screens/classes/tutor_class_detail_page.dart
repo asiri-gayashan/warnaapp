@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:warna_app/core/constants/app_colors.dart';
 import 'package:warna_app/core/constants/select_options.dart';
+import 'package:warna_app/core/network/dio_client.dart';
 import 'package:warna_app/data/repositories/class_repository.dart';
 import 'package:warna_app/presentation/tutor/controllers/tutor_class_page_controller.dart';
 import 'package:warna_app/presentation/tutor/screens/classes/tutor_edit_class_page.dart';
@@ -22,7 +23,19 @@ class TutorClassDetailPage extends StatefulWidget {
 class _TutorClassDetailPageState extends State<TutorClassDetailPage> {
   ClassModel? classesData;
   bool isLoading = true;
-  bool isReceived = true;
+  bool _tutorPaidThisMonth = false;
+  double _tutorAmountThisMonth = 0;
+
+  final _dio = DioClient.instance;
+
+  static const _monthNames = [
+    '', 'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
+    'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec',
+  ];
+  String get _currentMonthLabel {
+    final now = DateTime.now();
+    return '${_monthNames[now.month]} ${now.year}';
+  }
 
   @override
   void initState() {
@@ -31,20 +44,36 @@ class _TutorClassDetailPageState extends State<TutorClassDetailPage> {
   }
 
   Future<void> loadClassData() async {
-    final raw = await ClassRepository().getClassesById(
-      widget.classItemDetails.id,
-    );
-    if (raw != null) {
-      setState(() {
-        classesData = ClassModel.fromJson(raw);
-        isLoading = false;
-      });
-    } else {
-      // fall back to the data passed from the list page
-      setState(() {
+    final now = DateTime.now();
+    final classId = widget.classItemDetails.id;
+    final results = await Future.wait([
+      ClassRepository().getClassesById(classId),
+      _fetchTutorPaymentStatus(classId, now.month, now.year),
+    ]);
+    final raw = results[0];
+    final tutorInfo = results[1] as Map<String, dynamic>?;
+    setState(() {
+      if (raw != null) {
+        classesData = ClassModel.fromJson(raw as Map<String, dynamic>);
+      } else {
         classesData = widget.classItemDetails;
-        isLoading = false;
-      });
+      }
+      _tutorPaidThisMonth = tutorInfo?['paid'] == true;
+      _tutorAmountThisMonth = (tutorInfo?['tutor_amount'] ?? 0).toDouble();
+      isLoading = false;
+    });
+  }
+
+  Future<Map<String, dynamic>?> _fetchTutorPaymentStatus(
+      String classId, int month, int year) async {
+    try {
+      final res = await _dio.get(
+        '/institute/data/tutor-payment/$classId',
+        queryParameters: {'month': month, 'year': year},
+      );
+      return Map<String, dynamic>.from(res.data['data']);
+    } catch (_) {
+      return null;
     }
   }
 
@@ -314,18 +343,22 @@ class _TutorClassDetailPageState extends State<TutorClassDetailPage> {
                 decoration: BoxDecoration(
                   color: Colors.white,
                   borderRadius: BorderRadius.circular(16),
-                  border: Border.all(color: Colors.grey.shade200),
+                  border: Border.all(
+                    color: _tutorPaidThisMonth
+                        ? Colors.green.shade300
+                        : Colors.grey.shade200,
+                  ),
                 ),
                 child: Row(
                   children: [
                     Container(
                       padding: const EdgeInsets.all(10),
                       decoration: BoxDecoration(
-                        color: AppColors.primary.withOpacity(0.1),
+                        color: Colors.purple.withOpacity(0.1),
                         borderRadius: BorderRadius.circular(12),
                       ),
                       child: const Icon(Icons.business,
-                          color: AppColors.primary, size: 24),
+                          color: Colors.purple, size: 24),
                     ),
                     const SizedBox(width: 12),
                     Expanded(
@@ -340,12 +373,23 @@ class _TutorClassDetailPageState extends State<TutorClassDetailPage> {
                             ),
                           ),
                           const SizedBox(height: 4),
-                          const Text(
-                            'Institute Payment Status',
-                            style: TextStyle(
+                          Text(
+                            'Payment · $_currentMonthLabel',
+                            style: const TextStyle(
                                 fontSize: 13,
                                 color: AppColors.textSecondary),
                           ),
+                          if (_tutorAmountThisMonth > 0) ...[
+                            const SizedBox(height: 2),
+                            Text(
+                              'Rs ${_tutorAmountThisMonth.toStringAsFixed(0)}',
+                              style: const TextStyle(
+                                fontSize: 13,
+                                fontWeight: FontWeight.w600,
+                                color: Colors.purple,
+                              ),
+                            ),
+                          ],
                         ],
                       ),
                     ),
@@ -353,7 +397,7 @@ class _TutorClassDetailPageState extends State<TutorClassDetailPage> {
                       padding: const EdgeInsets.symmetric(
                           horizontal: 12, vertical: 6),
                       decoration: BoxDecoration(
-                        color: isReceived
+                        color: _tutorPaidThisMonth
                             ? Colors.green.withOpacity(0.1)
                             : Colors.orange.withOpacity(0.1),
                         borderRadius: BorderRadius.circular(20),
@@ -361,19 +405,19 @@ class _TutorClassDetailPageState extends State<TutorClassDetailPage> {
                       child: Row(
                         children: [
                           Icon(
-                            isReceived
+                            _tutorPaidThisMonth
                                 ? Icons.check_circle
                                 : Icons.pending,
-                            color: isReceived
+                            color: _tutorPaidThisMonth
                                 ? Colors.green
                                 : Colors.orange,
                             size: 16,
                           ),
                           const SizedBox(width: 4),
                           Text(
-                            isReceived ? 'Received' : 'Pending',
+                            _tutorPaidThisMonth ? 'Received' : 'Pending',
                             style: TextStyle(
-                              color: isReceived
+                              color: _tutorPaidThisMonth
                                   ? Colors.green
                                   : Colors.orange,
                               fontSize: 12,
@@ -448,6 +492,8 @@ class _TutorClassDetailPageState extends State<TutorClassDetailPage> {
                             classId: classData.id,
                             className: classData.name,
                             classAmount: classData.amount,
+                            instituteId: classData.instituteId,
+                            instituteCommission: classData.instituteCommission,
                           ),
                         ),
                       );

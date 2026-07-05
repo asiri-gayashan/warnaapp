@@ -72,6 +72,20 @@ class TutorMarkPaymentController {
     }
   }
 
+  // GET institute payment status for tutor (by class, month, year)
+  Future<Map<String, dynamic>?> getTutorPaymentStatus(
+      String classId, int month, int year) async {
+    try {
+      final response = await _dio.get(
+        '/institute/data/tutor-payment/$classId',
+        queryParameters: {'month': month, 'year': year},
+      );
+      return Map<String, dynamic>.from(response.data['data']);
+    } catch (_) {
+      return null;
+    }
+  }
+
   // Get logged in user id
   Future<String?> getMarkedUserId() async {
     final user = await UserService.getUser();

@@ -8,7 +8,6 @@ class MarkPaymentPage extends StatefulWidget {
   final double classAmount;
   final double instituteCommission;
 
-
   const MarkPaymentPage({
     Key? key,
     required this.classId,
@@ -201,8 +200,11 @@ class _MarkPaymentPageState extends State<MarkPaymentPage> {
         toInsert.add({
           'student_id': studentId,
           'class_id': widget.classId,
-          'paid_date': DateTime(_selectedMonth.year, _selectedMonth.month, 1)
-              .toIso8601String(),
+          'paid_date': DateTime(
+            _selectedMonth.year,
+            _selectedMonth.month,
+            1,
+          ).toIso8601String(),
           'payment_method': 'Cash',
           'marked_user_id': markedUserId,
         });
@@ -247,8 +249,11 @@ class _MarkPaymentPageState extends State<MarkPaymentPage> {
       'class_id': widget.classId,
       'tutor_id': tutorId,
       'amount': info['tutor_amount'] ?? 0,
-      'paid_date':
-          DateTime(_selectedMonth.year, _selectedMonth.month, 1).toIso8601String(),
+      'paid_date': DateTime(
+        _selectedMonth.year,
+        _selectedMonth.month,
+        1,
+      ).toIso8601String(),
       'marked_user_id': markedUserId,
     });
 
@@ -278,12 +283,13 @@ class _MarkPaymentPageState extends State<MarkPaymentPage> {
         backgroundColor: isError ? AppColors.error : AppColors.success,
         content: Row(
           children: [
-            Icon(isError ? Icons.error : Icons.check_circle,
-                color: Colors.white),
+            Icon(
+              isError ? Icons.error : Icons.check_circle,
+              color: Colors.white,
+            ),
             const SizedBox(width: 10),
             Expanded(
-              child: Text(message,
-                  style: const TextStyle(color: Colors.white)),
+              child: Text(message, style: const TextStyle(color: Colors.white)),
             ),
           ],
         ),
@@ -301,8 +307,9 @@ class _MarkPaymentPageState extends State<MarkPaymentPage> {
         return StatefulBuilder(
           builder: (context, setDialogState) {
             return AlertDialog(
-              shape:
-                  RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(20),
+              ),
               title: const Text(
                 'Select Month & Year',
                 style: TextStyle(fontWeight: FontWeight.w600, fontSize: 16),
@@ -320,22 +327,28 @@ class _MarkPaymentPageState extends State<MarkPaymentPage> {
                           icon: const Icon(Icons.chevron_left),
                           onPressed: () {
                             setDialogState(() {
-                              tempMonth =
-                                  DateTime(tempMonth.year - 1, tempMonth.month);
+                              tempMonth = DateTime(
+                                tempMonth.year - 1,
+                                tempMonth.month,
+                              );
                             });
                           },
                         ),
                         Text(
                           '${tempMonth.year}',
                           style: const TextStyle(
-                              fontSize: 18, fontWeight: FontWeight.bold),
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                          ),
                         ),
                         IconButton(
                           icon: const Icon(Icons.chevron_right),
                           onPressed: () {
                             setDialogState(() {
-                              tempMonth =
-                                  DateTime(tempMonth.year + 1, tempMonth.month);
+                              tempMonth = DateTime(
+                                tempMonth.year + 1,
+                                tempMonth.month,
+                              );
                             });
                           },
                         ),
@@ -348,11 +361,11 @@ class _MarkPaymentPageState extends State<MarkPaymentPage> {
                       physics: const NeverScrollableScrollPhysics(),
                       gridDelegate:
                           const SliverGridDelegateWithFixedCrossAxisCount(
-                        crossAxisCount: 3,
-                        childAspectRatio: 2,
-                        crossAxisSpacing: 8,
-                        mainAxisSpacing: 8,
-                      ),
+                            crossAxisCount: 3,
+                            childAspectRatio: 2,
+                            crossAxisSpacing: 8,
+                            mainAxisSpacing: 8,
+                          ),
                       itemCount: 12,
                       itemBuilder: (context, index) {
                         final month = index + 1;
@@ -369,7 +382,7 @@ class _MarkPaymentPageState extends State<MarkPaymentPage> {
                           'Sep',
                           'Oct',
                           'Nov',
-                          'Dec'
+                          'Dec',
                         ];
                         return GestureDetector(
                           onTap: () {
@@ -419,7 +432,8 @@ class _MarkPaymentPageState extends State<MarkPaymentPage> {
                     backgroundColor: AppColors.primary,
                     foregroundColor: Colors.white,
                     shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(8)),
+                      borderRadius: BorderRadius.circular(8),
+                    ),
                   ),
                   child: const Text('Confirm'),
                 ),
@@ -437,7 +451,8 @@ class _MarkPaymentPageState extends State<MarkPaymentPage> {
       final name = (student['student_full_name'] ?? '').toLowerCase();
       final isPaid = _paymentMap[studentId] ?? false;
 
-      final searchMatch = _searchController.text.isEmpty ||
+      final searchMatch =
+          _searchController.text.isEmpty ||
           name.contains(_searchController.text.toLowerCase());
 
       bool filterMatch = true;
@@ -472,7 +487,10 @@ class _MarkPaymentPageState extends State<MarkPaymentPage> {
         elevation: 0,
         centerTitle: true,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios_new, color: AppColors.textPrimary),
+          icon: const Icon(
+            Icons.arrow_back_ios_new,
+            color: AppColors.textPrimary,
+          ),
           onPressed: () => Navigator.pop(context),
         ),
       ),
@@ -487,7 +505,7 @@ class _MarkPaymentPageState extends State<MarkPaymentPage> {
                   const SizedBox(height: 20),
                   _buildCountStatsRow(),
                   const SizedBox(height: 20),
-          _buildTutorPaymentCard(),
+                  _buildTutorPaymentCard(),
                   const SizedBox(height: 30),
                   _buildSearchBar(),
                   const SizedBox(height: 16),
@@ -497,7 +515,6 @@ class _MarkPaymentPageState extends State<MarkPaymentPage> {
                   const SizedBox(height: 24),
                   _buildSaveButton(),
                   const SizedBox(height: 20),
-                
                 ],
               ),
             ),
@@ -604,7 +621,13 @@ class _MarkPaymentPageState extends State<MarkPaymentPage> {
     );
   }
 
-  Widget _buildStatCard(String label, String value, String desicription, IconData icon, Color color) {
+  Widget _buildStatCard(
+    String label,
+    String value,
+    String desicription,
+    IconData icon,
+    Color color,
+  ) {
     return Expanded(
       child: Container(
         padding: const EdgeInsets.all(14),
@@ -696,7 +719,8 @@ class _MarkPaymentPageState extends State<MarkPaymentPage> {
   }
 
   Widget _buildSelectAllRow() {
-    final allPaid = _filteredStudents.isNotEmpty &&
+    final allPaid =
+        _filteredStudents.isNotEmpty &&
         _filteredStudents.every(
           (s) => _paymentMap[s['student_id']?.toString()] == true,
         );
@@ -718,7 +742,10 @@ class _MarkPaymentPageState extends State<MarkPaymentPage> {
                 child: GestureDetector(
                   onTap: () => setState(() => _selectedFilter = filter),
                   child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 14,
+                      vertical: 6,
+                    ),
                     decoration: BoxDecoration(
                       color: isSelected ? AppColors.primary : Colors.white,
                       borderRadius: BorderRadius.circular(20),
@@ -731,8 +758,12 @@ class _MarkPaymentPageState extends State<MarkPaymentPage> {
                     child: Text(
                       filter,
                       style: TextStyle(
-                        color: isSelected ? Colors.white : AppColors.textSecondary,
-                        fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
+                        color: isSelected
+                            ? Colors.white
+                            : AppColors.textSecondary,
+                        fontWeight: isSelected
+                            ? FontWeight.w600
+                            : FontWeight.normal,
                         fontSize: 13,
                       ),
                     ),
@@ -769,7 +800,9 @@ class _MarkPaymentPageState extends State<MarkPaymentPage> {
                   color: allPaid ? AppColors.primary : Colors.white,
                   borderRadius: BorderRadius.circular(6),
                   border: Border.all(
-                    color: allPaid ? AppColors.primary : AppColors.textSecondary,
+                    color: allPaid
+                        ? AppColors.primary
+                        : AppColors.textSecondary,
                     width: 1.5,
                   ),
                 ),
@@ -871,7 +904,10 @@ class _MarkPaymentPageState extends State<MarkPaymentPage> {
                 final isEven = index % 2 == 0;
 
                 return Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 14,
+                    vertical: 12,
+                  ),
                   color: isEven
                       ? Colors.white
                       : AppColors.background.withOpacity(0.4),
@@ -945,8 +981,8 @@ class _MarkPaymentPageState extends State<MarkPaymentPage> {
                                 color: isExisting && isPaid
                                     ? Colors.green.withOpacity(0.4)
                                     : isPaid
-                                        ? Colors.green
-                                        : AppColors.textSecondary,
+                                    ? Colors.green
+                                    : AppColors.textSecondary,
                                 width: 1.5,
                               ),
                             ),
@@ -1021,9 +1057,7 @@ class _MarkPaymentPageState extends State<MarkPaymentPage> {
         color: Colors.white,
         borderRadius: BorderRadius.circular(20),
         border: Border.all(
-          color: isPaid
-              ? AppColors.success.withOpacity(0.4)
-              : AppColors.border,
+          color: isPaid ? AppColors.success.withOpacity(0.4) : AppColors.border,
         ),
         boxShadow: [
           BoxShadow(
@@ -1045,22 +1079,24 @@ class _MarkPaymentPageState extends State<MarkPaymentPage> {
                   color: AppColors.success.withOpacity(0.1),
                   borderRadius: BorderRadius.circular(10),
                 ),
-                child: const Icon(Icons.person_outline,
-                    color: AppColors.success, size: 18),
+                child: const Icon(
+                  Icons.person_outline,
+                  color: AppColors.success,
+                  size: 18,
+                ),
               ),
               const SizedBox(width: 10),
               const Text(
                 'Tutor Payment',
-                style: TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.w600,
-                ),
+                style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
               ),
               const Spacer(),
               if (isPaid)
                 Container(
                   padding: const EdgeInsets.symmetric(
-                      horizontal: 10, vertical: 4),
+                    horizontal: 10,
+                    vertical: 4,
+                  ),
                   decoration: BoxDecoration(
                     color: AppColors.success.withOpacity(0.1),
                     borderRadius: BorderRadius.circular(20),
@@ -1068,8 +1104,11 @@ class _MarkPaymentPageState extends State<MarkPaymentPage> {
                   child: const Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      Icon(Icons.check_circle,
-                          color: AppColors.success, size: 13),
+                      Icon(
+                        Icons.check_circle,
+                        color: AppColors.success,
+                        size: 13,
+                      ),
                       SizedBox(width: 4),
                       Text(
                         'Paid',
